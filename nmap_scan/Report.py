@@ -49,6 +49,7 @@ class Report:
         self.__start = None
         self.__startstr = None
         self.__version = None
+        self.__profile_name = None
         self.__xmloutputversion = None
         self.__scaninfos = []
         self.__targets = []
@@ -86,6 +87,9 @@ class Report:
     def get_xml_output_version(self):
         return self.__xmloutputversion
 
+    def get_profile_name(self):
+        return self.__profile_name
+
     def get_scaninfos(self):
         return self.__scaninfos
 
@@ -119,11 +123,12 @@ class Report:
     def __parse_xml(self):
         nmaprun = self.get_xml().attrib
         self.__scanner = nmaprun['scanner']
-        self.__scanner_args = nmaprun['args']
-        self.__start = int(nmaprun['start'])
-        self.__startstr = nmaprun['startstr']
+        self.__scanner_args = nmaprun.get('args', None)
+        self.__start = int(nmaprun['start']) if None != nmaprun.get('start', None) else None
+        self.__startstr = nmaprun.get('startstr', None)
         self.__version = nmaprun['version']
-        self.__xmloutputversion = nmaprun['xmloutputversion']
+        self.__xmloutputversion = nmaprun.get('xmloutputversion', None)
+        self.__profile_name = nmaprun.get('profile_name', None)
 
         verbose_xml = self.get_xml().find('verbose')
         if None != verbose_xml:
