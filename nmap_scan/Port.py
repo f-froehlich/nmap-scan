@@ -43,6 +43,7 @@ class Port:
         self.__protocol = None
         self.__port = None
         self.__state = None
+        self.__owner = None
         self.__service = None
         self.__scripts = []
         self.__parse_xml()
@@ -65,15 +66,20 @@ class Port:
     def get_scripts(self):
         return self.__scripts
 
+    def get_owner(self):
+        return self.__owner
+
     def __parse_xml(self):
         if None == self.__xml:
             raise LogicError('No valid xml is set.')
         logging.info('Parsing Port')
         attr = self.__xml.attrib
         self.__protocol = attr['protocol']
+        self.__owner = attr.get('owner', None)
         self.__port = int(attr['portid'])
         logging.debug('Port: "{port}"'.format(port=self.__port))
         logging.debug('Protocol: "{protocol}"'.format(protocol=self.__protocol))
+        logging.debug('Owner: "{owner}"'.format(owner=self.__owner))
         self.__state = State(self.__xml.find('state'))
         self.__service = Service(self.__xml.find('service'))
 
