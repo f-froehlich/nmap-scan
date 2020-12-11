@@ -34,19 +34,22 @@ from xml.etree.ElementTree import ParseError
 
 from _oald.exceptions import NmapNotInstalledError, NmapXMLParserError, NmapExecutionError
 from nmap_scan.Exceptions import NmapPasswordRequired
-from nmap_scan.NmapArgs import NmapArgs
 from nmap_scan.NmapScanMethods import NmapScanMethods
 from nmap_scan.Report import TCPReport
 
 
-class Scanner(NmapArgs, NmapScanMethods):
+class Scanner(NmapScanMethods):
 
-    def __init__(self):
-        NmapArgs.__init__(self)
+    def __init__(self, nmap_args):
         NmapScanMethods.__init__(self)
+        self.__nmap_args = nmap_args
         self.__output = {}
         self.__reports = {}
         self.__threads = {}
+        self.__has_error = {}
+
+    def get_nmap_args(self):
+        return self.__nmap_args
 
     @staticmethod
     def get_nmap_path():
@@ -80,9 +83,9 @@ class Scanner(NmapArgs, NmapScanMethods):
 
         logging.info('Perform {method} scan'.format(method=self.get_name_of_method(method)))
 
-        cmd = self.get_arg_list()
+        cmd = self.__nmap_args.get_arg_list()
         cmd.insert(0, self.get_nmap_path())
-        if self.require_root(method):
+        if self.require_root(method) or self.__nmap_args.require_root():
             cmd.insert(0, 'sudo')
 
         command = ' '.join(cmd)
@@ -106,6 +109,7 @@ class Scanner(NmapArgs, NmapScanMethods):
             else:
                 logging.error('Unknown error proceed during nmap call:')
                 logging.error(stderr)
+                self.__has_error[method] = stderr
                 raise NmapExecutionError(stderr)
 
         try:
@@ -126,6 +130,9 @@ class Scanner(NmapArgs, NmapScanMethods):
     def get_report(self, scan_method):
         if None != self.__reports.get(scan_method, None):
             return self.__reports.get(scan_method)
+
+        if None != self.__has_error.get(scan_method, None):
+            raise NmapExecutionError(self.__has_error.get(scan_method))
 
         if None != self.__threads.get(scan_method, None):
             logging.info('scan for "{method}" not finished yet. Waiting for Report'
@@ -156,7 +163,7 @@ class Scanner(NmapArgs, NmapScanMethods):
         if None != thread:
             logging.info('Waiting for scan "{method}" to finish'.format(method=self.get_name_of_method(method)))
             thread.join()
-            return self.__reports[method]
+            return self.get_report(method)
 
         logging.info('No scan for "{method}" initialised'.format(method=self.get_name_of_method(method)))
         return None
