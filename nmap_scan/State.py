@@ -38,6 +38,7 @@ class State:
         self.__state = None
         self.__reason = None
         self.__reason_ttl = None
+        self.__reason_ip = None
         self.__parse_xml()
 
     def get_xml(self):
@@ -52,6 +53,9 @@ class State:
     def get_reason_ttl(self):
         return self.__reason_ttl
 
+    def get_reason_ip(self):
+        return self.__reason_ip
+
     def __parse_xml(self):
         if None == self.__xml:
             raise LogicError('No valid xml is set.')
@@ -59,7 +63,9 @@ class State:
         attr = self.__xml.attrib
         self.__state = attr['state']
         self.__reason = attr['reason']
-        self.__reason_ttl = int(attr['reason_ttl'])
+        self.__reason_ttl = int(attr['reason_ttl']) if None != attr.get('reason_ttl', None) else None
+        self.__reason_ip = int(attr['reason_ip']) if None != attr.get('reason_ip', None) else None
         logging.debug('State: "{state}"'.format(state=self.__state))
         logging.debug('Reason: "{reason}"'.format(reason=self.__reason))
         logging.debug('Reason TTL: "{reason_ttl}"'.format(reason_ttl=self.__reason_ttl))
+        logging.debug('Reason IP: "{reason_ip}"'.format(reason_ip=self.__reason_ip))
