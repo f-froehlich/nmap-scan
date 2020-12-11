@@ -140,8 +140,8 @@ class Host:
             logging.debug('Smurf: "{smurf}"'.format(smurf=smurf_xml.attrib['responses']))
             self.__smurfs.append(smurf_xml.attrib['responses'])
         for distance_xml in self.__xml.findall('distance'):
-            logging.debug('Distance: "{distance}"'.format(distance=distance_xml.attrib['responses']))
-            self.__distances.append(int(distance_xml.attrib['responses']))
+            logging.debug('Distance: "{distance}"'.format(distance=distance_xml.attrib['value']))
+            self.__distances.append(int(distance_xml.attrib['value']))
 
         self.__status = Status(self.__xml.find('status'))
 
