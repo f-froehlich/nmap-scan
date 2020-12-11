@@ -44,7 +44,7 @@ class Report:
         self.__startstr = None
         self.__version = None
         self.__xmloutputversion = None
-        self.__scaninfo = None
+        self.__scaninfos = []
         self.__verbose_level = None
         self.__debugging_level = None
 
@@ -71,8 +71,8 @@ class Report:
     def get_xml_output_version(self):
         return self.__xmloutputversion
 
-    def get_scaninfo(self):
-        return self.__scaninfo
+    def get_scaninfos(self):
+        return self.__scaninfos
 
     def get_verbose_level(self):
         return self.__verbose_level
@@ -92,7 +92,8 @@ class Report:
         self.__verbose_level = int(self.get_xml().find('verbose').attrib['level'])
         self.__debugging_level = int(self.get_xml().find('debugging').attrib['level'])
 
-        self.__scaninfo = ScanInfo(self.get_xml().find('scaninfo'))
+        for scaninfo_xml in self.get_xml().findall('scaninfo'):
+            self.__scaninfos.append(ScanInfo(scaninfo_xml))
 
 
 class TCPReport(Report):

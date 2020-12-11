@@ -38,6 +38,7 @@ class ScanInfo:
         self.__xml = xml
         self.__type = None
         self.__protocol = None
+        self.__scan_flags = None
         self.__num_services = None
         self.__services = None
         self.__parse_xml()
@@ -57,6 +58,9 @@ class ScanInfo:
     def get_services(self):
         return self.__services
 
+    def get_scan_flags(self):
+        return self.__scan_flags
+
     def __parse_xml(self):
         if None == self.__xml:
             raise LogicError('No valid xml is set.')
@@ -66,8 +70,10 @@ class ScanInfo:
         self.__protocol = attr['protocol']
         self.__numservices = int(attr['numservices'])
         self.__services = attr['services']
+        self.__scan_flags = attr.get('scanflags', None)
 
         logging.debug('Type: "{value}"'.format(value=self.__type))
         logging.debug('Protocol: "{value}"'.format(value=self.__protocol))
         logging.debug('Number of Services: "{value}"'.format(value=self.__num_services))
         logging.debug('Services: "{value}"'.format(value=self.__services))
+        logging.debug('Scan flags: "{scanflags}"'.format(scanflags=self.__scan_flags))
