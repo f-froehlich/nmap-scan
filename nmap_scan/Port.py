@@ -31,6 +31,7 @@ import logging
 
 from nmap_scan.Exceptions import LogicError
 from nmap_scan.Scripts.SSLEnumCiphers import SSLEnumCiphers
+from nmap_scan.Scripts.UnknownScript import UnknownScript
 from nmap_scan.Service import Service
 from nmap_scan.State import State
 
@@ -79,4 +80,5 @@ class Port:
         for script_xml in self.__xml.findall('script'):
             if 'ssl-enum-ciphers' == script_xml.attrib['id']:
                 self.__scripts.append(SSLEnumCiphers(script_xml))
-            # todo other scripts
+            else:
+                self.__scripts.append(UnknownScript(script_xml))

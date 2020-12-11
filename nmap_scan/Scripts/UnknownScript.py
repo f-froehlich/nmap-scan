@@ -29,32 +29,39 @@
 
 import logging
 
+from nmap_scan.Element import Element
 from nmap_scan.Exceptions import LogicError
+from nmap_scan.Scripts.Script import Script
+from nmap_scan.Table import Table
 
 
-class Script:
+class UnknownScript(Script):
 
     def __init__(self, xml):
-        self.__xml = xml
-        self.__id = None
-        self.__output = None
+        Script.__init__(self, xml)
+        self.__tables = []
+        self.__elements = []
+        self.__data = []
         self.__parse_xml()
 
-    def get_xml(self):
-        return self.__xml
+    def get_elements(self):
+        return self.__elements
 
-    def get_id(self):
-        return self.__id
+    def get_tables(self):
+        return self.__tables
 
-    def get_output(self):
-        return self.__output
+    def get_data(self):
+        return self.__data
 
     def __parse_xml(self):
-        if None == self.__xml:
+        if None == self.get_xml():
             raise LogicError('No valid xml is set.')
-        logging.info('Parsing Script')
-        attr = self.__xml.attrib
-        self.__id = attr['id']
-        self.__output = attr['output']
-        logging.debug('ID: "{name}"'.format(name=self.__id))
-        logging.debug('Output: "{output}"'.format(output=self.__output))
+        logging.info('Parsing UnknownScript')
+
+        for xml in self.get_xml().getchildren():
+            if 'table' == xml.tag:
+                self.__tables.append(Table(xml))
+            elif 'elem' == xml.tag:
+                self.__elements.append(Element(xml))
+            else:
+                self.__data.append(xml)
