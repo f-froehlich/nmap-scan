@@ -55,7 +55,7 @@ class HostName:
 
         logging.info('Parsing HostName')
         attr = self.__xml.attrib
-        self.__name = attr['name']
-        self.__type = attr['type']
+        self.__name = attr.get('name', None)
+        self.__type = attr.get('type', None)
         logging.debug('Name: "{name}"'.format(name=self.__name))
         logging.debug('Type: "{type}"'.format(type=self.__type))
