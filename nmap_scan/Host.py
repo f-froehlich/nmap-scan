@@ -47,6 +47,7 @@ class Host:
         self.__os = None
         self.__addresses = []
         self.__ports = []
+        self.__extra_ports = []
         self.__hostnames = []
         self.__parse_xml()
 
@@ -67,6 +68,9 @@ class Host:
 
     def get_ports(self):
         return self.__ports
+
+    def get_extra_ports(self):
+        return self.__extra_ports
 
     def get_os(self):
         return self.__os
