@@ -30,17 +30,17 @@
 import logging
 
 from nmap_scan.Exceptions import LogicError
-from nmap_scan.HostAddress import HostAddress
-from nmap_scan.HostName import HostName
-from nmap_scan.IPIDSequence import IPIDSequence
+from nmap_scan.Host.HostAddress import HostAddress
+from nmap_scan.Host.HostName import HostName
+from nmap_scan.Host.Port import Port
 from nmap_scan.OS.OS import OS
-from nmap_scan.Port import Port
 from nmap_scan.Scripts.ScriptParser import parse
-from nmap_scan.Status import Status
-from nmap_scan.TCPSequence import TCPSequence
-from nmap_scan.TCPTSSequence import TCPTSSequence
+from nmap_scan.Sequence.IPIDSequence import IPIDSequence
+from nmap_scan.Sequence.TCPSequence import TCPSequence
+from nmap_scan.Sequence.TCPTSSequence import TCPTSSequence
+from nmap_scan.Stats.Status import Status
+from nmap_scan.Stats.Uptime import Uptime
 from nmap_scan.Trace import Trace
-from nmap_scan.Uptime import Uptime
 
 
 class Host:

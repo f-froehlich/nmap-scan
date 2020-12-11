@@ -26,42 +26,26 @@
 #  Checkout this project on github <https://github.com/f-froehlich/nmap-scan>
 #  and also my other projects <https://github.com/f-froehlich>
 
-
 import logging
 
-from nmap_scan.Data.Element import Element
-from nmap_scan.Data.Table import Table
 from nmap_scan.Exceptions import LogicError
-from nmap_scan.Scripts.Script import Script
+from nmap_scan.Stats.Status import Status
 
 
-class UnknownScript(Script):
+class State(Status):
 
     def __init__(self, xml):
-        Script.__init__(self, xml)
-        self.__tables = []
-        self.__elements = []
-        self.__data = []
+        Status.__init__(self, xml)
+        self.__reason_ip = None
         self.__parse_xml()
 
-    def get_elements(self):
-        return self.__elements
-
-    def get_tables(self):
-        return self.__tables
-
-    def get_data(self):
-        return self.__data
+    def get_reason_ip(self):
+        return self.__reason_ip
 
     def __parse_xml(self):
         if None == self.get_xml():
             raise LogicError('No valid xml is set.')
-        logging.info('Parsing UnknownScript')
-
-        for xml in self.get_xml().getchildren():
-            if 'table' == xml.tag:
-                self.__tables.append(Table(xml))
-            elif 'elem' == xml.tag:
-                self.__elements.append(Element(xml))
-            else:
-                self.__data.append(xml)
+        logging.info('Parsing State')
+        attr = self.get_xml().attrib
+        self.__reason_ip = int(attr['reason_ip']) if None != attr.get('reason_ip', None) else None
+        logging.debug('Reason IP: "{reason_ip}"'.format(reason_ip=self.__reason_ip))

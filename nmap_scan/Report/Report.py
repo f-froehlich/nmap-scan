@@ -30,14 +30,14 @@
 import logging
 
 from nmap_scan.Host import Host
-from nmap_scan.Output import Output
-from nmap_scan.RunStats import RunStats
-from nmap_scan.ScanInfo import ScanInfo
 from nmap_scan.Scripts.ScriptParser import parse
-from nmap_scan.Target import Target
-from nmap_scan.TaskBegin import TaskBegin
-from nmap_scan.TaskEnd import TaskEnd
-from nmap_scan.TaskProgress import TaskProgress
+from nmap_scan.Stats.Output import Output
+from nmap_scan.Stats.RunStats import RunStats
+from nmap_scan.Stats.ScanInfo import ScanInfo
+from nmap_scan.Stats.Target import Target
+from nmap_scan.Stats.TaskBegin import TaskBegin
+from nmap_scan.Stats.TaskEnd import TaskEnd
+from nmap_scan.Stats.TaskProgress import TaskProgress
 
 
 class Report:

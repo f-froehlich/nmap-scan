@@ -25,27 +25,3 @@
 #
 #  Checkout this project on github <https://github.com/f-froehlich/nmap-scan>
 #  and also my other projects <https://github.com/f-froehlich>
-
-import logging
-
-from nmap_scan.Exceptions import LogicError
-from nmap_scan.Status import Status
-
-
-class State(Status):
-
-    def __init__(self, xml):
-        Status.__init__(self, xml)
-        self.__reason_ip = None
-        self.__parse_xml()
-
-    def get_reason_ip(self):
-        return self.__reason_ip
-
-    def __parse_xml(self):
-        if None == self.get_xml():
-            raise LogicError('No valid xml is set.')
-        logging.info('Parsing State')
-        attr = self.get_xml().attrib
-        self.__reason_ip = int(attr['reason_ip']) if None != attr.get('reason_ip', None) else None
-        logging.debug('Reason IP: "{reason_ip}"'.format(reason_ip=self.__reason_ip))

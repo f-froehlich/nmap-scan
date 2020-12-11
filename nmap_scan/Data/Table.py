@@ -29,58 +29,38 @@
 
 import logging
 
+from nmap_scan.Data.Element import Element
 from nmap_scan.Exceptions import LogicError
-from nmap_scan.Scripts.ScriptParser import parse
-from nmap_scan.Service import Service
-from nmap_scan.State import State
 
 
-class Port:
+class Table:
 
     def __init__(self, xml):
         self.__xml = xml
-        self.__protocol = None
-        self.__port = None
-        self.__state = None
-        self.__owner = None
-        self.__service = None
-        self.__scripts = []
+        self.__key = None
+        self.__tables = []
+        self.__elements = []
         self.__parse_xml()
 
     def get_xml(self):
         return self.__xml
 
-    def get_protocol(self):
-        return self.__protocol
+    def get_elements(self):
+        return self.__elements
 
-    def get_port(self):
-        return self.__port
-
-    def get_state(self):
-        return self.__state
-
-    def get_service(self):
-        return self.__service
-
-    def get_scripts(self):
-        return self.__scripts
-
-    def get_owner(self):
-        return self.__owner
+    def get_tables(self):
+        return self.__tables
 
     def __parse_xml(self):
         if None == self.__xml:
             raise LogicError('No valid xml is set.')
-        logging.info('Parsing Port')
+        logging.info('Parsing Table')
         attr = self.__xml.attrib
-        self.__protocol = attr['protocol']
-        self.__owner = attr.get('owner', None)
-        self.__port = int(attr['portid'])
-        logging.debug('Port: "{port}"'.format(port=self.__port))
-        logging.debug('Protocol: "{protocol}"'.format(protocol=self.__protocol))
-        logging.debug('Owner: "{owner}"'.format(owner=self.__owner))
-        self.__state = State(self.__xml.find('state'))
-        self.__service = Service(self.__xml.find('service'))
+        self.__key = attr.get('key', None)
+        logging.debug('Key: "{key}"'.format(key=self.__key))
 
-        for script_xml in self.__xml.findall('script'):
-            self.__scripts.append(parse(script_xml))
+        for table_xml in self.__xml.findall('table'):
+            self.__tables.append(Table(table_xml))
+
+        for element_xml in self.__xml.findall('elem'):
+            self.__elements.append(Element(element_xml))

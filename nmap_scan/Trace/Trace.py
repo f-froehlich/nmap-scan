@@ -29,39 +29,41 @@
 
 import logging
 
-from nmap_scan.Data.Element import Element
-from nmap_scan.Data.Table import Table
 from nmap_scan.Exceptions import LogicError
-from nmap_scan.Scripts.Script import Script
+from nmap_scan.Trace.Hop import Hop
 
 
-class UnknownScript(Script):
+class Trace:
 
     def __init__(self, xml):
-        Script.__init__(self, xml)
-        self.__tables = []
-        self.__elements = []
-        self.__data = []
+        self.__xml = xml
+        self.__hops = []
+        self.__proto = None
+        self.__port = None
         self.__parse_xml()
 
-    def get_elements(self):
-        return self.__elements
+    def get_xml(self):
+        return self.__xml
 
-    def get_tables(self):
-        return self.__tables
+    def get_hops(self):
+        return self.__hops
 
-    def get_data(self):
-        return self.__data
+    def get_proto(self):
+        return self.__proto
+
+    def get_port(self):
+        return self.__port
 
     def __parse_xml(self):
-        if None == self.get_xml():
+        if None == self.__xml:
             raise LogicError('No valid xml is set.')
-        logging.info('Parsing UnknownScript')
+        logging.info('Parsing Trace')
+        attr = self.__xml.attrib
+        self.__port = int(attr['port']) if None != attr.get('port', None) else None
+        self.__proto = attr.get('port', None)
 
-        for xml in self.get_xml().getchildren():
-            if 'table' == xml.tag:
-                self.__tables.append(Table(xml))
-            elif 'elem' == xml.tag:
-                self.__elements.append(Element(xml))
-            else:
-                self.__data.append(xml)
+        logging.debug('Port: "{port}"'.format(port=self.__port))
+        logging.debug('Proto: "{proto}"'.format(proto=self.__proto))
+
+        for xml in self.__xml.findall('hop'):
+            self.__hops.append(Hop(xml))

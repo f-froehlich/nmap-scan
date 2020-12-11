@@ -29,39 +29,41 @@
 
 import logging
 
-from nmap_scan.Data.Element import Element
-from nmap_scan.Data.Table import Table
 from nmap_scan.Exceptions import LogicError
-from nmap_scan.Scripts.Script import Script
+from nmap_scan.Stats.ExtraReason import ExtraReason
 
 
-class UnknownScript(Script):
+class ExtraPort:
 
     def __init__(self, xml):
-        Script.__init__(self, xml)
-        self.__tables = []
-        self.__elements = []
-        self.__data = []
+        self.__xml = xml
+        self.__state = None
+        self.__count = None
+        self.__reasons = []
         self.__parse_xml()
 
-    def get_elements(self):
-        return self.__elements
+    def get_xml(self):
+        return self.__xml
 
-    def get_tables(self):
-        return self.__tables
+    def get_count(self):
+        return self.__count
 
-    def get_data(self):
-        return self.__data
+    def get_state(self):
+        return self.__state
+
+    def get_reasons(self):
+        return self.__reasons
 
     def __parse_xml(self):
-        if None == self.get_xml():
+        if None == self.__xml:
             raise LogicError('No valid xml is set.')
-        logging.info('Parsing UnknownScript')
+        logging.info('Parsing ExtraPort')
+        attr = self.__xml.attrib
+        self.__state = attr['state']
+        self.__count = int(attr['count'])
 
-        for xml in self.get_xml().getchildren():
-            if 'table' == xml.tag:
-                self.__tables.append(Table(xml))
-            elif 'elem' == xml.tag:
-                self.__elements.append(Element(xml))
-            else:
-                self.__data.append(xml)
+        logging.debug('State: "{state}"'.format(state=self.__state))
+        logging.debug('Count: "{count}"'.format(count=self.__count))
+
+        for reasons_xml in self.__xml.findall('extrareasons'):
+            self.__reasons.append(ExtraReason(reasons_xml))
