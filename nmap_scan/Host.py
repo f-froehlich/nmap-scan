@@ -32,7 +32,7 @@ import logging
 from nmap_scan.Exceptions import LogicError
 from nmap_scan.HostAddress import HostAddress
 from nmap_scan.HostName import HostName
-from nmap_scan.OS import OS
+from nmap_scan.OS.OS import OS
 from nmap_scan.Port import Port
 from nmap_scan.State import State
 
