@@ -29,9 +29,9 @@
 
 import logging
 
-from nmap_scan.Exceptions import LogicError
 from nmap_scan.Host import Host
 from nmap_scan.Output import Output
+from nmap_scan.RunStats import RunStats
 from nmap_scan.ScanInfo import ScanInfo
 from nmap_scan.Scripts.ScriptParser import parse
 from nmap_scan.Target import Target
@@ -60,6 +60,8 @@ class Report:
         self.__post_scripts = []
         self.__verbose_level = None
         self.__debugging_level = None
+        self.__run_stats = None
+        self.__hosts = []
 
         self.__parse_xml()
 
@@ -108,6 +110,12 @@ class Report:
     def get_task_ends(self):
         return self.__task_ends
 
+    def get_run_stats(self):
+        return self.__run_stats
+
+    def get_hosts(self):
+        return self.__hosts
+
     def __parse_xml(self):
         nmaprun = self.get_xml().attrib
         self.__scanner = nmaprun['scanner']
@@ -125,6 +133,10 @@ class Report:
         if None != debugging_xml:
             self.__debugging_level = int(debugging_xml.attrib['level']) if None != debugging_xml.attrib.get(
                 'level') else None
+
+        run_stats_xml = self.get_xml().find('runstats')
+        if None != run_stats_xml:
+            self.__run_stats = RunStats(run_stats_xml)
 
         for scaninfo_xml in self.get_xml().findall('scaninfo'):
             self.__scaninfos.append(ScanInfo(scaninfo_xml))
@@ -150,21 +162,12 @@ class Report:
         for script_xml in self.__xml.findall('postscript'):
             self.__post_scripts.append(parse(script_xml))
 
+        for host_xml in self.get_xml().findall('host'):
+            self.__hosts.append(Host(host_xml))
+
 
 class TCPReport(Report):
 
     def __init__(self, xml):
+        logging.info('Create TCP Report')
         Report.__init__(self, xml)
-        self.__hosts = []
-        self.__parse_xml()
-
-    def get_hosts(self):
-        return self.__hosts
-
-    def __parse_xml(self):
-        if None == self.get_xml():
-            raise LogicError('No valid xml is set.')
-        logging.info('Parsing TCP Report')
-
-        for host_xml in self.get_xml().findall('host'):
-            self.__hosts.append(Host(host_xml))
