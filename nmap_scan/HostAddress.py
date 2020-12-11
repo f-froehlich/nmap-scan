@@ -37,6 +37,7 @@ class HostAddress:
     def __init__(self, xml):
         self.__xml = xml
         self.__addr = None
+        self.__vendor = None
         self.__type = None
         self.__parse_xml()
 
@@ -49,6 +50,9 @@ class HostAddress:
     def get_type(self):
         return self.__type
 
+    def get_vendor(self):
+        return self.__vendor
+
     def __parse_xml(self):
         if None == self.__xml:
             raise LogicError('No valid xml is set.')
@@ -57,5 +61,7 @@ class HostAddress:
         attr = self.__xml.attrib
         self.__addr = attr['addr']
         self.__type = attr['addrtype']
+        self.__vendor = attr.get('addrtype', None)
         logging.debug('Address: "{addr}"'.format(addr=self.__addr))
         logging.debug('Type: "{type}"'.format(type=self.__type))
+        logging.debug('Vendor: "{vendor}"'.format(vendor=self.__vendor))
