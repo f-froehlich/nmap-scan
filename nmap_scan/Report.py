@@ -31,7 +31,13 @@ import logging
 
 from nmap_scan.Exceptions import LogicError
 from nmap_scan.Host import Host
+from nmap_scan.Output import Output
 from nmap_scan.ScanInfo import ScanInfo
+from nmap_scan.Scripts.ScriptParser import parse
+from nmap_scan.Target import Target
+from nmap_scan.TaskBegin import TaskBegin
+from nmap_scan.TaskEnd import TaskEnd
+from nmap_scan.TaskProgress import TaskProgress
 
 
 class Report:
@@ -45,6 +51,13 @@ class Report:
         self.__version = None
         self.__xmloutputversion = None
         self.__scaninfos = []
+        self.__targets = []
+        self.__outputs = []
+        self.__task_progresses = []
+        self.__task_begins = []
+        self.__task_ends = []
+        self.__pre_scripts = []
+        self.__post_scripts = []
         self.__verbose_level = None
         self.__debugging_level = None
 
@@ -80,6 +93,21 @@ class Report:
     def get_debugging_level(self):
         return self.__debugging_level
 
+    def get_targets(self):
+        return self.__targets
+
+    def get_outputs(self):
+        return self.__outputs
+
+    def get_task_progresses(self):
+        return self.__task_progresses
+
+    def get_task_begins(self):
+        return self.__task_begins
+
+    def get_task_ends(self):
+        return self.__task_ends
+
     def __parse_xml(self):
         nmaprun = self.get_xml().attrib
         self.__scanner = nmaprun['scanner']
@@ -89,11 +117,38 @@ class Report:
         self.__version = nmaprun['version']
         self.__xmloutputversion = nmaprun['xmloutputversion']
 
-        self.__verbose_level = int(self.get_xml().find('verbose').attrib['level'])
-        self.__debugging_level = int(self.get_xml().find('debugging').attrib['level'])
+        verbose_xml = self.get_xml().find('verbose')
+        if None != verbose_xml:
+            self.__verbose_level = int(verbose_xml.attrib['level']) if None != verbose_xml.attrib.get('level') else None
+
+        debugging_xml = self.get_xml().find('debugging')
+        if None != debugging_xml:
+            self.__debugging_level = int(debugging_xml.attrib['level']) if None != debugging_xml.attrib.get(
+                'level') else None
 
         for scaninfo_xml in self.get_xml().findall('scaninfo'):
             self.__scaninfos.append(ScanInfo(scaninfo_xml))
+
+        for target_xml in self.__xml.findall('target'):
+            self.__targets.append(Target(target_xml))
+
+        for output_xml in self.__xml.findall('output'):
+            self.__outputs.append(Output(output_xml))
+
+        for task_progress_xml in self.__xml.findall('taskprogress'):
+            self.__task_progresses.append(TaskProgress(task_progress_xml))
+
+        for task_begin_xml in self.__xml.findall('taskbegin'):
+            self.__task_begins.append(TaskBegin(task_begin_xml))
+
+        for task_end_xml in self.__xml.findall('taskend'):
+            self.__task_ends.append(TaskEnd(task_end_xml))
+
+        for script_xml in self.__xml.findall('prescript'):
+            self.__pre_scripts.append(parse(script_xml))
+
+        for script_xml in self.__xml.findall('postscript'):
+            self.__post_scripts.append(parse(script_xml))
 
 
 class TCPReport(Report):
