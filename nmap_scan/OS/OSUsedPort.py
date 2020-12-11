@@ -25,3 +25,44 @@
 #
 #  Checkout this project on github <https://github.com/f-froehlich/nmap-scan>
 #  and also my other projects <https://github.com/f-froehlich>
+
+
+import logging
+
+from nmap_scan.Exceptions import LogicError
+
+
+class OSUsedPort:
+
+    def __init__(self, xml):
+        self.__xml = xml
+        self.__state = None
+        self.__proto = None
+        self.__port = None
+        self.__parse_xml()
+
+    def get_xml(self):
+        return self.__xml
+
+    def get_port(self):
+        return self.__port
+
+    def get_proto(self):
+        return self.__proto
+
+    def get_state(self):
+        return self.__state
+
+    def __parse_xml(self):
+        if None == self.__xml:
+            raise LogicError('No valid xml is set.')
+        logging.info('Parsing OSUsedPort')
+
+        attr = self.__xml.attrib
+        self.__state = attr['state']
+        self.__proto = attr['proto']
+        self.__port = int(attr['portid'])
+
+        logging.debug('State: "{state}"'.format(state=self.__state))
+        logging.debug('Proto: "{proto}"'.format(proto=self.__proto))
+        logging.debug('Port: "{port}"'.format(port=self.__port))

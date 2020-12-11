@@ -265,7 +265,7 @@ class NmapArgs:
             args.append('-O')
 
         if self.__os_guess:
-            args.append('--osscan-guess:')
+            args.append('--osscan-guess')
 
         if self.__ipv6_scan:
             args.append('-6')

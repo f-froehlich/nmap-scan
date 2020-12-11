@@ -32,6 +32,7 @@ import logging
 from nmap_scan.Exceptions import LogicError
 from nmap_scan.HostAddress import HostAddress
 from nmap_scan.HostName import HostName
+from nmap_scan.OS import OS
 from nmap_scan.Port import Port
 from nmap_scan.State import State
 
@@ -43,6 +44,7 @@ class Host:
         self.__start_time = None
         self.__end_time = None
         self.__state = None
+        self.__os = None
         self.__addresses = []
         self.__ports = []
         self.__hostnames = []
@@ -65,6 +67,9 @@ class Host:
 
     def get_ports(self):
         return self.__ports
+
+    def get_os(self):
+        return self.__os
 
     def get_hostnames(self):
         return self.__hostnames
@@ -90,3 +95,7 @@ class Host:
         if ports_xml != None:
             for port_xml in ports_xml.findall('port'):
                 self.__ports.append(Port(port_xml))
+
+        os_xml = self.__xml.find('os')
+        if os_xml != None:
+            self.__os = OS(os_xml)
