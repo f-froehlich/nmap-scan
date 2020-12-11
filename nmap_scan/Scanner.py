@@ -35,7 +35,7 @@ from xml.etree.ElementTree import ParseError
 from _oald.exceptions import NmapNotInstalledError, NmapXMLParserError, NmapExecutionError
 from nmap_scan.Exceptions import NmapPasswordRequired
 from nmap_scan.NmapScanMethods import NmapScanMethods
-from nmap_scan.Report import TCPReport
+from nmap_scan.Report.TCPReport import TCPReport
 
 
 class Scanner(NmapScanMethods):

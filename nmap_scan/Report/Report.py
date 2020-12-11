@@ -27,8 +27,6 @@
 #  and also my other projects <https://github.com/f-froehlich>
 
 
-import logging
-
 from nmap_scan.Host import Host
 from nmap_scan.Scripts.ScriptParser import parse
 from nmap_scan.Stats.Output import Output
@@ -169,10 +167,3 @@ class Report:
 
         for host_xml in self.get_xml().findall('host'):
             self.__hosts.append(Host(host_xml))
-
-
-class TCPReport(Report):
-
-    def __init__(self, xml):
-        logging.info('Create TCP Report')
-        Report.__init__(self, xml)
