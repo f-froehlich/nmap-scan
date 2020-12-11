@@ -29,23 +29,37 @@
 import logging
 
 from nmap_scan.Exceptions import LogicError
-from nmap_scan.Status import Status
 
 
-class State(Status):
+class Status:
 
     def __init__(self, xml):
-        State.__init__(self, xml)
-        self.__reason_ip = None
+        self.__xml = xml
+        self.__state = None
+        self.__reason = None
+        self.__reason_ttl = None
         self.__parse_xml()
 
-    def get_reason_ip(self):
-        return self.__reason_ip
+    def get_xml(self):
+        return self.__xml
+
+    def get_state(self):
+        return self.__state
+
+    def get_reason(self):
+        return self.__reason
+
+    def get_reason_ttl(self):
+        return self.__reason_ttl
 
     def __parse_xml(self):
         if None == self.__xml:
             raise LogicError('No valid xml is set.')
-        logging.info('Parsing State')
+        logging.info('Parsing Status')
         attr = self.__xml.attrib
-        self.__reason_ip = int(attr['reason_ip']) if None != attr.get('reason_ip', None) else None
-        logging.debug('Reason IP: "{reason_ip}"'.format(reason_ip=self.__reason_ip))
+        self.__state = attr['state']
+        self.__reason = attr['reason']
+        self.__reason_ttl = int(attr['reason_ttl']) if None != attr.get('reason_ttl', None) else None
+        logging.debug('State: "{state}"'.format(state=self.__state))
+        logging.debug('Reason: "{reason}"'.format(reason=self.__reason))
+        logging.debug('Reason TTL: "{reason_ttl}"'.format(reason_ttl=self.__reason_ttl))

@@ -34,7 +34,7 @@ from nmap_scan.HostAddress import HostAddress
 from nmap_scan.HostName import HostName
 from nmap_scan.OS.OS import OS
 from nmap_scan.Port import Port
-from nmap_scan.State import State
+from nmap_scan.Status import Status
 
 
 class Host:
@@ -43,7 +43,7 @@ class Host:
         self.__xml = xml
         self.__start_time = None
         self.__end_time = None
-        self.__state = None
+        self.__status = None
         self.__os = None
         self.__addresses = []
         self.__ports = []
@@ -60,8 +60,8 @@ class Host:
     def get_end_time(self):
         return self.__end_time
 
-    def get_state(self):
-        return self.__state
+    def get_status(self):
+        return self.__status
 
     def get_addresses(self):
         return self.__addresses
@@ -85,7 +85,7 @@ class Host:
         attr = self.__xml.attrib
         self.__start_time = int(attr['starttime'])
         self.__end_time = int(attr['endtime'])
-        self.__state = State(self.__xml.find('status'))
+        self.__status = Status(self.__xml.find('status'))
 
         for addresses_xml in self.__xml.findall('address'):
             self.__addresses.append(HostAddress(addresses_xml))
