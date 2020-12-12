@@ -44,7 +44,7 @@ class Port:
         self.__state = None
         self.__owner = None
         self.__service = None
-        self.__scripts = []
+        self.__scripts = {}
         self.__parse_xml()
 
     def get_xml(self):
@@ -68,6 +68,42 @@ class Port:
     def get_owner(self):
         return self.__owner
 
+    def is_open(self):
+        return 'open' in self.__state
+
+    def is_filtered(self):
+        return 'filtered' in self.__state
+
+    def is_open_filtered(self):
+        return self.is_open() and self.is_filtered()
+
+    def is_unfiltered(self):
+        return 'unfiltered' in self.__state
+
+    def is_closed(self):
+        return 'closed' in self.__state
+
+    def is_closed_filtered(self):
+        return self.is_closed() and self.is_filtered()
+
+    def has_script(self, script_id):
+        return None != self.__scripts.get(script_id, None)
+
+    def get_script(self, script_id):
+        return self.__scripts.get(script_id, None)
+
+    def is_ip_protocol(self):
+        return 'ip' == self.__protocol
+
+    def is_sctp_protocol(self):
+        return 'sctp' == self.__protocol
+
+    def is_tcp_protocol(self):
+        return 'tcp' == self.__protocol
+
+    def is_udp_protocol(self):
+        return 'udp' == self.__protocol
+
     def __parse_xml(self):
         if None == self.__xml:
             raise LogicException('No valid xml is set.')
@@ -83,4 +119,11 @@ class Port:
         self.__service = Service(self.__xml.find('service'))
 
         for script_xml in self.__xml.findall('script'):
-            self.__scripts.append(parse(script_xml))
+            script = parse(script_xml)
+            existing_script = self.__scripts.get(script.get_id(), None)
+            if None == existing_script:
+                self.__scripts[script.get_id()] = script
+            elif isinstance(existing_script, list):
+                self.__scripts[script.get_id()].append(script)
+            else:
+                self.__scripts[script.get_id()] = [existing_script, script]
