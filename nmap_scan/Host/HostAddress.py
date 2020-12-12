@@ -53,6 +53,15 @@ class HostAddress:
     def get_vendor(self):
         return self.__vendor
 
+    def is_ipv4(self):
+        return 'ipv4' == self.__type
+
+    def is_ipv6(self):
+        return 'ipv6' == self.__type
+
+    def is_mac(self):
+        return 'mac' == self.__type
+
     def __parse_xml(self):
         if None == self.__xml:
             raise LogicException('No valid xml is set.')

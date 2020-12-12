@@ -40,7 +40,7 @@ from nmap_scan.Sequence.TCPSequence import TCPSequence
 from nmap_scan.Sequence.TCPTSSequence import TCPTSSequence
 from nmap_scan.Stats.Status import Status
 from nmap_scan.Stats.Uptime import Uptime
-from nmap_scan.Trace import Trace
+from nmap_scan.Trace.Trace import Trace
 
 
 class Host:
@@ -55,7 +55,7 @@ class Host:
         self.__addresses = []
         self.__uptimes = []
         self.__smurfs = []
-        self.__hostscripts = []
+        self.__hostscripts = {}
         self.__times = []
         self.__traces = []
         self.__distances = []
@@ -63,6 +63,10 @@ class Host:
         self.__tcptssequences = []
         self.__ipidsequences = []
         self.__ports = []
+        self.__open_ports = None
+        self.__closed_ports = None
+        self.__filtered_ports = None
+        self.__unfiltered_ports = None
         self.__extra_ports = []
         self.__hostnames = []
         self.__parse_xml()
@@ -84,6 +88,30 @@ class Host:
 
     def get_addresses(self):
         return self.__addresses
+
+    def has_ipv4(self, ip):
+        for address in self.__addresses:
+            if address.is_ipv4() and ip == address.get_addr():
+                return True
+        return False
+
+    def has_ipv6(self, ip):
+        for address in self.__addresses:
+            if address.is_ipv6() and ip == address.get_addr():
+                return True
+        return False
+
+    def has_ip(self, ip):
+        for address in self.__addresses:
+            if (address.is_ipv4() or address.is_ipv6()) and ip == address.get_addr():
+                return True
+        return False
+
+    def has_mac(self, ip):
+        for address in self.__addresses:
+            if address.is_mac() and ip == address.get_addr():
+                return True
+        return False
 
     def get_ports(self):
         return self.__ports
@@ -124,6 +152,107 @@ class Host:
     def get_hostnames(self):
         return self.__hostnames
 
+    def get_open_ports(self):
+        if None == self.__open_ports:
+            self.__open_ports = [p for p in self.__ports if p.is_open()]
+        return self.__open_ports
+
+    def get_closed_ports(self):
+        if None == self.__closed_ports:
+            self.__closed_ports = [p for p in self.__ports if p.is_closed()]
+        return self.__closed_ports
+
+    def get_filtered_ports(self):
+        if None == self.__filtered_ports:
+            self.__filtered_ports = [p for p in self.__ports if p.is_filtered()]
+        return self.__filtered_ports
+
+    def get_unfiltered_ports(self):
+        if None == self.__unfiltered_ports:
+            self.__unfiltered_ports = [p for p in self.__ports if p.is_unfiltered()]
+        return self.__unfiltered_ports
+
+    def get_ports_with_id(self, port_ids):
+        return self.__get_ports_with_id(port_ids, self.__ports)
+
+    def get_open_ports_with_id(self, port_ids):
+        return self.__get_ports_with_id(port_ids, self.get_open_ports())
+
+    def get_closed_ports_with_id(self, port_ids):
+        return self.__get_ports_with_id(port_ids, self.get_closed_ports())
+
+    def get_filtered_ports_with_id(self, port_ids):
+        return self.__get_ports_with_id(port_ids, self.get_filtered_ports())
+
+    def get_unfiltered_ports_with_id(self, port_ids):
+        return self.__get_ports_with_id(port_ids, self.get_unfiltered_ports())
+
+    def __get_ports_with_id(self, port_ids, search_ports):
+        ports = []
+        for port in search_ports:
+            if port.get_port() in port_ids:
+                ports.append(port)
+
+        return ports
+
+    def get_ports_with_script(self, script_id):
+        return self.get_ports_with_scripts(script_id)
+
+    def get_ports_with_scripts(self, script_ids):
+        return self.__get_ports_with_scripts(script_ids, self.__ports)
+
+    def get_open_ports_with_script(self, script_id):
+        return self.get_open_ports_with_scripts(script_id)
+
+    def get_open_ports_with_scripts(self, script_ids):
+        return self.__get_ports_with_scripts(script_ids, self.get_open_ports())
+
+    def get_closed_ports_with_script(self, script_id):
+        return self.get_closed_ports_with_scripts(script_id)
+
+    def get_closed_ports_with_scripts(self, script_ids):
+        return self.__get_ports_with_scripts(script_ids, self.get_closed_ports())
+
+    def get_filtered_ports_with_script(self, script_id):
+        return self.get_filtered_ports_with_scripts(script_id)
+
+    def get_filtered_ports_with_scripts(self, script_ids):
+        return self.__get_ports_with_scripts(script_ids, self.get_filtered_ports())
+
+    def get_unfiltered_ports_with_script(self, script_id):
+        return self.get_unfiltered_ports_with_scripts(script_id)
+
+    def get_unfiltered_ports_with_scripts(self, script_ids):
+        return self.__get_ports_with_scripts(script_ids, self.get_unfiltered_ports())
+
+    def __get_ports_with_scripts(self, script_ids, search_ports):
+        ports = []
+        for port in search_ports:
+            for script_id in script_ids:
+                if port.has_script(script_id):
+                    ports.append(port)
+                    break
+
+        return ports
+
+    def has_hostscript(self, script_id):
+        return None != self.__hostscripts.get(script_id, None)
+
+    def get_hostscript(self, script_id):
+        return self.__hostscripts.get(script_id, None)
+
+    def is_up(self):
+        return 'up' == self.__status.get_state()
+
+    def is_down(self):
+        return 'down' == self.__status.get_state()
+
+    def is_unknown(self):
+        return 'unknown' == self.__status.get_state()
+
+    def is_skipped(self):
+        return 'skipped' == self.__status.get_state()
+
     def __parse_xml(self):
         if None == self.__xml:
             raise LogicException('No valid xml is set.')
@@ -160,7 +289,15 @@ class Host:
 
         for hostscript_xml in self.__xml.findall('hostscript'):
             for script_xml in hostscript_xml.findall('script'):
-                self.__hostscripts.append(parse(script_xml))
+                script = parse(script_xml)
+                existing_script = self.__hostscripts.get(script.get_id(), None)
+                if None == existing_script:
+                    self.__hostscripts[script.get_id()] = script
+                elif isinstance(existing_script, list):
+                    self.__hostscripts[script.get_id()].append(script)
+                else:
+                    self.__hostscripts[script.get_id()] = [existing_script, script]
+
         for time_xml in self.__xml.findall('time'):
             self.__times.append(time_xml.attrib['responses'])
         for trace_xml in self.__xml.findall('trace'):
