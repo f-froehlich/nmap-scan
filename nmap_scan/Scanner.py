@@ -79,7 +79,7 @@ class Scanner(NmapScanMethods):
 
         return executable
 
-    def __run(self, method):
+    def __run(self, method, callback_method=None):
         if None != self.__output.get(method, None):
             logging.info('Scan already executed, return scan output')
             return self.__reports.get(method)
@@ -87,6 +87,8 @@ class Scanner(NmapScanMethods):
         logging.info('Perform {method} scan'.format(method=self.get_name_of_method(method)))
 
         cmd = self.__nmap_args.get_arg_list()
+        if self.TCP != method:
+            cmd.insert(0, method)
         cmd.insert(0, self.get_nmap_path())
         if self.require_root(method) or self.__nmap_args.require_root():
             cmd.insert(0, 'sudo')
@@ -94,17 +96,15 @@ class Scanner(NmapScanMethods):
         command = ' '.join(cmd)
         logging.info('Run command "' + command + '"')
 
-        out = subprocess.Popen(cmd,
-                               stdout=subprocess.PIPE,
-                               stderr=subprocess.PIPE)
-        stdout, stderr = out.communicate()
-        logging.debug('Command exit with exit code: "{exitcode}"'.format(exitcode=str(out.returncode)))
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        stdout, stderr = proc.communicate()
+        logging.debug('Command exit with exit code: "{exitcode}"'.format(exitcode=str(proc.returncode)))
 
         stdout = stdout.decode("utf-8")
         stderr = stderr.decode("utf-8")
         logging.debug('stdout: "{stdout}"'.format(stdout=stdout))
         logging.debug('stderr: "{stderr}"'.format(stderr=stderr))
-        if 0 != out.returncode:
+        if 0 != proc.returncode:
             if 'a password is required' in stderr:
                 logging.error('Can\'t run sudo without password')
 
@@ -128,6 +128,10 @@ class Scanner(NmapScanMethods):
 
             self.__reports[method] = report
 
+            if callable(callback_method):
+                logging.info('Call callback method for {scan} scan.'.format(scan=self.get_name_of_method(method)))
+                callback_method(report, method)
+
             return report
         except ParseError:
             raise NmapXMLParserException()
@@ -147,17 +151,17 @@ class Scanner(NmapScanMethods):
         logging.info('No scan for "{method}" initialised'.format(method=self.get_name_of_method(scan_method)))
         return None
 
-    def scan(self, scan_method):
-        self.scan_background(scan_method)
+    def scan(self, scan_method, callback_method=None):
+        self.scan_background(scan_method, callback_method)
         return self.wait(scan_method)
 
-    def scan_background(self, scan_method):
+    def scan_background(self, scan_method, callback_method=None):
 
         if None != self.__threads.get(scan_method, None):
             return self.__threads.get(scan_method)
 
         logging.info('Starting thread')
-        thread = threading.Thread(target=self.__run, args=(scan_method,))
+        thread = threading.Thread(target=self.__run, args=(scan_method, callback_method,))
         self.__threads[scan_method] = thread
         thread.start()
         return thread
@@ -179,14 +183,26 @@ class Scanner(NmapScanMethods):
             logging.info('Waiting for scan "{method}" to finish'.format(method=self.get_name_of_method(thread_method)))
             self.__threads[thread_method].join()
 
-    def scan_tcp(self):
-        return self.scan(NmapScanMethods.TCP)
+    def scan_tcp(self, callback_method=None):
+        return self.scan(NmapScanMethods.TCP, callback_method)
 
-    def scan_tcp_background(self):
-        return self.scan_background(NmapScanMethods.TCP)
+    def scan_tcp_background(self, callback_method=None):
+        return self.scan_background(NmapScanMethods.TCP, callback_method)
 
-    def scan_udp(self):
-        return self.scan(NmapScanMethods.UDP)
+    def scan_udp(self, callback_method=None):
+        return self.scan(NmapScanMethods.UDP, callback_method)
 
-    def scan_udp_background(self):
-        return self.scan_background(NmapScanMethods.UDP)
+    def scan_udp_background(self, callback_method=None):
+        return self.scan_background(NmapScanMethods.UDP, callback_method)
+
+    def scan_syn(self, callback_method=None):
+        return self.scan(NmapScanMethods.SYN, callback_method)
+
+    def scan_syn_background(self, callback_method=None):
+        return self.scan_background(NmapScanMethods.SYN, callback_method)
+
+    def scan_ping(self, callback_method=None):
+        return self.scan(NmapScanMethods.PING, callback_method)
+
+    def scan_ping_background(self, callback_method=None):
+        return self.scan_background(NmapScanMethods.PING, callback_method)
