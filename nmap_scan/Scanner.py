@@ -44,6 +44,7 @@ from nmap_scan.Report.PingReport import PingReport
 from nmap_scan.Report.SynReport import SynReport
 from nmap_scan.Report.TCPReport import TCPReport
 from nmap_scan.Report.UDPReport import UDPReport
+from nmap_scan.Report.WindowReport import WindowReport
 
 
 class Scanner(NmapScanMethods):
@@ -136,6 +137,8 @@ class Scanner(NmapScanMethods):
                 report = ConnectReport(xml)
             elif self.ACK == method:
                 report = ACKReport(xml)
+            elif self.WINDOW == method:
+                report = WindowReport(xml)
             else:
                 raise LogicException('No report for scan method "{method}" found')
 
@@ -233,3 +236,9 @@ class Scanner(NmapScanMethods):
 
     def scan_ack_background(self, callback_method=None):
         return self.scan_background(NmapScanMethods.ACK, callback_method)
+
+    def scan_window(self, callbwindow_method=None):
+        return self.scan(NmapScanMethods.WINDOW, callbwindow_method)
+
+    def scan_window_background(self, callbwindow_method=None):
+        return self.scan_background(NmapScanMethods.WINDOW, callbwindow_method)
