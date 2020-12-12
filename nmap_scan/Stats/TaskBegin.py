@@ -29,7 +29,7 @@
 
 import logging
 
-from nmap_scan.Exceptions import LogicError
+from nmap_scan.Exceptions.LogicException import LogicException
 
 
 class TaskBegin:
@@ -55,7 +55,7 @@ class TaskBegin:
 
     def __parse_xml(self):
         if None == self.__xml:
-            raise LogicError('No valid xml is set.')
+            raise LogicException('No valid xml is set.')
         logging.info('Parsing TaskBegin')
         attr = self.__xml.attrib
         self.__task = attr['task']

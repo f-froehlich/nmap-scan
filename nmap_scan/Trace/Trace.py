@@ -29,7 +29,7 @@
 
 import logging
 
-from nmap_scan.Exceptions import LogicError
+from nmap_scan.Exceptions.LogicException import LogicException
 from nmap_scan.Trace.Hop import Hop
 
 
@@ -56,7 +56,7 @@ class Trace:
 
     def __parse_xml(self):
         if None == self.__xml:
-            raise LogicError('No valid xml is set.')
+            raise LogicException('No valid xml is set.')
         logging.info('Parsing Trace')
         attr = self.__xml.attrib
         self.__port = int(attr['port']) if None != attr.get('port', None) else None

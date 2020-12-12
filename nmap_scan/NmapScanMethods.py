@@ -27,7 +27,7 @@
 #  and also my other projects <https://github.com/f-froehlich>
 
 
-from nmap_scan.Exceptions import NmapScanMethodUnknown
+from nmap_scan.Exceptions.NmapScanMethodUnknownException import NmapScanMethodUnknownException
 
 
 class NmapScanMethods:
@@ -46,7 +46,7 @@ class NmapScanMethods:
         elif self.PING == method:
             return 'PING'
 
-        raise NmapScanMethodUnknown('Unknown scan method "{method}" detected'.format(method=method))
+        raise NmapScanMethodUnknownException('Unknown scan method "{method}" detected'.format(method=method))
 
     def require_root(self, method):
 

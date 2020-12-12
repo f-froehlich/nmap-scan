@@ -29,7 +29,7 @@
 
 import logging
 
-from nmap_scan.Exceptions import LogicError
+from nmap_scan.Exceptions.LogicException import LogicException
 from nmap_scan.Host.HostAddress import HostAddress
 from nmap_scan.Host.HostName import HostName
 from nmap_scan.Host.Port import Port
@@ -126,7 +126,7 @@ class Host:
 
     def __parse_xml(self):
         if None == self.__xml:
-            raise LogicError('No valid xml is set.')
+            raise LogicException('No valid xml is set.')
         logging.info('Parsing Host')
         attr = self.__xml.attrib
         self.__start_time = int(attr['starttime']) if None != attr.get('starttime', None) else None

@@ -31,7 +31,7 @@ import logging
 
 from nmap_scan.Data.Element import Element
 from nmap_scan.Data.Table import Table
-from nmap_scan.Exceptions import LogicError
+from nmap_scan.Exceptions.LogicException import LogicException
 from nmap_scan.Scripts.Script import Script
 
 
@@ -55,7 +55,7 @@ class UnknownScript(Script):
 
     def __parse_xml(self):
         if None == self.get_xml():
-            raise LogicError('No valid xml is set.')
+            raise LogicException('No valid xml is set.')
         logging.info('Parsing UnknownScript')
 
         for xml in self.get_xml().getchildren():

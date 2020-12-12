@@ -27,7 +27,7 @@
 #  and also my other projects <https://github.com/f-froehlich>
 
 
-from nmap_scan.Host import Host
+from nmap_scan.Host.Host import Host
 from nmap_scan.Scripts.ScriptParser import parse
 from nmap_scan.Stats.Output import Output
 from nmap_scan.Stats.RunStats import RunStats
@@ -159,11 +159,13 @@ class Report:
         for task_end_xml in self.__xml.findall('taskend'):
             self.__task_ends.append(TaskEnd(task_end_xml))
 
-        for script_xml in self.__xml.findall('prescript'):
-            self.__pre_scripts.append(parse(script_xml))
+        for prescript_xml in self.__xml.findall('prescript'):
+            for script_xml in prescript_xml.finfall('script'):
+                self.__pre_scripts.append(parse(script_xml))
 
-        for script_xml in self.__xml.findall('postscript'):
-            self.__post_scripts.append(parse(script_xml))
+        for postscript_xml in self.__xml.findall('postscript'):
+            for script_xml in postscript_xml.findall('script'):
+                self.__post_scripts.append(parse(script_xml))
 
         for host_xml in self.get_xml().findall('host'):
             self.__hosts.append(Host(host_xml))

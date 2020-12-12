@@ -29,7 +29,7 @@
 
 import logging
 
-from nmap_scan.Exceptions import LogicError
+from nmap_scan.Exceptions.LogicException import LogicException
 
 
 class Output:
@@ -51,7 +51,7 @@ class Output:
 
     def __parse_xml(self):
         if None == self.__xml:
-            raise LogicError('No valid xml is set.')
+            raise LogicException('No valid xml is set.')
         logging.info('Parsing Output')
         attr = self.__xml.attrib
         self.__type = attr.get('type', None)

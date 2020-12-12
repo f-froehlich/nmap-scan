@@ -27,7 +27,7 @@ import argparse
 #
 #  Checkout this project on github <https://github.com/f-froehlich/nmap-scan>
 #  and also my other projects <https://github.com/f-froehlich>
-from nmap_scan.Exceptions import LogicError
+from nmap_scan.Exceptions.LogicException import LogicException
 
 
 class NmapArgs:
@@ -318,7 +318,7 @@ class NmapArgs:
             args.append('-n')
 
         if 0 == len(self.__hosts):
-            raise LogicError('Can\'t scan a target without set one.')
+            raise LogicException('Can\'t scan a target without set one.')
 
         args += self.__hosts
 
@@ -418,7 +418,7 @@ class NmapArgs:
     def parse_args(self, args=None):
         if None == args:
             if None == self.__argpaser:
-                raise LogicError('You must call NmapArgs.add_cli_args() first')
+                raise LogicException('You must call NmapArgs.add_cli_args() first')
             args = self.__argpaser.parse_args()
 
         self.__hosts = self.__get_arg(args, '--hosts')

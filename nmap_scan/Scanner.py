@@ -32,8 +32,10 @@ import threading
 from xml.etree import ElementTree
 from xml.etree.ElementTree import ParseError
 
-from _oald.exceptions import NmapNotInstalledError, NmapXMLParserError, NmapExecutionError
-from nmap_scan.Exceptions import NmapPasswordRequired
+from nmap_scan.Exceptions.NmapExecutionException import NmapExecutionException
+from nmap_scan.Exceptions.NmapNotInstalledException import NmapNotInstalledException
+from nmap_scan.Exceptions.NmapPasswordRequiredException import NmapPasswordRequiredException
+from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
 from nmap_scan.NmapScanMethods import NmapScanMethods
 from nmap_scan.Report.TCPReport import TCPReport
 
@@ -69,7 +71,7 @@ class Scanner(NmapScanMethods):
             logging.error('Nmap seams not to be installed, command "which nmap" return non zero exit code.')
             logging.debug(stdout)
             logging.debug(stderr)
-            raise NmapNotInstalledError()
+            raise NmapNotInstalledException()
 
         executable = stdout.split("\n")[0]
         logging.debug('Found nmap executable "{executable}"'.format(executable=executable))
@@ -105,12 +107,12 @@ class Scanner(NmapScanMethods):
             if 'a password is required' in stderr:
                 logging.error('Can\'t run sudo without password')
 
-                raise NmapPasswordRequired()
+                raise NmapPasswordRequiredException()
             else:
                 logging.error('Unknown error proceed during nmap call:')
                 logging.error(stderr)
                 self.__has_error[method] = stderr
-                raise NmapExecutionError(stderr)
+                raise NmapExecutionException(stderr)
 
         try:
             xml = ElementTree.fromstring(stdout)
@@ -125,14 +127,14 @@ class Scanner(NmapScanMethods):
 
             return report
         except ParseError:
-            raise NmapXMLParserError()
+            raise NmapXMLParserException()
 
     def get_report(self, scan_method):
         if None != self.__reports.get(scan_method, None):
             return self.__reports.get(scan_method)
 
         if None != self.__has_error.get(scan_method, None):
-            raise NmapExecutionError(self.__has_error.get(scan_method))
+            raise NmapExecutionException(self.__has_error.get(scan_method))
 
         if None != self.__threads.get(scan_method, None):
             logging.info('scan for "{method}" not finished yet. Waiting for Report'

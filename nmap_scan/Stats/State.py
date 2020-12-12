@@ -28,7 +28,7 @@
 
 import logging
 
-from nmap_scan.Exceptions import LogicError
+from nmap_scan.Exceptions.LogicException import LogicException
 from nmap_scan.Stats.Status import Status
 
 
@@ -44,7 +44,7 @@ class State(Status):
 
     def __parse_xml(self):
         if None == self.get_xml():
-            raise LogicError('No valid xml is set.')
+            raise LogicException('No valid xml is set.')
         logging.info('Parsing State')
         attr = self.get_xml().attrib
         self.__reason_ip = int(attr['reason_ip']) if None != attr.get('reason_ip', None) else None

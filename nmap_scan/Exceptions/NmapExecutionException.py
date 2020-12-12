@@ -27,35 +27,5 @@
 #  and also my other projects <https://github.com/f-froehlich>
 
 
-import logging
-
-from nmap_scan.Exceptions.LogicException import LogicException
-
-
-class IPIDSequence:
-
-    def __init__(self, xml):
-        self.__xml = xml
-        self.__class = None
-        self.__values = None
-        self.__parse_xml()
-
-    def get_xml(self):
-        return self.__xml
-
-    def get_class(self):
-        return self.__class
-
-    def get_values(self):
-        return self.__values
-
-    def __parse_xml(self):
-        if None == self.__xml:
-            raise LogicException('No valid xml is set.')
-        logging.info('Parsing IPIDSequence')
-        attr = self.__xml.attrib
-        self.__class = attr['class']
-        self.__values = attr['values']
-
-        logging.debug('Class: "{value}"'.format(value=self.__class))
-        logging.debug('Values: "{values}"'.format(values=self.__values))
+class NmapExecutionException(Exception):
+    pass

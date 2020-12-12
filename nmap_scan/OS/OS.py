@@ -29,7 +29,7 @@
 
 import logging
 
-from nmap_scan.Exceptions import LogicError
+from nmap_scan.Exceptions.LogicException import LogicException
 from nmap_scan.OS.OSMatch import OSMatch
 from nmap_scan.OS.OSUsedPort import OSUsedPort
 
@@ -57,7 +57,7 @@ class OS:
 
     def __parse_xml(self):
         if None == self.__xml:
-            raise LogicError('No valid xml is set.')
+            raise LogicException('No valid xml is set.')
         logging.info('Parsing OS')
 
         for portused_xml in self.__xml.findall('portused'):
@@ -67,6 +67,6 @@ class OS:
             self.__os_matches.append(OSMatch(osmatch_xml))
 
         for osfingerprint_xml in self.__xml.findall('osfingerprint'):
-            fingerprint = osfingerprint_xml.arrtib['fingerprint']
+            fingerprint = osfingerprint_xml.attrib['fingerprint']
             self.__os_fingerprints.append(fingerprint)
             logging.debug('Fingerprint: "{fingerprint}"'.format(fingerprint=fingerprint))

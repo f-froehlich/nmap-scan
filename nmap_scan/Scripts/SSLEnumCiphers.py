@@ -29,7 +29,7 @@
 
 import logging
 
-from nmap_scan.Exceptions import LogicError
+from nmap_scan.Exceptions.LogicException import LogicException
 from nmap_scan.Scripts.Script import Script
 
 
@@ -53,7 +53,7 @@ class SSLEnumCiphers(Script):
 
     def __parse_xml(self):
         if None == self.__xml:
-            raise LogicError('No valid xml is set.')
+            raise LogicException('No valid xml is set.')
         logging.info('Parsing SSLEnumCiphers')
 
         xml_tables = self.__xml.findall('table')
@@ -93,7 +93,7 @@ class SSLEnumCiphersProtocol:
 
     def __parse_xml(self):
         if None == self.__xml:
-            raise LogicError('No valid xml is set.')
+            raise LogicException('No valid xml is set.')
         logging.info('Parsing SSLEnumCiphersProtocol')
 
         for xml_table in self.__xml.findall('table'):
@@ -163,7 +163,7 @@ class SSLEnumCiphersCipher:
         mapped_strength = all_strength.get(strength.upper(), None)
         if None == mapped_strength:
             logging.info('Invalid strength "{strength}" detected. Must be A-F'.format(strength=strength))
-            raise LogicError('Invalid strength "{strength}" detected. Must be A-F'.format(strength=strength))
+            raise LogicException('Invalid strength "{strength}" detected. Must be A-F'.format(strength=strength))
 
         return mapped_strength
 
@@ -181,13 +181,13 @@ class SSLEnumCiphersCipher:
         mapped_strength = all_strength.get(strength, None)
         if None == mapped_strength:
             logging.info('Invalid strength "{strength}" detected. Must be A-F'.format(strength=strength))
-            raise LogicError('Invalid strength "{strength}" detected. Must be A-F'.format(strength=strength))
+            raise LogicException('Invalid strength "{strength}" detected. Must be A-F'.format(strength=strength))
 
         return mapped_strength
 
     def __parse_xml(self):
         if None == self.__xml:
-            raise LogicError('No valid xml is set.')
+            raise LogicException('No valid xml is set.')
         logging.info('Parsing SSLEnumCiphersCiphers')
 
         for xml_element in self.__xml.findall('elem'):

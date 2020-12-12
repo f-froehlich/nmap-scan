@@ -29,7 +29,7 @@
 
 import logging
 
-from nmap_scan.Exceptions import LogicError
+from nmap_scan.Exceptions.LogicException import LogicException
 
 
 class RunStats:
@@ -79,18 +79,19 @@ class RunStats:
 
     def __parse_xml(self):
         if None == self.__xml:
-            raise LogicError('No valid xml is set.')
+            raise LogicException('No valid xml is set.')
         logging.info('Parsing RunStats')
-        attr = self.__xml.attrib
-        self.__time = int(attr['time'])
-        self.__time_str = attr.get('timestr', None)
-        self.__elapsed = int(attr['elapsed']) if None != attr.get('elapsed', None) else None
-        self.__summary = attr.get('summary', None)
-        self.__exit = attr.get('exit', None)
-        self.__errormsg = attr.get('errormsg', None)
-        self.__up = int(attr['up']) if None != attr.get('up', None) else None
-        self.__down = int(attr['down']) if None != attr.get('down', None) else None
-        self.__total = int(attr['total']) if None != attr.get('total', None) else None
+        attr_finished = self.__xml.find('finished').attrib
+        attr_hosts = self.__xml.find('hosts').attrib
+        self.__time = int(attr_finished['time'])
+        self.__time_str = attr_finished.get('timestr', None)
+        self.__elapsed = attr_finished['elapsed'] if None != attr_finished.get('elapsed', None) else None
+        self.__summary = attr_finished.get('summary', None)
+        self.__exit = attr_finished.get('exit', None)
+        self.__errormsg = attr_finished.get('errormsg', None)
+        self.__up = int(attr_hosts['up']) if None != attr_hosts.get('up', None) else None
+        self.__down = int(attr_hosts['down']) if None != attr_hosts.get('down', None) else None
+        self.__total = int(attr_hosts['total']) if None != attr_hosts.get('total', None) else None
 
         logging.debug('Time: "{time}"'.format(time=self.__time))
         logging.debug('Time string: "{time_str}"'.format(time_str=self.__time_str))

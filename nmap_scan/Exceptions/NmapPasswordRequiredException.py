@@ -26,29 +26,6 @@
 #  Checkout this project on github <https://github.com/f-froehlich/nmap-scan>
 #  and also my other projects <https://github.com/f-froehlich>
 
-
-class NmapNotInstalledError(Exception):
-    def __init__(self, message="Nmap is not installed"):
-        super().__init__(message)
-
-
-class NmapXMLParserError(Exception):
-    def __init__(self, message="Unable to parse xml output"):
-        super().__init__(message)
-
-
-class NmapExecutionError(Exception):
-    pass
-
-
-class NmapPasswordRequired(Exception):
+class NmapPasswordRequiredException(Exception):
     def __init__(self, message="Nmap scan require root privileges but we can't run sudo without password"):
         super().__init__(message)
-
-
-class NmapScanMethodUnknown(Exception):
-    pass
-
-
-class LogicError(Exception):
-    pass
