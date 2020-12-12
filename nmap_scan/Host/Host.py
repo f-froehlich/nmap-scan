@@ -172,22 +172,22 @@ class Host:
             self.__unfiltered_ports = [p for p in self.__ports if p.is_unfiltered()]
         return self.__unfiltered_ports
 
-    def get_ports_with_id(self, port_ids):
-        return self.__get_ports_with_id(port_ids, self.__ports)
+    def get_ports_with_ids(self, port_ids):
+        return self.__get_ports_with_ids(port_ids, self.__ports)
 
-    def get_open_ports_with_id(self, port_ids):
-        return self.__get_ports_with_id(port_ids, self.get_open_ports())
+    def get_open_ports_with_ids(self, port_ids):
+        return self.__get_ports_with_ids(port_ids, self.get_open_ports())
 
-    def get_closed_ports_with_id(self, port_ids):
-        return self.__get_ports_with_id(port_ids, self.get_closed_ports())
+    def get_closed_ports_with_ids(self, port_ids):
+        return self.__get_ports_with_ids(port_ids, self.get_closed_ports())
 
-    def get_filtered_ports_with_id(self, port_ids):
-        return self.__get_ports_with_id(port_ids, self.get_filtered_ports())
+    def get_filtered_ports_with_ids(self, port_ids):
+        return self.__get_ports_with_ids(port_ids, self.get_filtered_ports())
 
-    def get_unfiltered_ports_with_id(self, port_ids):
-        return self.__get_ports_with_id(port_ids, self.get_unfiltered_ports())
+    def get_unfiltered_ports_with_ids(self, port_ids):
+        return self.__get_ports_with_ids(port_ids, self.get_unfiltered_ports())
 
-    def __get_ports_with_id(self, port_ids, search_ports):
+    def __get_ports_with_ids(self, port_ids, search_ports):
         ports = []
         for port in search_ports:
             if port.get_port() in port_ids:
@@ -234,6 +234,48 @@ class Host:
                     break
 
         return ports
+
+    def has_port(self, port_id):
+        return self.__has_port(port_id, self.__ports)
+
+    def has_port_open(self, port_id):
+        return self.__has_port(port_id, self.get_open_ports())
+
+    def has_port_closed(self, port_id):
+        return self.__has_port(port_id, self.get_closed_ports())
+
+    def has_port_filtered(self, port_id):
+        return self.__has_port(port_id, self.get_filtered_ports())
+
+    def has_port_unfiltered(self, port_id):
+        return self.__has_port(port_id, self.get_unfiltered_ports())
+
+    def __has_port(self, port_id, search_ports):
+        for port in search_ports:
+            if port_id == port.get_port():
+                return True
+        return False
+
+    def get_port(self, port_id):
+        return self.__get_port(port_id, self.__ports)
+
+    def get_port_open(self, port_id):
+        return self.__get_port(port_id, self.get_open_ports())
+
+    def get_port_closed(self, port_id):
+        return self.__get_port(port_id, self.get_closed_ports())
+
+    def get_port_filtered(self, port_id):
+        return self.__get_port(port_id, self.get_filtered_ports())
+
+    def get_port_unfiltered(self, port_id):
+        return self.__get_port(port_id, self.get_unfiltered_ports())
+
+    def __get_port(self, port_id, search_ports):
+        for port in search_ports:
+            if port_id == port.get_port():
+                return port
+        return None
 
     def has_hostscript(self, script_id):
         return None != self.__hostscripts.get(script_id, None)

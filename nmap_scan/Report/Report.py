@@ -56,12 +56,16 @@ class Report:
         self.__task_progresses = []
         self.__task_begins = []
         self.__task_ends = []
-        self.__pre_scripts = []
-        self.__post_scripts = []
+        self.__pre_scripts = {}
+        self.__post_scripts = {}
         self.__verbose_level = None
         self.__debugging_level = None
         self.__run_stats = None
         self.__hosts = []
+        self.__hosts_up = None
+        self.__hosts_down = None
+        self.__hosts_unknown = None
+        self.__hosts_skipped = None
 
         self.__parse_xml()
 
@@ -119,6 +123,224 @@ class Report:
     def get_hosts(self):
         return self.__hosts
 
+    def get_hosts_up(self):
+        if None == self.__hosts_up:
+            self.__hosts_up = [h for h in self.__hosts_up if h.is_up()]
+        return self.__hosts_up
+
+    def get_hosts_down(self):
+        if None == self.__hosts_down:
+            self.__hosts_down = [h for h in self.__hosts_down if h.is_down()]
+        return self.__hosts_down
+
+    def get_hosts_unknown(self):
+        if None == self.__hosts_unknown:
+            self.__hosts_unknown = [h for h in self.__hosts_unknown if h.is_unknown()]
+        return self.__hosts_unknown
+
+    def get_hosts_skipped(self):
+        if None == self.__hosts_skipped:
+            self.__hosts_skipped = [h for h in self.__hosts_skipped if h.is_skipped()]
+        return self.__hosts_skipped
+
+    def get_pre_scripts(self):
+        return self.__pre_scripts
+
+    def has_pre_script(self, pre_script_id):
+        return None != self.__pre_scripts.get(pre_script_id, None)
+
+    def get_pre_script(self, pre_script_id):
+        return self.__pre_scripts.get(pre_script_id, None)
+
+    def get_post_scripts(self):
+        return self.__post_scripts
+
+    def has_post_script(self, post_script_id):
+        return None != self.__post_scripts.get(post_script_id, None)
+
+    def get_post_script(self, post_script_id):
+        return self.__post_scripts.get(post_script_id, None)
+
+    def get_host_with_port(self, port_id):
+        return self.get_hosts_with_port([port_id])
+
+    def get_hosts_with_port(self, port_ids):
+        def callback(port):
+            return True
+
+        return self.__get_hosts_with_port(port_ids, self.__hosts, callback)
+
+    def get_hosts_up_with_port(self, port_ids):
+        def callback(port):
+            return True
+
+        return self.__get_hosts_with_port(port_ids, self.get_hosts_up(), callback)
+
+    def get_hosts_down_with_port(self, port_ids):
+        def callback(port):
+            return True
+
+        return self.__get_hosts_with_port(port_ids, self.get_hosts_down(), callback)
+
+    def get_hosts_unknown_with_port(self, port_ids):
+        def callback(port):
+            return True
+
+        return self.__get_hosts_with_port(port_ids, self.get_hosts_unknown(), callback)
+
+    def get_hosts_skipped_with_port(self, port_ids):
+        def callback(port):
+            return True
+
+        return self.__get_hosts_with_port(port_ids, self.get_hosts_skipped(), callback)
+
+    def get_hosts_with_port_open(self, port_ids):
+        def callback(port):
+            return port.is_open()
+
+        return self.__get_hosts_with_port(port_ids, self.__hosts, callback)
+
+    def get_hosts_up_with_port_open(self, port_ids):
+        def callback(port):
+            return port.is_open()
+
+        return self.__get_hosts_with_port(port_ids, self.get_hosts_up(), callback)
+
+    def get_hosts_down_with_port_open(self, port_ids):
+        def callback(port):
+            return port.is_open()
+
+        return self.__get_hosts_with_port(port_ids, self.get_hosts_down(), callback)
+
+    def get_hosts_unknown_with_port_open(self, port_ids):
+        def callback(port):
+            return port.is_open()
+
+        return self.__get_hosts_with_port(port_ids, self.get_hosts_unknown(), callback)
+
+    def get_hosts_skipped_with_port_open(self, port_ids):
+        def callback(port):
+            return port.is_open()
+
+        return self.__get_hosts_with_port(port_ids, self.get_hosts_skipped(), callback)
+
+    def get_hosts_with_port_closed(self, port_ids):
+        def callback(port):
+            return port.is_closed()
+
+        return self.__get_hosts_with_port(port_ids, self.__hosts, callback)
+
+    def get_hosts_up_with_port_closed(self, port_ids):
+        def callback(port):
+            return port.is_closed()
+
+        return self.__get_hosts_with_port(port_ids, self.get_hosts_up(), callback)
+
+    def get_hosts_down_with_port_closed(self, port_ids):
+        def callback(port):
+            return port.is_closed()
+
+        return self.__get_hosts_with_port(port_ids, self.get_hosts_down(), callback)
+
+    def get_hosts_unknown_with_port_closed(self, port_ids):
+        def callback(port):
+            return port.is_closed()
+
+        return self.__get_hosts_with_port(port_ids, self.get_hosts_unknown(), callback)
+
+    def get_hosts_skipped_with_port_closed(self, port_ids):
+        def callback(port):
+            return port.is_closed()
+
+        return self.__get_hosts_with_port(port_ids, self.get_hosts_skipped(), callback)
+
+    def get_hosts_with_port_filtered(self, port_ids):
+        def callback(port):
+            return port.is_filtered()
+
+        return self.__get_hosts_with_port(port_ids, self.__hosts, callback)
+
+    def get_hosts_up_with_port_filtered(self, port_ids):
+        def callback(port):
+            return port.is_filtered()
+
+        return self.__get_hosts_with_port(port_ids, self.get_hosts_up(), callback)
+
+    def get_hosts_down_with_port_filtered(self, port_ids):
+        def callback(port):
+            return port.is_filtered()
+
+        return self.__get_hosts_with_port(port_ids, self.get_hosts_down(), callback)
+
+    def get_hosts_unknown_with_port_filtered(self, port_ids):
+        def callback(port):
+            return port.is_filtered()
+
+        return self.__get_hosts_with_port(port_ids, self.get_hosts_unknown(), callback)
+
+    def get_hosts_skipped_with_port_filtered(self, port_ids):
+        def callback(port):
+            return port.is_filtered()
+
+        return self.__get_hosts_with_port(port_ids, self.get_hosts_skipped(), callback)
+
+    def get_hosts_with_port_unfiltered(self, port_ids):
+        def callback(port):
+            return port.is_unfiltered()
+
+        return self.__get_hosts_with_port(port_ids, self.__hosts, callback)
+
+    def get_hosts_up_with_port_unfiltered(self, port_ids):
+        def callback(port):
+            return port.is_unfiltered()
+
+        return self.__get_hosts_with_port(port_ids, self.get_hosts_up(), callback)
+
+    def get_hosts_down_with_port_unfiltered(self, port_ids):
+        def callback(port):
+            return port.is_unfiltered()
+
+        return self.__get_hosts_with_port(port_ids, self.get_hosts_down(), callback)
+
+    def get_hosts_unknown_with_port_unfiltered(self, port_ids):
+        def callback(port):
+            return port.is_unfiltered()
+
+        return self.__get_hosts_with_port(port_ids, self.get_hosts_unknown(), callback)
+
+    def get_hosts_skipped_with_port_unfiltered(self, port_ids):
+        def callback(port):
+            return port.is_unfiltered()
+
+        return self.__get_hosts_with_port(port_ids, self.get_hosts_skipped(), callback)
+
+    def __get_hosts_with_port(self, port_ids, search_hosts, callback):
+        hosts = []
+        for host in search_hosts:
+            if host in hosts:
+                continue
+
+            for port_id in port_ids:
+                if host.has_port(port_id) and callback(host.get_port(port_id)):
+                    hosts.append(host)
+                    break
+
+        return hosts
+
+    def get_hosts_with_script(self, script_id):
+        hosts = []
+        for host in self.__hosts:
+            if host in hosts:
+                continue
+            host_ports = []
+            for port in host.get_ports():
+                if port.has_script(script_id):
+                    host_ports.append(port)
+            if 0 != len(host_ports):
+                hosts.append({'host': host, 'ports': host_ports})
+
+        return hosts
+
     def __parse_xml(self):
         nmaprun = self.get_xml().attrib
         self.__scanner = nmaprun['scanner']
@@ -172,12 +394,26 @@ class Report:
             self.__task_ends.append(TaskEnd(task_end_xml))
 
         for prescript_xml in self.__xml.findall('prescript'):
-            for script_xml in prescript_xml.finfall('script'):
-                self.__pre_scripts.append(parse(script_xml))
+            for script_xml in prescript_xml.findall('script'):
+                script = parse(script_xml)
+                existing_script = self.__pre_scripts.get(script.get_id(), None)
+                if None == existing_script:
+                    self.__pre_scripts[script.get_id()] = script
+                elif isinstance(existing_script, list):
+                    self.__pre_scripts[script.get_id()].append(script)
+                else:
+                    self.__pre_scripts[script.get_id()] = [existing_script, script]
 
         for postscript_xml in self.__xml.findall('postscript'):
             for script_xml in postscript_xml.findall('script'):
-                self.__post_scripts.append(parse(script_xml))
+                script = parse(script_xml)
+                existing_script = self.__post_scripts.get(script.get_id(), None)
+                if None == existing_script:
+                    self.__post_scripts[script.get_id()] = script
+                elif isinstance(existing_script, list):
+                    self.__post_scripts[script.get_id()].append(script)
+                else:
+                    self.__post_scripts[script.get_id()] = [existing_script, script]
 
         for thread in threads:
             thread.join()
