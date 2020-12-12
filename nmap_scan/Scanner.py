@@ -32,11 +32,13 @@ import threading
 from xml.etree import ElementTree
 from xml.etree.ElementTree import ParseError
 
+from nmap_scan.Exceptions.LogicException import LogicException
 from nmap_scan.Exceptions.NmapExecutionException import NmapExecutionException
 from nmap_scan.Exceptions.NmapNotInstalledException import NmapNotInstalledException
 from nmap_scan.Exceptions.NmapPasswordRequiredException import NmapPasswordRequiredException
 from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
 from nmap_scan.NmapScanMethods import NmapScanMethods
+from nmap_scan.Report.ConnectReport import ConnectReport
 from nmap_scan.Report.PingReport import PingReport
 from nmap_scan.Report.SynReport import SynReport
 from nmap_scan.Report.TCPReport import TCPReport
@@ -129,6 +131,10 @@ class Scanner(NmapScanMethods):
                 report = PingReport(xml)
             elif self.SYN == method:
                 report = SynReport(xml)
+            elif self.CONNECT == method:
+                report = ConnectReport(xml)
+            else:
+                raise LogicException('No report for scan method "{method}" found')
 
             # todo scan methods
 
@@ -212,3 +218,9 @@ class Scanner(NmapScanMethods):
 
     def scan_ping_background(self, callback_method=None):
         return self.scan_background(NmapScanMethods.PING, callback_method)
+
+    def scan_connect(self, callback_method=None):
+        return self.scan(NmapScanMethods.CONNECT, callback_method)
+
+    def scan_connect_background(self, callback_method=None):
+        return self.scan_background(NmapScanMethods.CONNECT, callback_method)
