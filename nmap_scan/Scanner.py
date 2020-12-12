@@ -38,6 +38,7 @@ from nmap_scan.Exceptions.NmapPasswordRequiredException import NmapPasswordRequi
 from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
 from nmap_scan.NmapScanMethods import NmapScanMethods
 from nmap_scan.Report.TCPReport import TCPReport
+from nmap_scan.Report.UDPReport import UDPReport
 
 
 class Scanner(NmapScanMethods):
@@ -120,6 +121,8 @@ class Scanner(NmapScanMethods):
 
             if self.TCP == method:
                 report = TCPReport(xml)
+            elif self.UDP == method:
+                report = UDPReport(xml)
 
             # todo scan methods
 
@@ -181,3 +184,9 @@ class Scanner(NmapScanMethods):
 
     def scan_tcp_background(self):
         return self.scan_background(NmapScanMethods.TCP)
+
+    def scan_udp(self):
+        return self.scan(NmapScanMethods.UDP)
+
+    def scan_udp_background(self):
+        return self.scan_background(NmapScanMethods.UDP)
