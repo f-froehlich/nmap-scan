@@ -26,6 +26,7 @@
 #  Checkout this project on github <https://github.com/f-froehlich/nmap-scan>
 #  and also my other projects <https://github.com/f-froehlich>
 import logging
+from xml.etree.ElementTree import ElementTree
 
 from nmap_scan.Report.Report import Report
 
@@ -35,3 +36,10 @@ class TCPReport(Report):
     def __init__(self, xml):
         logging.info('Create TCP Report')
         Report.__init__(self, xml)
+
+    @staticmethod
+    def from_file(filepath):
+        et = ElementTree()
+        xml = et.parse(source=filepath)
+
+        return TCPReport(xml)

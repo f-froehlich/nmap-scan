@@ -27,6 +27,7 @@
 #  and also my other projects <https://github.com/f-froehlich>
 import logging
 from threading import Thread
+from xml.etree.ElementTree import ElementTree
 
 from nmap_scan.Host.Host import Host
 from nmap_scan.Scripts.ScriptParser import parse
@@ -421,3 +422,7 @@ class Report:
     def __parse_host_xml(self, host_xml, thread_id):
         self.__hosts[thread_id] = Host(host_xml)
         logging.debug('Thread with id "{id}" ended'.format(id=thread_id))
+
+    def save(self, filepath):
+        et = ElementTree(element=self.get_xml())
+        et.write(filepath, encoding='utf-8')
