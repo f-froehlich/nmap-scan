@@ -40,6 +40,7 @@ from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
 from nmap_scan.NmapScanMethods import NmapScanMethods
 from nmap_scan.Report.ACKReport import ACKReport
 from nmap_scan.Report.ConnectReport import ConnectReport
+from nmap_scan.Report.FINReport import FINReport
 from nmap_scan.Report.MaimonReport import MaimonReport
 from nmap_scan.Report.PingReport import PingReport
 from nmap_scan.Report.SynReport import SynReport
@@ -145,6 +146,8 @@ class Scanner(NmapScanMethods):
                 report = WindowReport(xml)
             elif self.MAIMON == method:
                 report = MaimonReport(xml)
+            elif self.FIN == method:
+                report = FINReport(xml)
             else:
                 raise LogicException('No report for scan method "{method}" found')
 
@@ -230,6 +233,12 @@ class Scanner(NmapScanMethods):
 
     def scan_syn_background(self, callback_method=None):
         return self.scan_background(NmapScanMethods.SYN, callback_method)
+
+    def scan_fin(self, callback_method=None):
+        return self.scan(NmapScanMethods.FIN, callback_method)
+
+    def scan_fin_background(self, callback_method=None):
+        return self.scan_background(NmapScanMethods.FIN, callback_method)
 
     def scan_ping(self, callback_method=None):
         return self.scan(NmapScanMethods.PING, callback_method)

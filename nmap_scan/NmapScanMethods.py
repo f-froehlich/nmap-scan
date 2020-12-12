@@ -41,6 +41,7 @@ class NmapScanMethods:
     ACK = '-sA'
     WINDOW = '-sW'
     MAIMON = '-sM'
+    FIN = '-sF'
 
     def get_name_of_method(self, method):
         if self.TCP == method:
@@ -63,6 +64,8 @@ class NmapScanMethods:
             return 'WINDOW'
         elif self.MAIMON == method:
             return 'MAIMON'
+        elif self.FIN == method:
+            return 'FIN'
 
         raise NmapScanMethodUnknownException('Unknown scan method "{method}" detected'.format(method=method))
 
@@ -75,5 +78,6 @@ class NmapScanMethods:
             self.WINDOW: True,
             self.MAIMON: True,
             self.TCP_NULL: True,
+            self.FIN: True,
         }
         return privileged.get(method, False)
