@@ -25,7 +25,8 @@
 #
 #  Checkout this project on github <https://github.com/f-froehlich/nmap-scan>
 #  and also my other projects <https://github.com/f-froehlich>
-
+import logging
+from threading import Thread
 
 from nmap_scan.Host.Host import Host
 from nmap_scan.Scripts.ScriptParser import parse
@@ -128,6 +129,17 @@ class Report:
         self.__xmloutputversion = nmaprun.get('xmloutputversion', None)
         self.__profile_name = nmaprun.get('profile_name', None)
 
+        hosts_xml = self.get_xml().findall('host')
+        hosts_xml_len = len(hosts_xml)
+        self.__hosts = [None] * hosts_xml_len
+        threads = [None] * hosts_xml_len
+        thread_id = 0
+        for host_xml in hosts_xml:
+            logging.debug('Start thread with id "{id}"'.format(id=thread_id))
+            threads[thread_id] = Thread(target=self.__parse_host_xml, args=(host_xml, thread_id))
+            threads[thread_id].start()
+            thread_id += 1
+
         verbose_xml = self.get_xml().find('verbose')
         if None != verbose_xml:
             self.__verbose_level = int(verbose_xml.attrib['level']) if None != verbose_xml.attrib.get('level') else None
@@ -167,5 +179,9 @@ class Report:
             for script_xml in postscript_xml.findall('script'):
                 self.__post_scripts.append(parse(script_xml))
 
-        for host_xml in self.get_xml().findall('host'):
-            self.__hosts.append(Host(host_xml))
+        for thread in threads:
+            thread.join()
+
+    def __parse_host_xml(self, host_xml, thread_id):
+        self.__hosts[thread_id] = Host(host_xml)
+        logging.debug('Thread with id "{id}" ended'.format(id=thread_id))
