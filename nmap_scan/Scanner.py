@@ -37,6 +37,8 @@ from nmap_scan.Exceptions.NmapNotInstalledException import NmapNotInstalledExcep
 from nmap_scan.Exceptions.NmapPasswordRequiredException import NmapPasswordRequiredException
 from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
 from nmap_scan.NmapScanMethods import NmapScanMethods
+from nmap_scan.Report.PingReport import PingReport
+from nmap_scan.Report.SynReport import SynReport
 from nmap_scan.Report.TCPReport import TCPReport
 from nmap_scan.Report.UDPReport import UDPReport
 
@@ -123,6 +125,10 @@ class Scanner(NmapScanMethods):
                 report = TCPReport(xml)
             elif self.UDP == method:
                 report = UDPReport(xml)
+            elif self.PING == method:
+                report = PingReport(xml)
+            elif self.SYN == method:
+                report = SynReport(xml)
 
             # todo scan methods
 
