@@ -43,6 +43,7 @@ from nmap_scan.Report.ConnectReport import ConnectReport
 from nmap_scan.Report.MaimonReport import MaimonReport
 from nmap_scan.Report.PingReport import PingReport
 from nmap_scan.Report.SynReport import SynReport
+from nmap_scan.Report.TCPNullReport import TCPNullReport
 from nmap_scan.Report.TCPReport import TCPReport
 from nmap_scan.Report.UDPReport import UDPReport
 from nmap_scan.Report.WindowReport import WindowReport
@@ -128,6 +129,8 @@ class Scanner(NmapScanMethods):
 
             if self.TCP == method:
                 report = TCPReport(xml)
+            elif self.TCP_NULL == method:
+                report = TCPNullReport(xml)
             elif self.UDP == method:
                 report = UDPReport(xml)
             elif self.PING == method:
@@ -209,6 +212,12 @@ class Scanner(NmapScanMethods):
 
     def scan_tcp_background(self, callback_method=None):
         return self.scan_background(NmapScanMethods.TCP, callback_method)
+
+    def scan_tcp_null(self, callback_method=None):
+        return self.scan(NmapScanMethods.TCP_NULL, callback_method)
+
+    def scan_tcp_null_background(self, callback_method=None):
+        return self.scan_background(NmapScanMethods.TCP_NULL, callback_method)
 
     def scan_udp(self, callback_method=None):
         return self.scan(NmapScanMethods.UDP, callback_method)

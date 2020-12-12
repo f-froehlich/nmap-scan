@@ -32,6 +32,7 @@ from nmap_scan.Exceptions.NmapScanMethodUnknownException import NmapScanMethodUn
 
 class NmapScanMethods:
     TCP = ''
+    TCP_NULL = '-sN'
     SYN = '-sS'
     UDP = '-sU'
     LIST = '-sL'
@@ -44,6 +45,8 @@ class NmapScanMethods:
     def get_name_of_method(self, method):
         if self.TCP == method:
             return 'TCP'
+        elif self.TCP_NULL == method:
+            return 'TCP_NULL'
         elif self.SYN == method:
             return 'SYN'
         elif self.UDP == method:
@@ -71,5 +74,6 @@ class NmapScanMethods:
             self.ACK: True,
             self.WINDOW: True,
             self.MAIMON: True,
+            self.TCP_NULL: True,
         }
         return privileged.get(method, False)
