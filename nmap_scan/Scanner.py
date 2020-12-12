@@ -44,6 +44,7 @@ from nmap_scan.Report.FINReport import FINReport
 from nmap_scan.Report.IPReport import IPReport
 from nmap_scan.Report.MaimonReport import MaimonReport
 from nmap_scan.Report.PingReport import PingReport
+from nmap_scan.Report.SCTPInitReport import SCTPInitReport
 from nmap_scan.Report.SynReport import SynReport
 from nmap_scan.Report.TCPNullReport import TCPNullReport
 from nmap_scan.Report.TCPReport import TCPReport
@@ -154,6 +155,8 @@ class Scanner(NmapScanMethods):
                 report = IPReport(xml)
             elif self.XMAS == method:
                 report = XmasReport(xml)
+            elif self.SCTP_INIT == method:
+                report = SCTPInitReport(xml)
             else:
                 raise LogicException('No report for scan method "{method}" found')
 
@@ -251,6 +254,12 @@ class Scanner(NmapScanMethods):
 
     def scan_ip_background(self, callback_method=None):
         return self.scan_background(NmapScanMethods.IP, callback_method)
+
+    def scan_sctp_init(self, callback_method=None):
+        return self.scan(NmapScanMethods.SCTP_INIT, callback_method)
+
+    def scan_sctp_init_background(self, callback_method=None):
+        return self.scan_background(NmapScanMethods.SCTP_INIT, callback_method)
 
     def scan_xmas(self, callback_method=None):
         return self.scan(NmapScanMethods.XMAS, callback_method)

@@ -44,6 +44,7 @@ class NmapScanMethods:
     FIN = '-sF'
     XMAS = '-sX'
     IP = '-sO'
+    SCTP_INIT = '-sY'
 
     def get_name_of_method(self, method):
         if self.TCP == method:
@@ -72,6 +73,8 @@ class NmapScanMethods:
             return 'XMAS'
         elif self.IP == method:
             return 'IP'
+        elif self.SCTP_INIT == method:
+            return 'SCTP_INIT'
 
         raise NmapScanMethodUnknownException('Unknown scan method "{method}" detected'.format(method=method))
 
@@ -87,5 +90,6 @@ class NmapScanMethods:
             self.FIN: True,
             self.XMAS: True,
             self.IP: True,
+            self.SCTP_INIT: True,
         }
         return privileged.get(method, False)
