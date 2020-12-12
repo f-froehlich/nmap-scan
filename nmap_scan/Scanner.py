@@ -41,6 +41,7 @@ from nmap_scan.NmapScanMethods import NmapScanMethods
 from nmap_scan.Report.ACKReport import ACKReport
 from nmap_scan.Report.ConnectReport import ConnectReport
 from nmap_scan.Report.FINReport import FINReport
+from nmap_scan.Report.IPReport import IPReport
 from nmap_scan.Report.MaimonReport import MaimonReport
 from nmap_scan.Report.PingReport import PingReport
 from nmap_scan.Report.SynReport import SynReport
@@ -149,6 +150,8 @@ class Scanner(NmapScanMethods):
                 report = MaimonReport(xml)
             elif self.FIN == method:
                 report = FINReport(xml)
+            elif self.IP == method:
+                report = IPReport(xml)
             elif self.XMAS == method:
                 report = XmasReport(xml)
             else:
@@ -242,6 +245,12 @@ class Scanner(NmapScanMethods):
 
     def scan_fin_background(self, callback_method=None):
         return self.scan_background(NmapScanMethods.FIN, callback_method)
+
+    def scan_ip(self, callback_method=None):
+        return self.scan(NmapScanMethods.IP, callback_method)
+
+    def scan_ip_background(self, callback_method=None):
+        return self.scan_background(NmapScanMethods.IP, callback_method)
 
     def scan_xmas(self, callback_method=None):
         return self.scan(NmapScanMethods.XMAS, callback_method)
