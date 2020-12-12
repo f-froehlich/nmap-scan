@@ -322,7 +322,7 @@ class NmapArgs:
 
         args += self.__hosts
 
-        return args
+        return [str(a) for a in args]
 
     def add_cli_args(self, argpaser=None):
 
