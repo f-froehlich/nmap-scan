@@ -25,43 +25,21 @@
 #
 #  Checkout this project on github <https://github.com/f-froehlich/nmap-scan>
 #  and also my other projects <https://github.com/f-froehlich>
+import logging
+from xml.etree.ElementTree import ElementTree
+
+from nmap_scan.Report.Report import Report
 
 
-from nmap_scan.Exceptions.NmapScanMethodUnknownException import NmapScanMethodUnknownException
+class ACKReport(Report):
 
+    def __init__(self, xml):
+        logging.info('Create ACK Report')
+        Report.__init__(self, xml)
 
-class NmapScanMethods:
-    TCP = ''
-    SYN = '-sS'
-    UDP = '-sU'
-    LIST = '-sL'
-    PING = '-sn'
-    CONNECT = '-sT'
-    ACK = '-sA'
+    @staticmethod
+    def from_file(filepath):
+        et = ElementTree()
+        xml = et.parse(source=filepath)
 
-    def get_name_of_method(self, method):
-        if self.TCP == method:
-            return 'TCP'
-        elif self.SYN == method:
-            return 'SYN'
-        elif self.UDP == method:
-            return 'UDP'
-        elif self.LIST == method:
-            return 'LIST'
-        elif self.PING == method:
-            return 'PING'
-        elif self.CONNECT == method:
-            return 'CONNECT'
-        elif self.ACK == method:
-            return 'ACK'
-
-        raise NmapScanMethodUnknownException('Unknown scan method "{method}" detected'.format(method=method))
-
-    def require_root(self, method):
-
-        privileged = {
-            self.SYN: True,
-            self.UDP: True,
-            self.ACK: True,
-        }
-        return privileged.get(method, False)
+        return ACKReport(xml)

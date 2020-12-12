@@ -38,6 +38,7 @@ from nmap_scan.Exceptions.NmapNotInstalledException import NmapNotInstalledExcep
 from nmap_scan.Exceptions.NmapPasswordRequiredException import NmapPasswordRequiredException
 from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
 from nmap_scan.NmapScanMethods import NmapScanMethods
+from nmap_scan.Report.ACKReport import ACKReport
 from nmap_scan.Report.ConnectReport import ConnectReport
 from nmap_scan.Report.PingReport import PingReport
 from nmap_scan.Report.SynReport import SynReport
@@ -133,6 +134,8 @@ class Scanner(NmapScanMethods):
                 report = SynReport(xml)
             elif self.CONNECT == method:
                 report = ConnectReport(xml)
+            elif self.ACK == method:
+                report = ACKReport(xml)
             else:
                 raise LogicException('No report for scan method "{method}" found')
 
@@ -224,3 +227,9 @@ class Scanner(NmapScanMethods):
 
     def scan_connect_background(self, callback_method=None):
         return self.scan_background(NmapScanMethods.CONNECT, callback_method)
+
+    def scan_ack(self, callback_method=None):
+        return self.scan(NmapScanMethods.ACK, callback_method)
+
+    def scan_ack_background(self, callback_method=None):
+        return self.scan_background(NmapScanMethods.ACK, callback_method)
