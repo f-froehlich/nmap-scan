@@ -55,6 +55,6 @@ class Script:
         logging.info('Parsing Script')
         attr = self.__xml.attrib
         self.__id = attr['id']
-        self.__output = attr['output']
+        self.__output = attr.get('output', None)
         logging.debug('ID: "{name}"'.format(name=self.__id))
         logging.debug('Output: "{output}"'.format(output=self.__output))

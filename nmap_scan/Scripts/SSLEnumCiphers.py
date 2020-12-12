@@ -38,7 +38,7 @@ class SSLEnumCiphers(Script):
     def __init__(self, xml):
         Script.__init__(self, xml)
         self.__xml = xml
-        self.__protocols = []
+        self.__protocols = {}
         self.__least_strength = None
         self.__parse_xml()
 
@@ -47,6 +47,9 @@ class SSLEnumCiphers(Script):
 
     def get_protocols(self):
         return self.__protocols
+
+    def get_protocol(self, version):
+        return self.__protocols.get(version, None)
 
     def get_least_strength(self):
         return self.__least_strength
@@ -58,7 +61,7 @@ class SSLEnumCiphers(Script):
 
         xml_tables = self.__xml.findall('table')
         for xml_table in xml_tables:
-            self.__protocols.append(SSLEnumCiphersProtocol(xml_table))
+            self.__protocols[xml_table.attrib['key'].lower()] = SSLEnumCiphersProtocol(xml_table)
 
         for xml_elements in self.__xml.findall('elem'):
             if 'least strength' == xml_elements.attrib['key']:
@@ -147,43 +150,7 @@ class SSLEnumCiphersCipher:
 
     def is_worse_than_strength(self, strength):
 
-        return self.map_strength(self.__strength) > self.map_strength(strength)
-
-    def map_strength(self, strength):
-        logging.debug('Map strength "{strength}"'.format(strength=strength))
-        all_strength = {
-            'A': 1,
-            'B': 2,
-            'C': 3,
-            'D': 4,
-            'E': 5,
-            'F': 6,
-        }
-
-        mapped_strength = all_strength.get(strength.upper(), None)
-        if None == mapped_strength:
-            logging.info('Invalid strength "{strength}" detected. Must be A-F'.format(strength=strength))
-            raise LogicException('Invalid strength "{strength}" detected. Must be A-F'.format(strength=strength))
-
-        return mapped_strength
-
-    def reverse_map_strength(self, strength):
-        logging.debug('Reverse map strength "{strength}"'.format(strength=strength))
-        all_strength = {
-            1: 'A',
-            2: 'B',
-            3: 'C',
-            4: 'D',
-            5: 'E',
-            6: 'F',
-        }
-
-        mapped_strength = all_strength.get(strength, None)
-        if None == mapped_strength:
-            logging.info('Invalid strength "{strength}" detected. Must be A-F'.format(strength=strength))
-            raise LogicException('Invalid strength "{strength}" detected. Must be A-F'.format(strength=strength))
-
-        return mapped_strength
+        return CipherCompare.a_lower_b(self.__strength, strength)
 
     def __parse_xml(self):
         if None == self.__xml:
@@ -201,3 +168,60 @@ class SSLEnumCiphersCipher:
 
         logging.debug('Cipher: "{name}" ({key_info}) - "{strength}"'.format(name=self.__name, strength=self.__strength,
                                                                             key_info=self.__key_info))
+
+
+class CipherCompare:
+
+    @staticmethod
+    def a_lower_b(a, b):
+        return CipherCompare.map_strength(a) < CipherCompare.map_strength(b)
+
+    @staticmethod
+    def a_lower_equals_b(a, b):
+        return CipherCompare.map_strength(a) <= CipherCompare.map_strength(b)
+
+    @staticmethod
+    def a_grater_b(a, b):
+        return CipherCompare.map_strength(a) > CipherCompare.map_strength(b)
+
+    @staticmethod
+    def a_grater_equals_b(a, b):
+        return CipherCompare.map_strength(a) >= CipherCompare.map_strength(b)
+
+    @staticmethod
+    def map_strength(strength):
+        logging.debug('Map strength "{strength}"'.format(strength=strength))
+        all_strength = {
+            'A': 1,
+            'B': 2,
+            'C': 3,
+            'D': 4,
+            'E': 5,
+            'F': 6,
+        }
+
+        mapped_strength = all_strength.get(strength.upper(), None)
+        if None == mapped_strength:
+            logging.info('Invalid strength "{strength}" detected. Must be A-F'.format(strength=strength))
+            raise LogicException('Invalid strength "{strength}" detected. Must be A-F'.format(strength=strength))
+
+        return mapped_strength
+
+    @staticmethod
+    def reverse_map_strength(strength):
+        logging.debug('Reverse map strength "{strength}"'.format(strength=strength))
+        all_strength = {
+            1: 'A',
+            2: 'B',
+            3: 'C',
+            4: 'D',
+            5: 'E',
+            6: 'F',
+        }
+
+        mapped_strength = all_strength.get(strength, None)
+        if None == mapped_strength:
+            logging.info('Invalid strength "{strength}" detected. Must be A-F'.format(strength=strength))
+            raise LogicException('Invalid strength "{strength}" detected. Must be A-F'.format(strength=strength))
+
+        return mapped_strength

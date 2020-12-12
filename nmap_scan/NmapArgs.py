@@ -32,7 +32,7 @@ from nmap_scan.Exceptions.LogicException import LogicException
 
 class NmapArgs:
 
-    def __init__(self, hosts, num_hosts=None, exclude_hosts=[], dns_servers=[], system_dns=False, traceroute=False,
+    def __init__(self, hosts=[], num_hosts=None, exclude_hosts=[], dns_servers=[], system_dns=False, traceroute=False,
                  ports=[], exclude_ports=[], fast_mode=False, scan_consecutively=False, top_ports=None, port_ratio=None,
                  service_discovery=False, version_intensity=None, version_light=None, version_all=False,
                  version_trace=False, default_script=False, scripts=[], script_args=[], script_trace=False,
@@ -324,7 +324,7 @@ class NmapArgs:
 
         return [str(a) for a in args]
 
-    def add_cli_args(self, argpaser=None):
+    def add_args(self, argpaser=None):
 
         if None == argpaser:
             argpaser = argparse.ArgumentParser(description='Nmap scan with python')
@@ -415,7 +415,7 @@ class NmapArgs:
         self.__add_boolean_arg(argpaser, '--unprivileged', 'Assume the user lacks raw socket privilegesd',
                                self.__unprivileged)
 
-    def parse_args(self, args=None):
+    def configure(self, args=None):
         if None == args:
             if None == self.__argpaser:
                 raise LogicException('You must call NmapArgs.add_cli_args() first')

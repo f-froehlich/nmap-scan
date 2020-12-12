@@ -59,6 +59,9 @@ class HostAddress:
     def is_ipv6(self):
         return 'ipv6' == self.__type
 
+    def is_ip(self):
+        return self.is_ipv4() or self.is_ipv6()
+
     def is_mac(self):
         return 'mac' == self.__type
 

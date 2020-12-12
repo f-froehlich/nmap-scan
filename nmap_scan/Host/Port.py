@@ -69,19 +69,19 @@ class Port:
         return self.__owner
 
     def is_open(self):
-        return 'open' in self.__state
+        return 'open' in self.__state.get_state()
 
     def is_filtered(self):
-        return 'filtered' in self.__state
+        return 'filtered' in self.__state.get_state()
 
     def is_open_filtered(self):
         return self.is_open() and self.is_filtered()
 
     def is_unfiltered(self):
-        return 'unfiltered' in self.__state
+        return 'unfiltered' in self.__state.get_state()
 
     def is_closed(self):
-        return 'closed' in self.__state
+        return 'closed' in self.__state.get_state()
 
     def is_closed_filtered(self):
         return self.is_closed() and self.is_filtered()
