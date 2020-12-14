@@ -27,54 +27,44 @@
 #  and also my other projects <https://github.com/f-froehlich>
 
 
-import os
-from distutils import log
-
 from setuptools import setup, find_packages
-from setuptools.command.install import install
-
-
-class OverrideInstall(install):
-    def run(self):
-        mode = 0o755
-        install.run(self)
-
-        # here we start with doing our overriding and private magic ..
-        log.info("Overriding setuptools mode of scripts ...")
-        for filepath in self.get_outputs():
-            log.info("Changing permissions of %s to %s" % (filepath, oct(mode)))
-            os.chmod(filepath, mode)
-
 
 with open('README.md') as readme_file:
     README = readme_file.read()
 with open('CHANGELOG.md') as changelog_file:
     CHANGELOG = changelog_file.read()
+with open('CONTRIBUTORS.md') as changelog_file:
+    CONTRIBUTORS = changelog_file.read()
+with open('LICENSE') as changelog_file:
+    LICENSE = changelog_file.read()
 
 additional_files = [
     'README.md',
     'CHANGELOG.md',
+    'CONTRIBUTORS.md',
     'LICENSE',
 ]
 setup_args = dict(
     name='nmap_scan',
-    version='0.0.1',
-    description='Nmap wrapper for python',
+    version='1.0.0',
+    description='Nmap wrapper for python with complete Nmap DTD support',
     long_description_content_type="text/markdown",
-    long_description=README + '\n\n\n' + CHANGELOG,
+    long_description=README + '\n\n\n' + CONTRIBUTORS + '\n\n\n' + CHANGELOG,
     license='AGPLv3',
     packages=find_packages(),
     author='Fabian Fröhlich',
     author_email='mail@confgen.org',
-    keywords=['nmap', 'serverstatus', ],
-    url='https://github.com/f-froehlich/monitoring-scripts',
-    download_url='https://pypi.org/project/monitoring-scripts/',
-    package_data={'monitoring_scripts': ['*.sh']},
-    data_files=[('monitoring_scripts_doc', additional_files)]
+    maintainer='Fabian Fröhlich',
+    maintainer_email='mail@confgen.org',
+    keywords=['nmap', 'serverstatus', 'security', 'secutity-tools', 'scanner', 'scanning', 'portscanner',
+              'portscanning', 'network-scanner', 'os-identifier', 'service-discovery', 'service-detection', ],
+    download_url='https://github.com/f-froehlich/nmap-scan',
+    url='https://nmap-scan.de',
+    package_data={'nmap_scan': additional_files},
 )
 
 install_requires = [
 ]
 
 if __name__ == '__main__':
-    setup(**setup_args, install_requires=install_requires, cmdclass={'install': OverrideInstall})
+    setup(**setup_args, install_requires=install_requires)
