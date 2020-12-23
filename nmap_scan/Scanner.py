@@ -125,45 +125,49 @@ class Scanner(NmapScanMethods):
             else:
                 logging.error('Unknown error proceed during nmap call:')
                 logging.error(stderr)
-                self.__has_error[method] = stderr
-                raise NmapExecutionException(stderr)
+                err = NmapExecutionException(stderr)
+                self.__has_error[method] = err
+                raise err
 
         try:
             xml = ElementTree.fromstring(stdout)
             self.__output[method] = xml
 
-            if self.TCP == method:
-                report = TCPReport(xml)
-            elif self.TCP_NULL == method:
-                report = TCPNullReport(xml)
-            elif self.UDP == method:
-                report = UDPReport(xml)
-            elif self.PING == method:
-                report = PingReport(xml)
-            elif self.SYN == method:
-                report = SynReport(xml)
-            elif self.CONNECT == method:
-                report = ConnectReport(xml)
-            elif self.ACK == method:
-                report = ACKReport(xml)
-            elif self.WINDOW == method:
-                report = WindowReport(xml)
-            elif self.MAIMON == method:
-                report = MaimonReport(xml)
-            elif self.FIN == method:
-                report = FINReport(xml)
-            elif self.IP == method:
-                report = IPReport(xml)
-            elif self.XMAS == method:
-                report = XmasReport(xml)
-            elif self.SCTP_INIT == method:
-                report = SCTPInitReport(xml)
-            elif self.SCTP_COOKIE == method:
-                report = SCTPCookieReport(xml)
-            else:
-                raise LogicException('No report for scan method "{method}" found')
-
-            # todo scan methods
+            try:
+                if self.TCP == method:
+                    report = TCPReport(xml)
+                elif self.TCP_NULL == method:
+                    report = TCPNullReport(xml)
+                elif self.UDP == method:
+                    report = UDPReport(xml)
+                elif self.PING == method:
+                    report = PingReport(xml)
+                elif self.SYN == method:
+                    report = SynReport(xml)
+                elif self.CONNECT == method:
+                    report = ConnectReport(xml)
+                elif self.ACK == method:
+                    report = ACKReport(xml)
+                elif self.WINDOW == method:
+                    report = WindowReport(xml)
+                elif self.MAIMON == method:
+                    report = MaimonReport(xml)
+                elif self.FIN == method:
+                    report = FINReport(xml)
+                elif self.IP == method:
+                    report = IPReport(xml)
+                elif self.XMAS == method:
+                    report = XmasReport(xml)
+                elif self.SCTP_INIT == method:
+                    report = SCTPInitReport(xml)
+                elif self.SCTP_COOKIE == method:
+                    report = SCTPCookieReport(xml)
+                else:
+                    raise LogicException(
+                        'No report for scan method "{method}" found'.format(method=self.get_name_of_method(method)))
+            except Exception as e:
+                self.__has_error[method] = e
+                raise e
 
             self.__reports[method] = report
 
@@ -180,7 +184,7 @@ class Scanner(NmapScanMethods):
             return self.__reports.get(scan_method)
 
         if None != self.__has_error.get(scan_method, None):
-            raise NmapExecutionException(self.__has_error.get(scan_method))
+            raise self.__has_error.get(scan_method)
 
         if None != self.__threads.get(scan_method, None):
             logging.info('scan for "{method}" not finished yet. Waiting for Report'
@@ -220,7 +224,7 @@ class Scanner(NmapScanMethods):
 
         for thread_method in self.__threads:
             logging.info('Waiting for scan "{method}" to finish'.format(method=self.get_name_of_method(thread_method)))
-            self.__threads[thread_method].join()
+            self.wait(thread_method)
 
     def scan_tcp(self, callback_method=None):
         return self.scan(NmapScanMethods.TCP, callback_method)

@@ -334,7 +334,7 @@ class NmapArgs:
         argpaser.add_argument('-H', '--host', dest='hosts', action='append', default=self.__hosts, required=True,
                               help='Hostnames, IP addresses, networks, etc to scan')
 
-        self.__add_list_arg(argpaser, '--exclude', 'Hostnames, IP addresses, networks, etc to scan',
+        self.__add_list_arg(argpaser, '--exclude', 'Hostnames, IP addresses, networks, etc not to scan',
                             self.__exclude_hosts)
         self.__add_list_arg(argpaser, '--dns-servers', 'Specify custom DNS servers', self.__dns_servers)
         self.__add_list_arg(argpaser, '-p', 'Only scan specified ports', self.__ports)
@@ -358,7 +358,7 @@ class NmapArgs:
         self.__add_int_arg(argpaser, '--min-hostgroup', 'Minimum Parallel host scan group sizes', self.__min_hostgroup)
         self.__add_int_arg(argpaser, '--max-hostgroup', 'Maximum Parallel host scan group sizes', self.__max_hostgroup)
         self.__add_int_arg(argpaser, '--min-rate', 'Send packets no slower than <number> per second', self.__min_rate)
-        self.__add_int_arg(argpaser, '--max-rate', 'Send packets no faster than <number> per secondsizes',
+        self.__add_int_arg(argpaser, '--max-rate', 'Send packets no faster than <number> per second',
                            self.__max_rate)
         self.__add_int_arg(argpaser, '--min-parallelism', 'Minimum Probe parallelization', self.__min_parallelism)
         self.__add_int_arg(argpaser, '--max-parallelism', 'Maximum Probe parallelization', self.__max_parallelism)
@@ -377,7 +377,7 @@ class NmapArgs:
         self.__add_str_arg(argpaser, '--host-timeout', 'Give up on target after this long', self.__max_parallelism)
         self.__add_str_arg(argpaser, '--scan-delay', 'Adjust delay between probes', self.__scan_delay)
         self.__add_str_arg(argpaser, '--max-scan-delay', 'Adjust maximum delay between probes', self.__max_scan_delay)
-        self.__add_str_arg(argpaser, '--mtu', 'fragment packets (optionally w/given MTU)', self.__mtu)
+        self.__add_str_arg(argpaser, '--mtu', 'Fragment packets (optionally w/given MTU)', self.__mtu)
         self.__add_str_arg(argpaser, '-S', 'Spoof source address', self.__spoof_ip)
         self.__add_str_arg(argpaser, '-e', 'Use specified interface', self.__interface)
         self.__add_str_arg(argpaser, '--data', 'Append a custom payload to sent packets', self.__data)
@@ -400,7 +400,7 @@ class NmapArgs:
         self.__add_boolean_arg(argpaser, '--version-all', 'Try every single probe (intensity 9)', self.__version_all)
         self.__add_boolean_arg(argpaser, '--version-trace', 'Show detailed version scan activity (for debugging)',
                                self.__version_trace)
-        self.__add_boolean_arg(argpaser, '-sC', 'equivalent to --script=default', self.__default_script)
+        self.__add_boolean_arg(argpaser, '-sC', 'Equivalent to --script=default', self.__default_script)
         self.__add_boolean_arg(argpaser, '--script-trace', 'Show all data sent and received', self.__script_trace)
         self.__add_boolean_arg(argpaser, '-O', 'Enable OS detection', self.__os_detection)
         self.__add_boolean_arg(argpaser, '--osscan-guess', 'Guess OS more aggressively', self.__os_guess)
@@ -412,7 +412,7 @@ class NmapArgs:
         self.__add_boolean_arg(argpaser, '--send-ip', 'Send using ip frames', self.__send_ip)
         self.__add_boolean_arg(argpaser, '--privileged', 'Assume that the user is fully privileged', self.__privileged)
         self.__add_boolean_arg(argpaser, '-Pn', 'Treat all hosts as online', self.__pn)
-        self.__add_boolean_arg(argpaser, '--unprivileged', 'Assume the user lacks raw socket privilegesd',
+        self.__add_boolean_arg(argpaser, '--unprivileged', 'Assume the user lacks raw socket unprivileged',
                                self.__unprivileged)
 
     def configure(self, args=None):
