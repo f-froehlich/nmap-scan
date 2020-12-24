@@ -29,8 +29,6 @@
 
 import logging
 
-from nmap_scan.Exceptions.LogicException import LogicException
-
 
 class TaskEnd:
 
@@ -54,8 +52,6 @@ class TaskEnd:
         return self.__extra_info
 
     def __parse_xml(self):
-        if None == self.__xml:
-            raise LogicException('No valid xml is set.')
         logging.info('Parsing TaskEnd')
         attr = self.__xml.attrib
         self.__task = attr['task']

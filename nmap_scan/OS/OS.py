@@ -29,7 +29,6 @@
 
 import logging
 
-from nmap_scan.Exceptions.LogicException import LogicException
 from nmap_scan.OS.OSMatch import OSMatch
 from nmap_scan.OS.OSUsedPort import OSUsedPort
 
@@ -56,8 +55,7 @@ class OS:
         return self.__os_fingerprints
 
     def __parse_xml(self):
-        if None == self.__xml:
-            raise LogicException('No valid xml is set.')
+
         logging.info('Parsing OS')
 
         for portused_xml in self.__xml.findall('portused'):

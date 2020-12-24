@@ -29,8 +29,6 @@
 
 import logging
 
-from nmap_scan.Exceptions.LogicException import LogicException
-
 
 class OSUsedPort:
 
@@ -54,8 +52,6 @@ class OSUsedPort:
         return self.__state
 
     def __parse_xml(self):
-        if None == self.__xml:
-            raise LogicException('No valid xml is set.')
         logging.info('Parsing OSUsedPort')
 
         attr = self.__xml.attrib

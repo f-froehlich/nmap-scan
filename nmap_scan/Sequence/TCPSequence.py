@@ -29,8 +29,6 @@
 
 import logging
 
-from nmap_scan.Exceptions.LogicException import LogicException
-
 
 class TCPSequence:
 
@@ -54,8 +52,6 @@ class TCPSequence:
         return self.__values
 
     def __parse_xml(self):
-        if None == self.__xml:
-            raise LogicException('No valid xml is set.')
         logging.info('Parsing TCPSequence')
         attr = self.__xml.attrib
         self.__index = int(attr['index'])

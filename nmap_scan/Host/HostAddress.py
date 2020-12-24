@@ -29,8 +29,6 @@
 
 import logging
 
-from nmap_scan.Exceptions.LogicException import LogicException
-
 
 class HostAddress:
 
@@ -66,9 +64,6 @@ class HostAddress:
         return 'mac' == self.__type
 
     def __parse_xml(self):
-        if None == self.__xml:
-            raise LogicException('No valid xml is set.')
-
         logging.info('Parsing HostAddress')
         attr = self.__xml.attrib
         self.__addr = attr['addr']

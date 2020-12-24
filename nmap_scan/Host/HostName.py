@@ -29,8 +29,6 @@
 
 import logging
 
-from nmap_scan.Exceptions.LogicException import LogicException
-
 
 class HostName:
 
@@ -50,9 +48,6 @@ class HostName:
         return self.__type
 
     def __parse_xml(self):
-        if None == self.__xml:
-            raise LogicException('No valid xml is set.')
-
         logging.info('Parsing HostName')
         attr = self.__xml.attrib
         self.__name = attr.get('name', None)

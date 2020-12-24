@@ -55,8 +55,7 @@ class SSLEnumCiphers(Script):
         return self.__least_strength
 
     def __parse_xml(self):
-        if None == self.__xml:
-            raise LogicException('No valid xml is set.')
+
         logging.info('Parsing SSLEnumCiphers')
 
         xml_tables = self.__xml.findall('table')
@@ -95,8 +94,7 @@ class SSLEnumCiphersProtocol:
         return self.__cipher_preference
 
     def __parse_xml(self):
-        if None == self.__xml:
-            raise LogicException('No valid xml is set.')
+
         logging.info('Parsing SSLEnumCiphersProtocol')
 
         for xml_table in self.__xml.findall('table'):
@@ -153,8 +151,7 @@ class SSLEnumCiphersCipher:
         return CipherCompare.a_lower_b(self.__strength, strength)
 
     def __parse_xml(self):
-        if None == self.__xml:
-            raise LogicException('No valid xml is set.')
+
         logging.info('Parsing SSLEnumCiphersCiphers')
 
         for xml_element in self.__xml.findall('elem'):

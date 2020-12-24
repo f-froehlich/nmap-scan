@@ -29,8 +29,6 @@
 
 import logging
 
-from nmap_scan.Exceptions.LogicException import LogicException
-
 
 class RunStats:
 
@@ -78,8 +76,6 @@ class RunStats:
         return self.__total
 
     def __parse_xml(self):
-        if None == self.__xml:
-            raise LogicException('No valid xml is set.')
         logging.info('Parsing RunStats')
         attr_finished = self.__xml.find('finished').attrib
         attr_hosts = self.__xml.find('hosts').attrib

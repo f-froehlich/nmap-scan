@@ -29,8 +29,6 @@
 
 import logging
 
-from nmap_scan.Exceptions.LogicException import LogicException
-
 
 class Service:
 
@@ -103,8 +101,6 @@ class Service:
         return self.__name
 
     def __parse_xml(self):
-        if None == self.__xml:
-            raise LogicException('No valid xml is set.')
         logging.info('Parsing Service')
         attr = self.__xml.attrib
         self.__name = attr['name']

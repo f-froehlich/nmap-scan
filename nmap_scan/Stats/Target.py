@@ -29,8 +29,6 @@
 
 import logging
 
-from nmap_scan.Exceptions.LogicException import LogicException
-
 
 class Target:
 
@@ -50,8 +48,6 @@ class Target:
         return self.__reason
 
     def __parse_xml(self):
-        if None == self.__xml:
-            raise LogicException('No valid xml is set.')
         logging.info('Parsing Target')
         attr = self.__xml.attrib
         self.__status = attr.get('status', None)

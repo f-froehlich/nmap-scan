@@ -30,7 +30,6 @@
 import logging
 
 from nmap_scan.Data.Element import Element
-from nmap_scan.Exceptions.LogicException import LogicException
 
 
 class Table:
@@ -52,8 +51,7 @@ class Table:
         return self.__tables
 
     def __parse_xml(self):
-        if None == self.__xml:
-            raise LogicException('No valid xml is set.')
+
         logging.info('Parsing Table')
         attr = self.__xml.attrib
         self.__key = attr.get('key', None)

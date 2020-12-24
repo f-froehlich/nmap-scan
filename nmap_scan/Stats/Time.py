@@ -29,8 +29,6 @@
 
 import logging
 
-from nmap_scan.Exceptions.LogicException import LogicException
-
 
 class Time:
 
@@ -54,8 +52,6 @@ class Time:
         return self.__to
 
     def __parse_xml(self):
-        if None == self.__xml:
-            raise LogicException('No valid xml is set.')
         logging.info('Parsing Time')
         attr = self.__xml.attrib
         self.__srtt = attr['srtt']

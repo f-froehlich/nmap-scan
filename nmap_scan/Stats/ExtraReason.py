@@ -29,8 +29,6 @@
 
 import logging
 
-from nmap_scan.Exceptions.LogicException import LogicException
-
 
 class ExtraReason:
 
@@ -50,8 +48,6 @@ class ExtraReason:
         return self.__reason
 
     def __parse_xml(self):
-        if None == self.__xml:
-            raise LogicException('No valid xml is set.')
         logging.info('Parsing ExtraReason')
         attr = self.__xml.attrib
         self.__reason = attr['reason']

@@ -29,8 +29,6 @@
 
 import logging
 
-from nmap_scan.Exceptions.LogicException import LogicException
-
 
 class IPIDSequence:
 
@@ -50,8 +48,6 @@ class IPIDSequence:
         return self.__values
 
     def __parse_xml(self):
-        if None == self.__xml:
-            raise LogicException('No valid xml is set.')
         logging.info('Parsing IPIDSequence')
         attr = self.__xml.attrib
         self.__class = attr['class']
