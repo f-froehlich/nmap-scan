@@ -41,6 +41,13 @@ class TaskProgress:
         self.__etc = None
         self.__parse_xml()
 
+    def equals(self, other):
+        return self.__task == other.get_task() \
+               and self.__time == other.get_time() \
+               and self.__percent == other.get_percent() \
+               and self.__remaining == other.get_remaining() \
+               and self.__etc == other.get_etc()
+
     def get_xml(self):
         return self.__xml
 
