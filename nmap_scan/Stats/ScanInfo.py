@@ -41,6 +41,13 @@ class ScanInfo:
         self.__services = None
         self.__parse_xml()
 
+    def equals(self, other):
+        return self.__type == other.get_type() \
+               and self.__protocol == other.get_protocol() \
+               and self.__scan_flags == other.get_scan_flags() \
+               and self.__num_services == other.get_num_services() \
+               and self.__services == other.get_services()
+
     def get_type(self):
         return self.__type
 
@@ -64,7 +71,7 @@ class ScanInfo:
         attr = self.__xml.attrib
         self.__type = attr['type']
         self.__protocol = attr['protocol']
-        self.__numservices = int(attr['numservices'])
+        self.__num_services = int(attr['numservices'])
         self.__services = attr['services']
         self.__scan_flags = attr.get('scanflags', None)
 
