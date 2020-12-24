@@ -39,6 +39,11 @@ class TCPSequence:
         self.__values = None
         self.__parse_xml()
 
+    def equals(self, other):
+        return self.__index == other.get_index() \
+               and self.__difficulty == other.get_difficulty() \
+               and self.__values == other.get_values()
+
     def get_xml(self):
         return self.__xml
 

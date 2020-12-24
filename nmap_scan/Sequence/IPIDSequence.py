@@ -38,6 +38,9 @@ class IPIDSequence:
         self.__values = None
         self.__parse_xml()
 
+    def equals(self, other):
+        return self.__class == other.get_class() and self.__values == other.get_values()
+
     def get_xml(self):
         return self.__xml
 
