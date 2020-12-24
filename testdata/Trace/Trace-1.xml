@@ -1,0 +1,3 @@
+<trace proto="tcp" port="10">
+    <hop ttl="ttl" rtt="rtt" ipaddr="IP" host="host"/>
+</trace>

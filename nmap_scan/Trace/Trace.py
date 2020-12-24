@@ -53,11 +53,29 @@ class Trace:
     def get_port(self):
         return self.__port
 
+    def equals(self, other):
+        status = self.__proto == other.get_proto() \
+                 and self.__port == other.get_port() \
+                 and len(self.__hops) == len(other.get_hops())
+
+        if status:
+            for own_hop in self.__hops:
+                exist = False
+                for other_hop in other.get_hops():
+                    if own_hop.equals(other_hop):
+                        exist = True
+                        break
+                if not exist:
+                    status = False
+                    break
+
+        return status
+
     def __parse_xml(self):
         logging.info('Parsing Trace')
         attr = self.__xml.attrib
         self.__port = int(attr['port']) if None != attr.get('port', None) else None
-        self.__proto = attr.get('port', None)
+        self.__proto = attr.get('proto', None)
 
         logging.debug('Port: "{port}"'.format(port=self.__port))
         logging.debug('Proto: "{proto}"'.format(proto=self.__proto))
