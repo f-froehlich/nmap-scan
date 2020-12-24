@@ -39,6 +39,12 @@ class OSUsedPort:
         self.__port = None
         self.__parse_xml()
 
+    def equals(self, other):
+        return isinstance(other, OSUsedPort) \
+               and self.__state == other.get_state() \
+               and self.__proto == other.get_proto() \
+               and self.__port == other.get_port()
+
     def get_xml(self):
         return self.__xml
 

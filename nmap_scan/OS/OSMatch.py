@@ -42,6 +42,34 @@ class OSMatch:
         self.__line = None
         self.__parse_xml()
 
+    def equals(self, other):
+        state = isinstance(other, OSMatch) \
+                and self.__name == other.get_name() \
+                and self.__accuracy == other.get_accuracy() \
+                and self.__line == other.get_line() \
+                and len(self.__os_classes) == len(other.get_os_classes())
+
+        if state:
+            for own_os_class in self.__os_classes:
+                exist = False
+                for other_os_class in other.get_os_classes():
+                    if own_os_class.equals(other_os_class):
+                        exist = True
+                        break
+                if not exist:
+                    return False
+
+            for other_os_class in other.get_os_classes():
+                exist = False
+                for own_os_class in self.__os_classes:
+                    if own_os_class.equals(other_os_class):
+                        exist = True
+                        break
+                if not exist:
+                    return False
+
+        return state
+
     def get_xml(self):
         return self.__xml
 

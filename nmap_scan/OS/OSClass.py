@@ -42,6 +42,26 @@ class OSClass:
         self.__cpes = []
         self.__parse_xml()
 
+    def equals(self, other):
+        state = isinstance(other, OSClass) \
+                and self.__type == other.get_type() \
+                and self.__vendor == other.get_vendor() \
+                and self.__family == other.get_family() \
+                and self.__generation == other.get_generation() \
+                and self.__accuracy == other.get_accuracy() \
+                and len(self.__cpes) == len(other.get_cpes())
+
+        if state:
+            for own_cpe in self.__cpes:
+                if own_cpe not in other.get_cpes():
+                    return False
+
+            for other_cpe in other.get_cpes():
+                if other_cpe not in self.__cpes:
+                    return False
+
+        return state
+
     def get_xml(self):
         return self.__xml
 

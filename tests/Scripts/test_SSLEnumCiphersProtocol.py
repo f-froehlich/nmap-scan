@@ -5,7 +5,6 @@ from tests.BaseXMLTest import BaseXMLTest
 
 
 @pytest.mark.script
-@pytest.mark.cipher
 class TestSSLEnumCiphersCipher(BaseXMLTest):
 
     def create_instance(self, xml):

@@ -42,6 +42,56 @@ class OS:
         self.__os_fingerprints = []
         self.__parse_xml()
 
+    def equals(self, other):
+        if not isinstance(other, OS):
+            return False
+
+        for own_used_port in self.__used_ports:
+            exist = False
+            for other_used_port in other.get_used_ports():
+                if own_used_port.equals(other_used_port):
+                    exist = True
+                    break
+            if not exist:
+                return False
+
+        for other_used_port in other.get_used_ports():
+            exist = False
+            for own_used_port in self.__used_ports:
+                if own_used_port.equals(other_used_port):
+                    exist = True
+                    break
+            if not exist:
+                return False
+
+        for own_os_match in self.__os_matches:
+            exist = False
+            for other_os_match in other.get_os_matches():
+                if own_os_match.equals(other_os_match):
+                    exist = True
+                    break
+            if not exist:
+                return False
+
+        for other_os_match in other.get_os_matches():
+            exist = False
+            for own_os_match in self.__os_matches:
+                if own_os_match.equals(other_os_match):
+                    exist = True
+                    break
+            if not exist:
+                return False
+
+        for own_os_fingerprint in self.__os_fingerprints:
+            if own_os_fingerprint not in other.get_os_fingerprints():
+                return False
+
+        for other_os_fingerprint in other.get_os_fingerprints():
+            if other_os_fingerprint not in self.__os_fingerprints:
+                return False
+
+        return True
+
     def get_xml(self):
         return self.__xml
 

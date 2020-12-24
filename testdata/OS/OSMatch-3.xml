@@ -1,0 +1,10 @@
+<osmatch name="name" accuracy="44">
+    <osclass vendor="vendor" accuracy="33" osfamily="osfamily" osgen="osgen" type="type">
+        <cpe>cpe1</cpe>
+        <cpe>cpe2</cpe>
+    </osclass>
+    <osclass vendor="vendor" accuracy="33" osfamily="osfamily" osgen="osgen" type="type">
+        <cpe>cpe1</cpe>
+        <cpe>cpe1</cpe>
+    </osclass>
+</osmatch>

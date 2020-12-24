@@ -1,0 +1,4 @@
+<osclass vendor="vendor" osfamily="osfamily">
+    <cpe>cpe1</cpe>
+    <cpe>cpe2</cpe>
+</osclass>

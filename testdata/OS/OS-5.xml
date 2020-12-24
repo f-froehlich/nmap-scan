@@ -1,0 +1,4 @@
+<os>
+    <portused state="up" proto="tcp" portid="22"/>
+    <portused state="up" proto="tcp" portid="23"/>
+</os>
