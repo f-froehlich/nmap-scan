@@ -4,8 +4,7 @@ from nmap_scan.Stats.Uptime import Uptime
 from tests.BaseXMLTest import BaseXMLTest
 
 
-@pytest.mark.hop
-@pytest.mark.trace
+@pytest.mark.uptime
 class TestUptime(BaseXMLTest):
 
     def create_instance(self, xml):

@@ -4,8 +4,7 @@ from nmap_scan.Stats.Time import Time
 from tests.BaseXMLTest import BaseXMLTest
 
 
-@pytest.mark.hop
-@pytest.mark.trace
+@pytest.mark.time
 class TestTime(BaseXMLTest):
 
     def create_instance(self, xml):

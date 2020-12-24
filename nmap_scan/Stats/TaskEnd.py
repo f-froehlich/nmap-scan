@@ -39,6 +39,11 @@ class TaskEnd:
         self.__extra_info = None
         self.__parse_xml()
 
+    def equals(self, other):
+        return self.__task == other.get_task() \
+               and self.__time == other.get_time() \
+               and self.__extra_info == other.get_extra_info()
+
     def get_xml(self):
         return self.__xml
 

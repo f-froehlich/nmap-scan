@@ -4,8 +4,8 @@ from nmap_scan.Stats.TaskProgress import TaskProgress
 from tests.BaseXMLTest import BaseXMLTest
 
 
-@pytest.mark.hop
-@pytest.mark.trace
+@pytest.mark.task
+@pytest.mark.taskProgress
 class TestTaskProgress(BaseXMLTest):
 
     def create_instance(self, xml):
