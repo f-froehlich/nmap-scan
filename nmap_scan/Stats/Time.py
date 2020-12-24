@@ -39,6 +39,11 @@ class Time:
         self.__to = None
         self.__parse_xml()
 
+    def equals(self, other):
+        return self.__srtt == other.get_srtt() \
+               and self.__rttvar == other.get_rttvar() \
+               and self.__to == other.get_to()
+
     def get_xml(self):
         return self.__xml
 
