@@ -1,0 +1,5 @@
+<script id="unknownId" output="scriptOutput">
+    <table key="table1">
+        <elem key="element1">data</elem>
+    </table>
+</script>
