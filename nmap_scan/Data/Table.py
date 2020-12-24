@@ -50,6 +50,9 @@ class Table:
     def get_tables(self):
         return self.__tables
 
+    def get_key(self):
+        return self.__key
+
     def __parse_xml(self):
 
         logging.info('Parsing Table')
