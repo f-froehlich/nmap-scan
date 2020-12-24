@@ -38,6 +38,11 @@ class Element:
         self.__key = None
         self.__parse_xml()
 
+    def equals(self, other):
+        return isinstance(other, Element) \
+               and self.__key == other.get_key() \
+               and self.__data == other.get_data()
+
     def get_xml(self):
         return self.__xml
 

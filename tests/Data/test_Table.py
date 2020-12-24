@@ -71,3 +71,77 @@ class TestTable(BaseXMLTest):
 
         assert 1 == len(e.get_tables()[0].get_elements())
         assert isinstance(e.get_tables()[0].get_elements()[0], Element)
+
+    @pytest.mark.parametrize(("filepath1", "filepath2", "expected"), [
+        ('testdata/Data/Table-1.xml', 'testdata/Data/Table-1.xml', True),
+        ('testdata/Data/Table-1.xml', 'testdata/Data/Table-2.xml', False),
+        ('testdata/Data/Table-1.xml', 'testdata/Data/Table-3.xml', False),
+        ('testdata/Data/Table-1.xml', 'testdata/Data/Table-4.xml', False),
+        ('testdata/Data/Table-1.xml', 'testdata/Data/Table-5.xml', False),
+        ('testdata/Data/Table-1.xml', 'testdata/Data/Table-6.xml', False),
+        ('testdata/Data/Table-1.xml', 'testdata/Data/Table-7.xml', False),
+        ('testdata/Data/Table-1.xml', 'testdata/Data/Table-8.xml', False),
+        ('testdata/Data/Table-2.xml', 'testdata/Data/Table-1.xml', False),
+        ('testdata/Data/Table-2.xml', 'testdata/Data/Table-2.xml', True),
+        ('testdata/Data/Table-2.xml', 'testdata/Data/Table-3.xml', False),
+        ('testdata/Data/Table-2.xml', 'testdata/Data/Table-4.xml', False),
+        ('testdata/Data/Table-2.xml', 'testdata/Data/Table-5.xml', False),
+        ('testdata/Data/Table-2.xml', 'testdata/Data/Table-6.xml', False),
+        ('testdata/Data/Table-2.xml', 'testdata/Data/Table-7.xml', False),
+        ('testdata/Data/Table-3.xml', 'testdata/Data/Table-1.xml', False),
+        ('testdata/Data/Table-3.xml', 'testdata/Data/Table-2.xml', False),
+        ('testdata/Data/Table-3.xml', 'testdata/Data/Table-3.xml', True),
+        ('testdata/Data/Table-3.xml', 'testdata/Data/Table-4.xml', False),
+        ('testdata/Data/Table-3.xml', 'testdata/Data/Table-5.xml', False),
+        ('testdata/Data/Table-3.xml', 'testdata/Data/Table-6.xml', False),
+        ('testdata/Data/Table-3.xml', 'testdata/Data/Table-7.xml', False),
+        ('testdata/Data/Table-3.xml', 'testdata/Data/Table-8.xml', False),
+        ('testdata/Data/Table-4.xml', 'testdata/Data/Table-1.xml', False),
+        ('testdata/Data/Table-4.xml', 'testdata/Data/Table-2.xml', False),
+        ('testdata/Data/Table-4.xml', 'testdata/Data/Table-3.xml', False),
+        ('testdata/Data/Table-4.xml', 'testdata/Data/Table-4.xml', True),
+        ('testdata/Data/Table-4.xml', 'testdata/Data/Table-5.xml', False),
+        ('testdata/Data/Table-4.xml', 'testdata/Data/Table-6.xml', False),
+        ('testdata/Data/Table-4.xml', 'testdata/Data/Table-7.xml', False),
+        ('testdata/Data/Table-4.xml', 'testdata/Data/Table-8.xml', False),
+        ('testdata/Data/Table-5.xml', 'testdata/Data/Table-1.xml', False),
+        ('testdata/Data/Table-5.xml', 'testdata/Data/Table-2.xml', False),
+        ('testdata/Data/Table-5.xml', 'testdata/Data/Table-3.xml', False),
+        ('testdata/Data/Table-5.xml', 'testdata/Data/Table-4.xml', False),
+        ('testdata/Data/Table-5.xml', 'testdata/Data/Table-5.xml', True),
+        ('testdata/Data/Table-5.xml', 'testdata/Data/Table-6.xml', False),
+        ('testdata/Data/Table-5.xml', 'testdata/Data/Table-7.xml', False),
+        ('testdata/Data/Table-5.xml', 'testdata/Data/Table-8.xml', False),
+        ('testdata/Data/Table-6.xml', 'testdata/Data/Table-1.xml', False),
+        ('testdata/Data/Table-6.xml', 'testdata/Data/Table-2.xml', False),
+        ('testdata/Data/Table-6.xml', 'testdata/Data/Table-3.xml', False),
+        ('testdata/Data/Table-6.xml', 'testdata/Data/Table-4.xml', False),
+        ('testdata/Data/Table-6.xml', 'testdata/Data/Table-5.xml', False),
+        ('testdata/Data/Table-6.xml', 'testdata/Data/Table-6.xml', True),
+        ('testdata/Data/Table-6.xml', 'testdata/Data/Table-7.xml', False),
+        ('testdata/Data/Table-6.xml', 'testdata/Data/Table-8.xml', False),
+        ('testdata/Data/Table-7.xml', 'testdata/Data/Table-1.xml', False),
+        ('testdata/Data/Table-7.xml', 'testdata/Data/Table-2.xml', False),
+        ('testdata/Data/Table-7.xml', 'testdata/Data/Table-3.xml', False),
+        ('testdata/Data/Table-7.xml', 'testdata/Data/Table-4.xml', False),
+        ('testdata/Data/Table-7.xml', 'testdata/Data/Table-5.xml', False),
+        ('testdata/Data/Table-7.xml', 'testdata/Data/Table-6.xml', False),
+        ('testdata/Data/Table-7.xml', 'testdata/Data/Table-7.xml', True),
+        ('testdata/Data/Table-7.xml', 'testdata/Data/Table-8.xml', False),
+        ('testdata/Data/Table-8.xml', 'testdata/Data/Table-1.xml', False),
+        ('testdata/Data/Table-8.xml', 'testdata/Data/Table-2.xml', False),
+        ('testdata/Data/Table-8.xml', 'testdata/Data/Table-3.xml', False),
+        ('testdata/Data/Table-8.xml', 'testdata/Data/Table-4.xml', False),
+        ('testdata/Data/Table-8.xml', 'testdata/Data/Table-5.xml', False),
+        ('testdata/Data/Table-8.xml', 'testdata/Data/Table-6.xml', False),
+        ('testdata/Data/Table-8.xml', 'testdata/Data/Table-7.xml', False),
+        ('testdata/Data/Table-8.xml', 'testdata/Data/Table-8.xml', True),
+
+    ])
+    def test_equals(self, filepath1, filepath2, expected):
+        xml1 = self.create_xml(filepath1)
+        e1 = self.create_instance(xml1)
+        xml2 = self.create_xml(filepath2)
+        e2 = self.create_instance(xml2)
+
+        assert expected == e1.equals(e2)
