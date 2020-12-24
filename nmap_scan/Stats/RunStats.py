@@ -45,6 +45,17 @@ class RunStats:
         self.__total = None
         self.__parse_xml()
 
+    def equals(self, other):
+        return self.__time == other.get_time() \
+               and self.__time_str == other.get_time_string() \
+               and self.__summary == other.get_summary() \
+               and self.__elapsed == other.get_elapsed() \
+               and self.__exit == other.get_exit() \
+               and self.__errormsg == other.get_errormsg() \
+               and self.__up == other.get_up() \
+               and self.__down == other.get_down() \
+               and self.__total == other.get_total()
+
     def get_xml(self):
         return self.__xml
 
@@ -81,7 +92,7 @@ class RunStats:
         attr_hosts = self.__xml.find('hosts').attrib
         self.__time = int(attr_finished['time'])
         self.__time_str = attr_finished.get('timestr', None)
-        self.__elapsed = attr_finished['elapsed'] if None != attr_finished.get('elapsed', None) else None
+        self.__elapsed = float(attr_finished['elapsed']) if None != attr_finished.get('elapsed', None) else None
         self.__summary = attr_finished.get('summary', None)
         self.__exit = attr_finished.get('exit', None)
         self.__errormsg = attr_finished.get('errormsg', None)

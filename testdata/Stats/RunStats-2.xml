@@ -1,0 +1,4 @@
+<runstats>
+    <finished time="20" timestr="timestr" summary="summary" elapsed="10.5" exit="success"/>
+    <hosts up="2" down="0" total="2"/>
+</runstats>
