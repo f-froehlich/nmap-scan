@@ -38,6 +38,9 @@ class ExtraReason:
         self.__count = None
         self.__parse_xml()
 
+    def equals(self, other):
+        return self.__reason == other.get_reason() and self.__count == other.get_count()
+
     def get_xml(self):
         return self.__xml
 
