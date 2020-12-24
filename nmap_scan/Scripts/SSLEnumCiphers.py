@@ -76,6 +76,7 @@ class SSLEnumCiphersProtocol:
         self.__compressors = None
         self.__least_strength = None
         self.__cipher_preference = None
+        self.__protocol_version = None
         self.__parse_xml()
 
     def get_xml(self):
@@ -93,21 +94,45 @@ class SSLEnumCiphersProtocol:
     def get_cipher_preference(self):
         return self.__cipher_preference
 
+    def get_protocol_version(self):
+        return self.__protocol_version
+
+    def equals(self, other):
+        status = self.__protocol_version == other.get_protocol_version() \
+                 and self.__compressors == other.get_compressor() \
+                 and self.__cipher_preference == other.get_cipher_preference() \
+                 and self.__least_strength == other.get_least_strength() \
+                 and len(self.__ciphers) == len(other.get_ciphers())
+
+        if status:
+            for own_cipher in self.__ciphers:
+                exist = False
+                for other_cipher in other.get_ciphers():
+                    if own_cipher.equals(other_cipher):
+                        exist = True
+                        break
+
+                if not exist:
+                    status = False
+                    break
+        return status
+
     def __parse_xml(self):
 
         logging.info('Parsing SSLEnumCiphersProtocol')
+        self.__protocol_version = self.__xml.attrib['key'].lower()
 
         for xml_table in self.__xml.findall('table'):
-            if 'ciphers' == xml_table.attrib['key']:
+            if 'ciphers' == xml_table.get('key', None):
                 for cipher_table in xml_table.findall('table'):
                     self.__ciphers.append(SSLEnumCiphersCipher(cipher_table))
 
-            elif 'compressors' == xml_table.attrib['key']:
+            elif 'compressors' == xml_table.get('key', None):
                 for compressor_table in xml_table.findall('elem'):
                     self.__compressors = compressor_table.text
 
         for xml_elements in self.__xml.findall('elem'):
-            if 'cipher preference' == xml_elements.attrib['key']:
+            if 'cipher preference' == xml_elements.get('key', None):
                 self.__cipher_preference = xml_elements.text
 
         least_strength = 'A'
@@ -117,6 +142,7 @@ class SSLEnumCiphersProtocol:
 
         self.__least_strength = least_strength
 
+        logging.debug('Protocol: "{protocol}"'.format(protocol=self.__protocol_version))
         logging.debug('Compressor: "{compressor}"'.format(compressor=self.__compressors))
         logging.debug('Cipher preference: "{cipher_preference}"'.format(cipher_preference=self.__cipher_preference))
         logging.debug('Least strength: "{strength}"'.format(strength=self.__least_strength))
@@ -148,7 +174,33 @@ class SSLEnumCiphersCipher:
 
     def is_worse_than_strength(self, strength):
 
-        return CipherCompare.a_lower_b(self.__strength, strength)
+        return CipherCompare.a_worse_b(self.__strength, strength)
+
+    def is_worse_equals_than(self, cipher):
+        return self.is_worse_equals_than_strength(cipher.get_strength())
+
+    def is_worse_equals_than_strength(self, strength):
+
+        return CipherCompare.a_worse_equals_b(self.__strength, strength)
+
+    def is_better_than(self, cipher):
+        return self.is_better_than_strength(cipher.get_strength())
+
+    def is_better_than_strength(self, strength):
+
+        return CipherCompare.a_better_b(self.__strength, strength)
+
+    def is_better_equals_than(self, cipher):
+        return self.is_better_equals_than_strength(cipher.get_strength())
+
+    def is_better_equals_than_strength(self, strength):
+
+        return CipherCompare.a_better_equals_b(self.__strength, strength)
+
+    def equals(self, cipher):
+        return self.__name == cipher.get_name() \
+               and self.__key_info == cipher.get_key_info() \
+               and CipherCompare.a_equals_b(self.__strength, cipher.get_strength())
 
     def __parse_xml(self):
 
@@ -178,12 +230,36 @@ class CipherCompare:
         return CipherCompare.map_strength(a) <= CipherCompare.map_strength(b)
 
     @staticmethod
+    def a_better_b(a, b):
+        return CipherCompare.a_lower_b(a, b)
+
+    @staticmethod
+    def a_better_equals_b(a, b):
+        return CipherCompare.a_lower_equals_b(a, b)
+
+    @staticmethod
     def a_grater_b(a, b):
         return CipherCompare.map_strength(a) > CipherCompare.map_strength(b)
 
     @staticmethod
     def a_grater_equals_b(a, b):
         return CipherCompare.map_strength(a) >= CipherCompare.map_strength(b)
+
+    @staticmethod
+    def a_worse_b(a, b):
+        return CipherCompare.a_grater_b(a, b)
+
+    @staticmethod
+    def a_worse_equals_b(a, b):
+        return CipherCompare.a_grater_equals_b(a, b)
+
+    @staticmethod
+    def a_equals_b(a, b):
+        return CipherCompare.map_strength(a) == CipherCompare.map_strength(b)
+
+    @staticmethod
+    def a_not_equals_b(a, b):
+        return CipherCompare.map_strength(a) != CipherCompare.map_strength(b)
 
     @staticmethod
     def map_strength(strength):

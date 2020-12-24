@@ -1,0 +1,18 @@
+<table key="TLSv1.2">
+    <table key="ciphers">
+        <table>
+            <elem key="name">Name2</elem>
+            <elem key="kex_info">keyInfo2</elem>
+            <elem key="strength">A</elem>
+        </table>
+        <table>
+            <elem key="name">Name3</elem>
+            <elem key="kex_info">keyInfo3</elem>
+            <elem key="strength">D</elem>
+        </table>
+    </table>
+    <table key="compressors">
+        <elem>NULL</elem>
+    </table>
+    <elem key="cipher preference">server</elem>
+</table>
