@@ -36,7 +36,13 @@ class Target:
         self.__xml = xml
         self.__status = None
         self.__reason = None
+        self.__specification = None
         self.__parse_xml()
+
+    def equals(self, other):
+        return self.__specification == other.get_specification() \
+               and self.__status == other.get_status() \
+               and self.__reason == other.get_reason()
 
     def get_xml(self):
         return self.__xml
@@ -44,14 +50,19 @@ class Target:
     def get_status(self):
         return self.__status
 
+    def get_specification(self):
+        return self.__specification
+
     def get_reason(self):
         return self.__reason
 
     def __parse_xml(self):
         logging.info('Parsing Target')
         attr = self.__xml.attrib
+        self.__specification = attr['specification']
         self.__status = attr.get('status', None)
         self.__reason = attr.get('reason', None)
 
+        logging.debug('Specification: "{specification}"'.format(specification=self.__specification))
         logging.debug('Status: "{status}"'.format(status=self.__status))
         logging.debug('Reason: "{reason}"'.format(reason=self.__reason))
