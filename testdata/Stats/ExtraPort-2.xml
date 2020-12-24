@@ -1,0 +1,4 @@
+<extraports state="state" count="10">
+    <extrareasons reason="reason2" count="count2"/>
+    <extrareasons reason="reason3" count="count"/>
+</extraports>
