@@ -38,6 +38,11 @@ class Status:
         self.__reason_ttl = None
         self.__parse_xml()
 
+    def equals(self, other):
+        return self.__state == other.get_state() \
+               and self.__reason == other.get_reason() \
+               and self.__reason_ttl == other.get_reason_ttl()
+
     def get_xml(self):
         return self.__xml
 
@@ -55,7 +60,7 @@ class Status:
         attr = self.__xml.attrib
         self.__state = attr['state']
         self.__reason = attr['reason']
-        self.__reason_ttl = int(attr['reason_ttl']) if None != attr.get('reason_ttl', None) else None
+        self.__reason_ttl = int(attr['reason_ttl'])
         logging.debug('State: "{state}"'.format(state=self.__state))
         logging.debug('Reason: "{reason}"'.format(reason=self.__reason))
         logging.debug('Reason TTL: "{reason_ttl}"'.format(reason_ttl=self.__reason_ttl))

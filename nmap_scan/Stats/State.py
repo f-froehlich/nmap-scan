@@ -38,11 +38,14 @@ class State(Status):
         self.__reason_ip = None
         self.__parse_xml()
 
+    def equals(self, other):
+        return Status.equals(self, other) and self.__reason_ip == other.get_reason_ip()
+
     def get_reason_ip(self):
         return self.__reason_ip
 
     def __parse_xml(self):
         logging.info('Parsing State')
         attr = self.get_xml().attrib
-        self.__reason_ip = int(attr['reason_ip']) if None != attr.get('reason_ip', None) else None
+        self.__reason_ip = attr.get('reason_ip', None)
         logging.debug('Reason IP: "{reason_ip}"'.format(reason_ip=self.__reason_ip))
