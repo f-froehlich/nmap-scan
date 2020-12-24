@@ -38,6 +38,11 @@ class HostName:
         self.__type = None
         self.__parse_xml()
 
+    def equals(self, other):
+        return isinstance(other, HostName) \
+               and self.__name == other.get_name() \
+               and self.__type == other.get_type()
+
     def get_xml(self):
         return self.__xml
 
