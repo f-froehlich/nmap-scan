@@ -98,7 +98,8 @@ class SSLEnumCiphersProtocol:
         return self.__protocol_version
 
     def equals(self, other):
-        status = self.__protocol_version == other.get_protocol_version() \
+        status = isinstance(other, SSLEnumCiphersProtocol) \
+                 and self.__protocol_version == other.get_protocol_version() \
                  and self.__compressors == other.get_compressor() \
                  and self.__cipher_preference == other.get_cipher_preference() \
                  and self.__least_strength == other.get_least_strength() \
@@ -113,8 +114,18 @@ class SSLEnumCiphersProtocol:
                         break
 
                 if not exist:
-                    status = False
-                    break
+                    return False
+
+            for other_cipher in other.get_ciphers():
+                exist = False
+                for own_cipher in self.__ciphers:
+                    if own_cipher.equals(other_cipher):
+                        exist = True
+                        break
+
+                if not exist:
+                    return False
+
         return status
 
     def __parse_xml(self):
@@ -197,10 +208,11 @@ class SSLEnumCiphersCipher:
 
         return CipherCompare.a_better_equals_b(self.__strength, strength)
 
-    def equals(self, cipher):
-        return self.__name == cipher.get_name() \
-               and self.__key_info == cipher.get_key_info() \
-               and CipherCompare.a_equals_b(self.__strength, cipher.get_strength())
+    def equals(self, other):
+        return isinstance(other, SSLEnumCiphersCipher) \
+               and self.__name == other.get_name() \
+               and self.__key_info == other.get_key_info() \
+               and CipherCompare.a_equals_b(self.__strength, other.get_strength())
 
     def __parse_xml(self):
 

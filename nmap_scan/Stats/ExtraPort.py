@@ -42,7 +42,8 @@ class ExtraPort:
         self.__parse_xml()
 
     def equals(self, other):
-        status = self.__state == other.get_state() \
+        status = isinstance(other, ExtraPort) \
+                 and self.__state == other.get_state() \
                  and self.__count == other.get_count() \
                  and len(self.__reasons) == len(other.get_reasons())
 
@@ -50,6 +51,14 @@ class ExtraPort:
             for own_reason in self.__reasons:
                 exist = False
                 for other_reason in other.get_reasons():
+                    if own_reason.equals(other_reason):
+                        exist = True
+                        break
+                if not exist:
+                    return False
+            for other_reason in other.get_reasons():
+                exist = False
+                for own_reason in self.__reasons:
                     if own_reason.equals(other_reason):
                         exist = True
                         break

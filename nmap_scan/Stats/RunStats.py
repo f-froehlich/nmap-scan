@@ -46,7 +46,8 @@ class RunStats:
         self.__parse_xml()
 
     def equals(self, other):
-        return self.__time == other.get_time() \
+        return isinstance(other, RunStats) \
+               and self.__time == other.get_time() \
                and self.__time_str == other.get_time_string() \
                and self.__summary == other.get_summary() \
                and self.__elapsed == other.get_elapsed() \

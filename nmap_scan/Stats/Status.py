@@ -39,7 +39,8 @@ class Status:
         self.__parse_xml()
 
     def equals(self, other):
-        return self.__state == other.get_state() \
+        return isinstance(other, Status) \
+               and self.__state == other.get_state() \
                and self.__reason == other.get_reason() \
                and self.__reason_ttl == other.get_reason_ttl()
 

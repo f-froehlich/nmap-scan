@@ -56,7 +56,8 @@ class Hop:
         return self.__host
 
     def equals(self, other):
-        return self.__ttl == other.get_ttl() \
+        return isinstance(other, Hop) \
+               and self.__ttl == other.get_ttl() \
                and self.__rtt == other.get_rtt() \
                and self.__ip == other.get_ip() \
                and self.__host == other.get_host()

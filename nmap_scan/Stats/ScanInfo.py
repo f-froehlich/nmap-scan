@@ -42,7 +42,8 @@ class ScanInfo:
         self.__parse_xml()
 
     def equals(self, other):
-        return self.__type == other.get_type() \
+        return isinstance(other, ScanInfo) \
+               and self.__type == other.get_type() \
                and self.__protocol == other.get_protocol() \
                and self.__scan_flags == other.get_scan_flags() \
                and self.__num_services == other.get_num_services() \

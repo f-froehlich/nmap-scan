@@ -40,7 +40,8 @@ class Target:
         self.__parse_xml()
 
     def equals(self, other):
-        return self.__specification == other.get_specification() \
+        return isinstance(other, Target) \
+               and self.__specification == other.get_specification() \
                and self.__status == other.get_status() \
                and self.__reason == other.get_reason()
 

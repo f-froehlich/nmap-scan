@@ -40,7 +40,8 @@ class Time:
         self.__parse_xml()
 
     def equals(self, other):
-        return self.__srtt == other.get_srtt() \
+        return isinstance(other, Time) \
+               and self.__srtt == other.get_srtt() \
                and self.__rttvar == other.get_rttvar() \
                and self.__to == other.get_to()
 

@@ -40,7 +40,8 @@ class TCPSequence:
         self.__parse_xml()
 
     def equals(self, other):
-        return self.__index == other.get_index() \
+        return isinstance(other, TCPSequence) \
+               and self.__index == other.get_index() \
                and self.__difficulty == other.get_difficulty() \
                and self.__values == other.get_values()
 

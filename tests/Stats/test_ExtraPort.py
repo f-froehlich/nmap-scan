@@ -75,10 +75,14 @@ class TestExtraPort(BaseXMLTest):
         assert "state" in str(excinfo.value)
 
     @pytest.mark.parametrize(("filepath1", "filepath2", "expected"), [
-        ('testdata/Stats/ExtraPort-1.xml', 'testdata/Stats/ExtraPort-2.xml', False),
         ('testdata/Stats/ExtraPort-1.xml', 'testdata/Stats/ExtraPort-1.xml', True),
+        ('testdata/Stats/ExtraPort-1.xml', 'testdata/Stats/ExtraPort-2.xml', False),
+        ('testdata/Stats/ExtraPort-1.xml', 'testdata/Stats/ExtraPort-5.xml', False),
         ('testdata/Stats/ExtraPort-2.xml', 'testdata/Stats/ExtraPort-1.xml', False),
         ('testdata/Stats/ExtraPort-2.xml', 'testdata/Stats/ExtraPort-2.xml', True),
+        ('testdata/Stats/ExtraPort-5.xml', 'testdata/Stats/ExtraPort-1.xml', False),
+        ('testdata/Stats/ExtraPort-5.xml', 'testdata/Stats/ExtraPort-2.xml', False),
+        ('testdata/Stats/ExtraPort-5.xml', 'testdata/Stats/ExtraPort-5.xml', True),
     ])
     def test_equals(self, filepath1, filepath2, expected):
         xml1 = self.create_xml(filepath1)

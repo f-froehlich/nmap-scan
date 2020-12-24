@@ -39,7 +39,9 @@ class Output:
         self.__parse_xml()
 
     def equals(self, other):
-        return self.__data == other.get_data() and self.__type == other.get_type()
+        return isinstance(other, Output) \
+               and self.__data == other.get_data() \
+               and self.__type == other.get_type()
 
     def get_xml(self):
         return self.__xml

@@ -48,7 +48,9 @@ class Uptime:
         return self.__seconds
 
     def equals(self, other):
-        return self.__seconds == other.get_seconds() and self.__last_boot == other.get_last_boot()
+        return isinstance(other, Uptime) \
+               and self.__seconds == other.get_seconds() \
+               and self.__last_boot == other.get_last_boot()
 
     def __parse_xml(self):
         logging.info('Parsing Uptime')

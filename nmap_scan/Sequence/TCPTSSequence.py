@@ -39,7 +39,9 @@ class TCPTSSequence:
         self.__parse_xml()
 
     def equals(self, other):
-        return self.__class == other.get_class() and self.__values == other.get_values()
+        return isinstance(other, TCPTSSequence) \
+               and self.__class == other.get_class() \
+               and self.__values == other.get_values()
 
     def get_xml(self):
         return self.__xml

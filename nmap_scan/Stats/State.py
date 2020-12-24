@@ -39,7 +39,9 @@ class State(Status):
         self.__parse_xml()
 
     def equals(self, other):
-        return Status.equals(self, other) and self.__reason_ip == other.get_reason_ip()
+        return isinstance(other, State) \
+               and Status.equals(self, other) \
+               and self.__reason_ip == other.get_reason_ip()
 
     def get_reason_ip(self):
         return self.__reason_ip

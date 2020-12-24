@@ -40,7 +40,8 @@ class TaskBegin:
         self.__parse_xml()
 
     def equals(self, other):
-        return self.__task == other.get_task() \
+        return isinstance(other, TaskBegin) \
+               and self.__task == other.get_task() \
                and self.__time == other.get_time() \
                and self.__extra_info == other.get_extra_info()
 

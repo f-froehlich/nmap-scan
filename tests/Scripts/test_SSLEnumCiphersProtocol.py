@@ -5,6 +5,7 @@ from tests.BaseXMLTest import BaseXMLTest
 
 
 @pytest.mark.script
+@pytest.mark.cipher
 class TestSSLEnumCiphersCipher(BaseXMLTest):
 
     def create_instance(self, xml):
@@ -78,15 +79,22 @@ class TestSSLEnumCiphersCipher(BaseXMLTest):
         assert expected == e.get_least_strength()
 
     @pytest.mark.parametrize(("filepath1", "filepath2", "expected"), [
+        ('testdata/Scripts/SSLEnumCiphers/Protocol-1.xml', 'testdata/Scripts/SSLEnumCiphers/Protocol-1.xml', True),
         ('testdata/Scripts/SSLEnumCiphers/Protocol-1.xml', 'testdata/Scripts/SSLEnumCiphers/Protocol-2.xml', False),
         ('testdata/Scripts/SSLEnumCiphers/Protocol-1.xml', 'testdata/Scripts/SSLEnumCiphers/Protocol-3.xml', False),
+        ('testdata/Scripts/SSLEnumCiphers/Protocol-1.xml', 'testdata/Scripts/SSLEnumCiphers/Protocol-4.xml', False),
         ('testdata/Scripts/SSLEnumCiphers/Protocol-2.xml', 'testdata/Scripts/SSLEnumCiphers/Protocol-1.xml', False),
+        ('testdata/Scripts/SSLEnumCiphers/Protocol-2.xml', 'testdata/Scripts/SSLEnumCiphers/Protocol-2.xml', True),
         ('testdata/Scripts/SSLEnumCiphers/Protocol-2.xml', 'testdata/Scripts/SSLEnumCiphers/Protocol-3.xml', False),
+        ('testdata/Scripts/SSLEnumCiphers/Protocol-2.xml', 'testdata/Scripts/SSLEnumCiphers/Protocol-4.xml', False),
         ('testdata/Scripts/SSLEnumCiphers/Protocol-3.xml', 'testdata/Scripts/SSLEnumCiphers/Protocol-1.xml', False),
         ('testdata/Scripts/SSLEnumCiphers/Protocol-3.xml', 'testdata/Scripts/SSLEnumCiphers/Protocol-2.xml', False),
-        ('testdata/Scripts/SSLEnumCiphers/Protocol-1.xml', 'testdata/Scripts/SSLEnumCiphers/Protocol-1.xml', True),
-        ('testdata/Scripts/SSLEnumCiphers/Protocol-2.xml', 'testdata/Scripts/SSLEnumCiphers/Protocol-2.xml', True),
         ('testdata/Scripts/SSLEnumCiphers/Protocol-3.xml', 'testdata/Scripts/SSLEnumCiphers/Protocol-3.xml', True),
+        ('testdata/Scripts/SSLEnumCiphers/Protocol-3.xml', 'testdata/Scripts/SSLEnumCiphers/Protocol-4.xml', False),
+        ('testdata/Scripts/SSLEnumCiphers/Protocol-4.xml', 'testdata/Scripts/SSLEnumCiphers/Protocol-1.xml', False),
+        ('testdata/Scripts/SSLEnumCiphers/Protocol-4.xml', 'testdata/Scripts/SSLEnumCiphers/Protocol-2.xml', False),
+        ('testdata/Scripts/SSLEnumCiphers/Protocol-4.xml', 'testdata/Scripts/SSLEnumCiphers/Protocol-3.xml', False),
+        ('testdata/Scripts/SSLEnumCiphers/Protocol-4.xml', 'testdata/Scripts/SSLEnumCiphers/Protocol-4.xml', True),
     ])
     def test_equals(self, filepath1, filepath2, expected):
         xml1 = self.create_xml(filepath1)
