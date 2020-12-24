@@ -39,6 +39,12 @@ class HostAddress:
         self.__type = None
         self.__parse_xml()
 
+    def equals(self, other):
+        return isinstance(other, HostAddress) \
+               and self.__addr == other.get_addr() \
+               and self.__vendor == other.get_vendor() \
+               and self.__type == other.get_type()
+
     def get_xml(self):
         return self.__xml
 
@@ -68,7 +74,7 @@ class HostAddress:
         attr = self.__xml.attrib
         self.__addr = attr['addr']
         self.__type = attr['addrtype']
-        self.__vendor = attr.get('addrtype', None)
+        self.__vendor = attr.get('vendor', None)
         logging.debug('Address: "{addr}"'.format(addr=self.__addr))
         logging.debug('Type: "{type}"'.format(type=self.__type))
         logging.debug('Vendor: "{vendor}"'.format(vendor=self.__vendor))
