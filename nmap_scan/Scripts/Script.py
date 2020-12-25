@@ -38,6 +38,11 @@ class Script:
         self.__output = None
         self.__parse_xml()
 
+    def equals(self, other):
+        return isinstance(other, Script) \
+               and self.__id == other.get_id() \
+               and self.__output == other.get_output()
+
     def get_xml(self):
         return self.__xml
 

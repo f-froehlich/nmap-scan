@@ -15,7 +15,7 @@ class TestUnknownScript(BaseXMLTest):
         return parse(xml)
 
     def get_all_files(self):
-        return ['testdata/Scripts/UnknownScript-' + str(i) + '.xml' for i in range(1, 6)]
+        return ['testdata/Scripts/UnknownScript-' + str(i) + '.xml' for i in range(1, 14) if i not in [6, 7]]
 
     @pytest.mark.parametrize("filepath", ['testdata/Scripts/UnknownScript-' + str(i) + '.xml' for i in range(1, 6)])
     def test_id(self, filepath):
@@ -102,3 +102,144 @@ class TestUnknownScript(BaseXMLTest):
         assert isinstance(e.get_data()[0], XMLElement)
         assert 'foo' == e.get_data()[0].tag
         assert 'ParseAsXMLElement' == e.get_data()[0].text
+
+    @pytest.mark.parametrize(("filepath1", "filepath2", "expected"), [
+        ('testdata/Scripts/UnknownScript-1.xml', 'testdata/Scripts/UnknownScript-1.xml', True),
+        ('testdata/Scripts/UnknownScript-1.xml', 'testdata/Scripts/UnknownScript-2.xml', False),
+        ('testdata/Scripts/UnknownScript-1.xml', 'testdata/Scripts/UnknownScript-3.xml', False),
+        ('testdata/Scripts/UnknownScript-1.xml', 'testdata/Scripts/UnknownScript-4.xml', False),
+        ('testdata/Scripts/UnknownScript-1.xml', 'testdata/Scripts/UnknownScript-5.xml', False),
+        ('testdata/Scripts/UnknownScript-1.xml', 'testdata/Scripts/UnknownScript-8.xml', False),
+        ('testdata/Scripts/UnknownScript-1.xml', 'testdata/Scripts/UnknownScript-9.xml', False),
+        ('testdata/Scripts/UnknownScript-1.xml', 'testdata/Scripts/UnknownScript-10.xml', False),
+        ('testdata/Scripts/UnknownScript-1.xml', 'testdata/Scripts/UnknownScript-11.xml', False),
+        ('testdata/Scripts/UnknownScript-1.xml', 'testdata/Scripts/UnknownScript-12.xml', False),
+        ('testdata/Scripts/UnknownScript-1.xml', 'testdata/Scripts/UnknownScript-13.xml', False),
+
+        ('testdata/Scripts/UnknownScript-2.xml', 'testdata/Scripts/UnknownScript-1.xml', False),
+        ('testdata/Scripts/UnknownScript-2.xml', 'testdata/Scripts/UnknownScript-2.xml', True),
+        ('testdata/Scripts/UnknownScript-2.xml', 'testdata/Scripts/UnknownScript-3.xml', False),
+        ('testdata/Scripts/UnknownScript-2.xml', 'testdata/Scripts/UnknownScript-4.xml', False),
+        ('testdata/Scripts/UnknownScript-2.xml', 'testdata/Scripts/UnknownScript-5.xml', False),
+        ('testdata/Scripts/UnknownScript-2.xml', 'testdata/Scripts/UnknownScript-8.xml', False),
+        ('testdata/Scripts/UnknownScript-2.xml', 'testdata/Scripts/UnknownScript-9.xml', False),
+        ('testdata/Scripts/UnknownScript-2.xml', 'testdata/Scripts/UnknownScript-10.xml', False),
+        ('testdata/Scripts/UnknownScript-2.xml', 'testdata/Scripts/UnknownScript-11.xml', False),
+        ('testdata/Scripts/UnknownScript-2.xml', 'testdata/Scripts/UnknownScript-12.xml', False),
+        ('testdata/Scripts/UnknownScript-2.xml', 'testdata/Scripts/UnknownScript-13.xml', False),
+
+        ('testdata/Scripts/UnknownScript-3.xml', 'testdata/Scripts/UnknownScript-1.xml', False),
+        ('testdata/Scripts/UnknownScript-3.xml', 'testdata/Scripts/UnknownScript-2.xml', False),
+        ('testdata/Scripts/UnknownScript-3.xml', 'testdata/Scripts/UnknownScript-3.xml', True),
+        ('testdata/Scripts/UnknownScript-3.xml', 'testdata/Scripts/UnknownScript-4.xml', False),
+        ('testdata/Scripts/UnknownScript-3.xml', 'testdata/Scripts/UnknownScript-5.xml', False),
+        ('testdata/Scripts/UnknownScript-3.xml', 'testdata/Scripts/UnknownScript-8.xml', False),
+        ('testdata/Scripts/UnknownScript-3.xml', 'testdata/Scripts/UnknownScript-9.xml', False),
+        ('testdata/Scripts/UnknownScript-3.xml', 'testdata/Scripts/UnknownScript-10.xml', False),
+        ('testdata/Scripts/UnknownScript-3.xml', 'testdata/Scripts/UnknownScript-11.xml', False),
+        ('testdata/Scripts/UnknownScript-3.xml', 'testdata/Scripts/UnknownScript-12.xml', False),
+        ('testdata/Scripts/UnknownScript-3.xml', 'testdata/Scripts/UnknownScript-13.xml', False),
+
+        ('testdata/Scripts/UnknownScript-4.xml', 'testdata/Scripts/UnknownScript-1.xml', False),
+        ('testdata/Scripts/UnknownScript-4.xml', 'testdata/Scripts/UnknownScript-2.xml', False),
+        ('testdata/Scripts/UnknownScript-4.xml', 'testdata/Scripts/UnknownScript-3.xml', False),
+        ('testdata/Scripts/UnknownScript-4.xml', 'testdata/Scripts/UnknownScript-4.xml', True),
+        ('testdata/Scripts/UnknownScript-4.xml', 'testdata/Scripts/UnknownScript-5.xml', False),
+        ('testdata/Scripts/UnknownScript-4.xml', 'testdata/Scripts/UnknownScript-8.xml', False),
+        ('testdata/Scripts/UnknownScript-4.xml', 'testdata/Scripts/UnknownScript-9.xml', False),
+        ('testdata/Scripts/UnknownScript-4.xml', 'testdata/Scripts/UnknownScript-10.xml', False),
+        ('testdata/Scripts/UnknownScript-4.xml', 'testdata/Scripts/UnknownScript-11.xml', False),
+        ('testdata/Scripts/UnknownScript-4.xml', 'testdata/Scripts/UnknownScript-12.xml', False),
+        ('testdata/Scripts/UnknownScript-4.xml', 'testdata/Scripts/UnknownScript-13.xml', False),
+
+        ('testdata/Scripts/UnknownScript-5.xml', 'testdata/Scripts/UnknownScript-1.xml', False),
+        ('testdata/Scripts/UnknownScript-5.xml', 'testdata/Scripts/UnknownScript-2.xml', False),
+        ('testdata/Scripts/UnknownScript-5.xml', 'testdata/Scripts/UnknownScript-3.xml', False),
+        ('testdata/Scripts/UnknownScript-5.xml', 'testdata/Scripts/UnknownScript-4.xml', False),
+        ('testdata/Scripts/UnknownScript-5.xml', 'testdata/Scripts/UnknownScript-5.xml', True),
+        ('testdata/Scripts/UnknownScript-5.xml', 'testdata/Scripts/UnknownScript-8.xml', False),
+        ('testdata/Scripts/UnknownScript-5.xml', 'testdata/Scripts/UnknownScript-9.xml', False),
+        ('testdata/Scripts/UnknownScript-5.xml', 'testdata/Scripts/UnknownScript-10.xml', False),
+        ('testdata/Scripts/UnknownScript-5.xml', 'testdata/Scripts/UnknownScript-11.xml', False),
+        ('testdata/Scripts/UnknownScript-5.xml', 'testdata/Scripts/UnknownScript-12.xml', False),
+        ('testdata/Scripts/UnknownScript-5.xml', 'testdata/Scripts/UnknownScript-13.xml', False),
+
+        ('testdata/Scripts/UnknownScript-8.xml', 'testdata/Scripts/UnknownScript-1.xml', False),
+        ('testdata/Scripts/UnknownScript-8.xml', 'testdata/Scripts/UnknownScript-2.xml', False),
+        ('testdata/Scripts/UnknownScript-8.xml', 'testdata/Scripts/UnknownScript-3.xml', False),
+        ('testdata/Scripts/UnknownScript-8.xml', 'testdata/Scripts/UnknownScript-4.xml', False),
+        ('testdata/Scripts/UnknownScript-8.xml', 'testdata/Scripts/UnknownScript-5.xml', False),
+        ('testdata/Scripts/UnknownScript-8.xml', 'testdata/Scripts/UnknownScript-8.xml', True),
+        ('testdata/Scripts/UnknownScript-8.xml', 'testdata/Scripts/UnknownScript-9.xml', False),
+        ('testdata/Scripts/UnknownScript-8.xml', 'testdata/Scripts/UnknownScript-10.xml', False),
+        ('testdata/Scripts/UnknownScript-8.xml', 'testdata/Scripts/UnknownScript-11.xml', False),
+        ('testdata/Scripts/UnknownScript-8.xml', 'testdata/Scripts/UnknownScript-12.xml', False),
+        ('testdata/Scripts/UnknownScript-8.xml', 'testdata/Scripts/UnknownScript-13.xml', False),
+
+        ('testdata/Scripts/UnknownScript-9.xml', 'testdata/Scripts/UnknownScript-1.xml', False),
+        ('testdata/Scripts/UnknownScript-9.xml', 'testdata/Scripts/UnknownScript-2.xml', False),
+        ('testdata/Scripts/UnknownScript-9.xml', 'testdata/Scripts/UnknownScript-3.xml', False),
+        ('testdata/Scripts/UnknownScript-9.xml', 'testdata/Scripts/UnknownScript-4.xml', False),
+        ('testdata/Scripts/UnknownScript-9.xml', 'testdata/Scripts/UnknownScript-5.xml', False),
+        ('testdata/Scripts/UnknownScript-9.xml', 'testdata/Scripts/UnknownScript-8.xml', False),
+        ('testdata/Scripts/UnknownScript-9.xml', 'testdata/Scripts/UnknownScript-9.xml', True),
+        ('testdata/Scripts/UnknownScript-9.xml', 'testdata/Scripts/UnknownScript-10.xml', False),
+        ('testdata/Scripts/UnknownScript-9.xml', 'testdata/Scripts/UnknownScript-11.xml', False),
+        ('testdata/Scripts/UnknownScript-9.xml', 'testdata/Scripts/UnknownScript-12.xml', False),
+        ('testdata/Scripts/UnknownScript-9.xml', 'testdata/Scripts/UnknownScript-13.xml', False),
+
+        ('testdata/Scripts/UnknownScript-10.xml', 'testdata/Scripts/UnknownScript-1.xml', False),
+        ('testdata/Scripts/UnknownScript-10.xml', 'testdata/Scripts/UnknownScript-2.xml', False),
+        ('testdata/Scripts/UnknownScript-10.xml', 'testdata/Scripts/UnknownScript-3.xml', False),
+        ('testdata/Scripts/UnknownScript-10.xml', 'testdata/Scripts/UnknownScript-4.xml', False),
+        ('testdata/Scripts/UnknownScript-10.xml', 'testdata/Scripts/UnknownScript-5.xml', False),
+        ('testdata/Scripts/UnknownScript-10.xml', 'testdata/Scripts/UnknownScript-8.xml', False),
+        ('testdata/Scripts/UnknownScript-10.xml', 'testdata/Scripts/UnknownScript-9.xml', False),
+        ('testdata/Scripts/UnknownScript-10.xml', 'testdata/Scripts/UnknownScript-10.xml', True),
+        ('testdata/Scripts/UnknownScript-10.xml', 'testdata/Scripts/UnknownScript-11.xml', False),
+        ('testdata/Scripts/UnknownScript-10.xml', 'testdata/Scripts/UnknownScript-12.xml', False),
+        ('testdata/Scripts/UnknownScript-10.xml', 'testdata/Scripts/UnknownScript-13.xml', False),
+
+        ('testdata/Scripts/UnknownScript-11.xml', 'testdata/Scripts/UnknownScript-1.xml', False),
+        ('testdata/Scripts/UnknownScript-11.xml', 'testdata/Scripts/UnknownScript-2.xml', False),
+        ('testdata/Scripts/UnknownScript-11.xml', 'testdata/Scripts/UnknownScript-3.xml', False),
+        ('testdata/Scripts/UnknownScript-11.xml', 'testdata/Scripts/UnknownScript-4.xml', False),
+        ('testdata/Scripts/UnknownScript-11.xml', 'testdata/Scripts/UnknownScript-5.xml', False),
+        ('testdata/Scripts/UnknownScript-11.xml', 'testdata/Scripts/UnknownScript-8.xml', False),
+        ('testdata/Scripts/UnknownScript-11.xml', 'testdata/Scripts/UnknownScript-9.xml', False),
+        ('testdata/Scripts/UnknownScript-11.xml', 'testdata/Scripts/UnknownScript-10.xml', False),
+        ('testdata/Scripts/UnknownScript-11.xml', 'testdata/Scripts/UnknownScript-11.xml', True),
+        ('testdata/Scripts/UnknownScript-11.xml', 'testdata/Scripts/UnknownScript-12.xml', False),
+        ('testdata/Scripts/UnknownScript-11.xml', 'testdata/Scripts/UnknownScript-13.xml', False),
+
+        ('testdata/Scripts/UnknownScript-12.xml', 'testdata/Scripts/UnknownScript-1.xml', False),
+        ('testdata/Scripts/UnknownScript-12.xml', 'testdata/Scripts/UnknownScript-2.xml', False),
+        ('testdata/Scripts/UnknownScript-12.xml', 'testdata/Scripts/UnknownScript-3.xml', False),
+        ('testdata/Scripts/UnknownScript-12.xml', 'testdata/Scripts/UnknownScript-4.xml', False),
+        ('testdata/Scripts/UnknownScript-12.xml', 'testdata/Scripts/UnknownScript-5.xml', False),
+        ('testdata/Scripts/UnknownScript-12.xml', 'testdata/Scripts/UnknownScript-8.xml', False),
+        ('testdata/Scripts/UnknownScript-12.xml', 'testdata/Scripts/UnknownScript-9.xml', False),
+        ('testdata/Scripts/UnknownScript-12.xml', 'testdata/Scripts/UnknownScript-10.xml', False),
+        ('testdata/Scripts/UnknownScript-12.xml', 'testdata/Scripts/UnknownScript-11.xml', False),
+        ('testdata/Scripts/UnknownScript-12.xml', 'testdata/Scripts/UnknownScript-12.xml', True),
+        ('testdata/Scripts/UnknownScript-12.xml', 'testdata/Scripts/UnknownScript-13.xml', False),
+
+        ('testdata/Scripts/UnknownScript-13.xml', 'testdata/Scripts/UnknownScript-1.xml', False),
+        ('testdata/Scripts/UnknownScript-13.xml', 'testdata/Scripts/UnknownScript-2.xml', False),
+        ('testdata/Scripts/UnknownScript-13.xml', 'testdata/Scripts/UnknownScript-3.xml', False),
+        ('testdata/Scripts/UnknownScript-13.xml', 'testdata/Scripts/UnknownScript-4.xml', False),
+        ('testdata/Scripts/UnknownScript-13.xml', 'testdata/Scripts/UnknownScript-5.xml', False),
+        ('testdata/Scripts/UnknownScript-13.xml', 'testdata/Scripts/UnknownScript-8.xml', False),
+        ('testdata/Scripts/UnknownScript-13.xml', 'testdata/Scripts/UnknownScript-9.xml', False),
+        ('testdata/Scripts/UnknownScript-13.xml', 'testdata/Scripts/UnknownScript-10.xml', False),
+        ('testdata/Scripts/UnknownScript-13.xml', 'testdata/Scripts/UnknownScript-11.xml', False),
+        ('testdata/Scripts/UnknownScript-13.xml', 'testdata/Scripts/UnknownScript-12.xml', False),
+        ('testdata/Scripts/UnknownScript-13.xml', 'testdata/Scripts/UnknownScript-13.xml', True),
+    ])
+    def test_equals(self, filepath1, filepath2, expected):
+        xml1 = self.create_xml(filepath1)
+        e1 = self.create_instance(xml1)
+        xml2 = self.create_xml(filepath2)
+        e2 = self.create_instance(xml2)
+
+        assert expected == e1.equals(e2)

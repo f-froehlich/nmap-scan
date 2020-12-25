@@ -1,0 +1,7 @@
+<script id="ssl-enum-ciphers" output="output">
+    <table key="TLSv1.2">
+    </table>
+    <table key="TLSv1.3">
+    </table>
+    <elem key="least strength">D</elem>
+</script>

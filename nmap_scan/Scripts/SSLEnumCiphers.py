@@ -42,6 +42,27 @@ class SSLEnumCiphers(Script):
         self.__least_strength = None
         self.__parse_xml()
 
+    def equals(self, other):
+        status = isinstance(other, SSLEnumCiphers) \
+                 and Script.equals(self, other) \
+                 and self.__least_strength == other.get_least_strength() \
+                 and len(self.__protocols) == len(other.get_protocols())
+
+        if status:
+            for own_protocol in self.__protocols:
+                other_protocol = other.get_protocol(own_protocol)
+                if None == other_protocol or not other_protocol.equals(self.__protocols[own_protocol]):
+                    return False
+            for other_protocol in other.get_protocols():
+                own_protocol = self.get_protocol(other_protocol)
+                if None == own_protocol or not own_protocol.equals(other.get_protocol(other_protocol)):
+                    # I think this could never happen because we can't add the same protocol more than once
+                    # and it also will never returned from the script so it is already compared with the
+                    # privies loop
+                    return False
+
+        return status
+
     def get_xml(self):
         return self.__xml
 

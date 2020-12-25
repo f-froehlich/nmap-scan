@@ -64,6 +64,7 @@ setup_args = dict(
 )
 
 install_requires = [
+    'compare-xml>=1.0'
 ]
 
 if __name__ == '__main__':
