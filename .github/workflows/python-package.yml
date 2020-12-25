@@ -49,7 +49,7 @@ jobs:
     - name: Create coverage Badge
       uses: schneegans/dynamic-badges-action@v1.0.0
       with:
-        auth: ${{ secrets.GIST_SECRET }}
+        auth: ${{ secrets.GITHUB_TOKEN }}
         gistID: 6df544fd2b6e1bcb95989ba402b8cd67
         filename: nmap-scan-coverage.json
         label: Coverage
