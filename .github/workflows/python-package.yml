@@ -37,7 +37,24 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       run: |
-        pytest
+        pytest > pytest.log
+        cat pytest.log
+        REPORT=$(cat pytest.log | grep TOTAL | xargs)
+        LINES=$(echo $REPORT | cut -d' ' -f 2)
+        UNCOVERD_LINES=$(echo $REPORT | cut -d' ' -f 3)
+        PERCENT=$(echo $REPORT | cut -d' ' -f 4 | sed "s/\%//g")
+        echo "LINES=$LINES" >> $GITHUB_ENV
+        echo "UNCOVERD_LINES=$UNCOVERD_LINES" >> $GITHUB_ENV
+        echo "PERCENT=$PERCENT" >> $GITHUB_ENV
+    - name: Create coverage Badge
+      uses: schneegans/dynamic-badges-action@v1.0.0
+      with:
+        auth: ${{ secrets.GIST_SECRET }}
+        gistID: <gist-ID>
+        filename: coverage.json
+        label: Coverage
+        message: ${{ env.PERCENT }}
+        color: green
     - name: Coverage
       uses: 5monkeys/cobertura-action@master
       with:
