@@ -1,0 +1,5 @@
+<service
+        name="name"
+        method="method"
+>
+</service>

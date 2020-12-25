@@ -46,15 +46,6 @@ jobs:
         echo "LINES=$LINES" >> $GITHUB_ENV
         echo "UNCOVERD_LINES=$UNCOVERD_LINES" >> $GITHUB_ENV
         echo "PERCENT=$PERCENT" >> $GITHUB_ENV
-    - name: Create coverage Badge
-      uses: schneegans/dynamic-badges-action@v1.0.0
-      with:
-        auth: ${{ secrets.GITHUB_TOKEN }}
-        gistID: 6df544fd2b6e1bcb95989ba402b8cd67
-        filename: nmap-scan-coverage.json
-        label: Coverage
-        message: ${{ env.PERCENT }}
-        color: green
     - name: Coverage
       uses: 5monkeys/cobertura-action@master
       with:

@@ -1,0 +1,20 @@
+<service
+        name="name"
+        conf="conf"
+        method="method"
+        version="version"
+        product="product"
+        extrainfo="extrainfo"
+        tunnel="tunnel"
+        proto="proto"
+        rpcnum="5"
+        lowver="10"
+        highver="20"
+        hostname="hostname"
+        ostype="ostype"
+        devicetype="devicetype"
+        servicefp="servicefp"
+>
+    <cpe>cpe2</cpe>
+    <cpe>cpe2</cpe>
+</service>

@@ -1,0 +1,5 @@
+<service
+        conf="conf"
+        method="method"
+>
+</service>
