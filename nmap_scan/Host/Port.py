@@ -46,6 +46,50 @@ class Port:
         self.__scripts = {}
         self.__parse_xml()
 
+    def equals(self, other):
+        status = isinstance(other, Port) \
+                 and self.__protocol == other.get_protocol() \
+                 and self.__port == other.get_port() \
+                 and self.__owner == other.get_owner() \
+                 and self.__state.equals(other.get_state()) \
+                 and self.__service.equals(other.get_service()) \
+                 and len(self.__scripts) == len(other.get_scripts())
+
+        if status:
+
+            for own_script_key in self.__scripts:
+                own_script = self.__scripts[own_script_key]
+                other_script = other.get_script(own_script_key)
+
+                if None == other_script \
+                        or (isinstance(own_script, list) and not isinstance(other_script, list)) \
+                        or (not isinstance(own_script, list) and isinstance(other_script, list)):
+                    return False
+
+                if isinstance(own_script, list):
+                    for own_script_element in own_script:
+                        exist = False
+                        for other_script_element in other_script:
+                            if own_script_element.equals(other_script_element):
+                                exist = True
+                                break
+                        if not exist:
+                            return False
+
+                    for other_script_element in other_script:
+                        exist = False
+                        for own_script_element in own_script:
+                            if own_script_element.equals(other_script_element):
+                                exist = True
+                                break
+                        if not exist:
+                            return False
+                else:
+                    if not own_script.equals(other_script):
+                        return False
+
+        return status
+
     def get_xml(self):
         return self.__xml
 
@@ -71,7 +115,7 @@ class Port:
         return 'open' in self.__state.get_state()
 
     def is_filtered(self):
-        return 'filtered' in self.__state.get_state()
+        return 'filtered' in self.__state.get_state() and not self.is_unfiltered()
 
     def is_open_filtered(self):
         return self.is_open() and self.is_filtered()
@@ -108,13 +152,16 @@ class Port:
         logging.info('Parsing Port')
         attr = self.__xml.attrib
         self.__protocol = attr['protocol']
-        self.__owner = attr.get('owner', None)
         self.__port = int(attr['portid'])
         logging.debug('Port: "{port}"'.format(port=self.__port))
         logging.debug('Protocol: "{protocol}"'.format(protocol=self.__protocol))
         logging.debug('Owner: "{owner}"'.format(owner=self.__owner))
         self.__state = State(self.__xml.find('state'))
         self.__service = Service(self.__xml.find('service'))
+
+        owner = self.__xml.find('owner')
+        if None != owner:
+            self.__owner = owner.attrib['name']
 
         for script_xml in self.__xml.findall('script'):
             script = parse(script_xml)

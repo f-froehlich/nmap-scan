@@ -1,0 +1,6 @@
+<port protocol="tcp" portid="22">
+    <state state="up" reason="reason" reason_ttl="10" reason_ip="ip"/>
+    <owner name="owner"/>
+    <service name="name" conf="conf" method="method"></service>
+    <script id="unknownId" output="scriptOutput"></script>
+</port>
