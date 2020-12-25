@@ -39,8 +39,8 @@ jobs:
       run: |
         pytest
     - name: Coverage
-        uses: 5monkeys/cobertura-action@master
-        with:
-          path: coverage.xml
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          minimum_coverage: 75
+      uses: 5monkeys/cobertura-action@master
+      with:
+        path: coverage.xml
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        minimum_coverage: 75
