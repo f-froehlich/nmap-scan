@@ -31,6 +31,7 @@ import logging
 
 from compare_xml.Comparator import compare_lists
 
+from nmap_scan.CompareHelper import compare_lists_equal
 from nmap_scan.Data.Element import Element
 from nmap_scan.Data.Table import Table
 from nmap_scan.Scripts.Script import Script
@@ -46,57 +47,11 @@ class UnknownScript(Script):
         self.__parse_xml()
 
     def equals(self, other):
-        status = isinstance(other, UnknownScript) \
-                 and Script.equals(self, other) \
-                 and len(self.__tables) == len(other.get_tables()) \
-                 and len(self.__elements) == len(other.get_elements()) \
-                 and len(self.__data) == len(other.get_data())
-
-        if status:
-            for own_element in self.__elements:
-                exist = False
-                for other_element in other.get_elements():
-                    if own_element.equals(other_element):
-                        exist = True
-                        break
-
-                if not exist:
-                    return False
-
-            for other_element in other.get_elements():
-                exist = False
-                for own_element in self.__elements:
-                    if own_element.equals(other_element):
-                        exist = True
-                        break
-
-                if not exist:
-                    return False
-
-            for own_table in self.__tables:
-                exist = False
-                for other_table in other.get_tables():
-                    if own_table.equals(other_table):
-                        exist = True
-                        break
-
-                if not exist:
-                    return False
-
-            for other_table in other.get_tables():
-                exist = False
-                for own_table in self.__tables:
-                    if own_table.equals(other_table):
-                        exist = True
-                        break
-
-                if not exist:
-                    return False
-
-            if not compare_lists(self.__data, other.get_data()):
-                return False
-
-        return status
+        return isinstance(other, UnknownScript) \
+               and Script.equals(self, other) \
+               and compare_lists_equal(self.__tables, other.get_tables()) \
+               and compare_lists_equal(self.__elements, other.get_elements()) \
+               and compare_lists(self.__data, other.get_data())
 
     def get_elements(self):
         return self.__elements

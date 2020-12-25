@@ -29,6 +29,7 @@
 
 import logging
 
+from nmap_scan.CompareHelper import compare_lists_equal
 from nmap_scan.Data.Element import Element
 
 
@@ -42,54 +43,10 @@ class Table:
         self.__parse_xml()
 
     def equals(self, other):
-        status = isinstance(other, Table) \
-                 and self.__key == other.get_key() \
-                 and len(self.__tables) == len(other.get_tables()) \
-                 and len(self.__elements) == len(other.get_elements())
-
-        if status:
-
-            for own_element in self.__elements:
-                exist = False
-                for other_element in other.get_elements():
-                    if own_element.equals(other_element):
-                        exist = True
-                        break
-
-                if not exist:
-                    return False
-
-            for other_element in other.get_elements():
-                exist = False
-                for own_element in self.__elements:
-                    if own_element.equals(other_element):
-                        exist = True
-                        break
-
-                if not exist:
-                    return False
-
-            for own_table in self.__tables:
-                exist = False
-                for other_table in other.get_tables():
-                    if own_table.equals(other_table):
-                        exist = True
-                        break
-
-                if not exist:
-                    return False
-
-            for other_table in other.get_tables():
-                exist = False
-                for own_table in self.__tables:
-                    if own_table.equals(other_table):
-                        exist = True
-                        break
-
-                if not exist:
-                    return False
-
-        return status
+        return isinstance(other, Table) \
+               and self.__key == other.get_key() \
+               and compare_lists_equal(self.__tables, other.get_tables()) \
+               and compare_lists_equal(self.__elements, other.get_elements())
 
     def get_xml(self):
         return self.__xml

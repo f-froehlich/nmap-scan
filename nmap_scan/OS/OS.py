@@ -29,6 +29,7 @@
 
 import logging
 
+from nmap_scan.CompareHelper import compare_lists_equal, compare_lists
 from nmap_scan.OS.OSMatch import OSMatch
 from nmap_scan.OS.OSUsedPort import OSUsedPort
 
@@ -43,54 +44,10 @@ class OS:
         self.__parse_xml()
 
     def equals(self, other):
-        if not isinstance(other, OS):
-            return False
-
-        for own_used_port in self.__used_ports:
-            exist = False
-            for other_used_port in other.get_used_ports():
-                if own_used_port.equals(other_used_port):
-                    exist = True
-                    break
-            if not exist:
-                return False
-
-        for other_used_port in other.get_used_ports():
-            exist = False
-            for own_used_port in self.__used_ports:
-                if own_used_port.equals(other_used_port):
-                    exist = True
-                    break
-            if not exist:
-                return False
-
-        for own_os_match in self.__os_matches:
-            exist = False
-            for other_os_match in other.get_os_matches():
-                if own_os_match.equals(other_os_match):
-                    exist = True
-                    break
-            if not exist:
-                return False
-
-        for other_os_match in other.get_os_matches():
-            exist = False
-            for own_os_match in self.__os_matches:
-                if own_os_match.equals(other_os_match):
-                    exist = True
-                    break
-            if not exist:
-                return False
-
-        for own_os_fingerprint in self.__os_fingerprints:
-            if own_os_fingerprint not in other.get_os_fingerprints():
-                return False
-
-        for other_os_fingerprint in other.get_os_fingerprints():
-            if other_os_fingerprint not in self.__os_fingerprints:
-                return False
-
-        return True
+        return isinstance(other, OS) \
+               and compare_lists_equal(self.__used_ports, other.get_used_ports()) \
+               and compare_lists_equal(self.__os_matches, other.get_os_matches()) \
+               and compare_lists(self.__os_fingerprints, other.get_os_fingerprints())
 
     def get_xml(self):
         return self.__xml

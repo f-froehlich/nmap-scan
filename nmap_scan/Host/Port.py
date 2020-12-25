@@ -29,6 +29,7 @@
 
 import logging
 
+from nmap_scan.CompareHelper import compare_script_maps
 from nmap_scan.Host.Service import Service
 from nmap_scan.Scripts.ScriptParser import parse
 from nmap_scan.Stats.State import State
@@ -47,48 +48,13 @@ class Port:
         self.__parse_xml()
 
     def equals(self, other):
-        status = isinstance(other, Port) \
-                 and self.__protocol == other.get_protocol() \
-                 and self.__port == other.get_port() \
-                 and self.__owner == other.get_owner() \
-                 and self.__state.equals(other.get_state()) \
-                 and self.__service.equals(other.get_service()) \
-                 and len(self.__scripts) == len(other.get_scripts())
-
-        if status:
-
-            for own_script_key in self.__scripts:
-                own_script = self.__scripts[own_script_key]
-                other_script = other.get_script(own_script_key)
-
-                if None == other_script \
-                        or (isinstance(own_script, list) and not isinstance(other_script, list)) \
-                        or (not isinstance(own_script, list) and isinstance(other_script, list)):
-                    return False
-
-                if isinstance(own_script, list):
-                    for own_script_element in own_script:
-                        exist = False
-                        for other_script_element in other_script:
-                            if own_script_element.equals(other_script_element):
-                                exist = True
-                                break
-                        if not exist:
-                            return False
-
-                    for other_script_element in other_script:
-                        exist = False
-                        for own_script_element in own_script:
-                            if own_script_element.equals(other_script_element):
-                                exist = True
-                                break
-                        if not exist:
-                            return False
-                else:
-                    if not own_script.equals(other_script):
-                        return False
-
-        return status
+        return isinstance(other, Port) \
+               and self.__protocol == other.get_protocol() \
+               and self.__port == other.get_port() \
+               and self.__owner == other.get_owner() \
+               and self.__state.equals(other.get_state()) \
+               and self.__service.equals(other.get_service()) \
+               and compare_script_maps(self.__scripts, other.get_scripts())
 
     def get_xml(self):
         return self.__xml

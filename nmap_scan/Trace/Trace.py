@@ -29,6 +29,7 @@
 
 import logging
 
+from nmap_scan.CompareHelper import compare_lists_equal
 from nmap_scan.Trace.Hop import Hop
 
 
@@ -54,30 +55,10 @@ class Trace:
         return self.__port
 
     def equals(self, other):
-        status = isinstance(other, Trace) \
-                 and self.__proto == other.get_proto() \
-                 and self.__port == other.get_port() \
-                 and len(self.__hops) == len(other.get_hops())
-
-        if status:
-            for own_hop in self.__hops:
-                exist = False
-                for other_hop in other.get_hops():
-                    if own_hop.equals(other_hop):
-                        exist = True
-                        break
-                if not exist:
-                    return False
-            for other_hop in other.get_hops():
-                exist = False
-                for own_hop in self.__hops:
-                    if own_hop.equals(other_hop):
-                        exist = True
-                        break
-                if not exist:
-                    return False
-
-        return status
+        return isinstance(other, Trace) \
+               and self.__proto == other.get_proto() \
+               and self.__port == other.get_port() \
+               and compare_lists_equal(self.__hops, other.get_hops())
 
     def __parse_xml(self):
         logging.info('Parsing Trace')

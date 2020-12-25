@@ -29,6 +29,8 @@
 
 import logging
 
+from nmap_scan.CompareHelper import compare_lists
+
 
 class Service:
 
@@ -53,34 +55,23 @@ class Service:
         self.__parse_xml()
 
     def equals(self, other):
-        state = isinstance(other, Service) \
-                and self.__name == other.get_name() \
-                and self.__conf == other.get_conf() \
-                and self.__method == other.get_method() \
-                and self.__version == other.get_version() \
-                and self.__product == other.get_product() \
-                and self.__extrainfo == other.get_extra_info() \
-                and self.__tunnel == other.get_tunnel() \
-                and self.__proto == other.get_proto() \
-                and self.__rpcnum == other.get_rpc_num() \
-                and self.__lowver == other.get_low_version() \
-                and self.__highver == other.get_high_version() \
-                and self.__hostname == other.get_hostname() \
-                and self.__ostype == other.get_os_type() \
-                and self.__devicetype == other.get_device_type() \
-                and self.__servicefp == other.get_service_fp() \
-                and len(self.__cpes) == len(other.get_cpes())
-
-        if state:
-            for own_cpe in self.__cpes:
-                if own_cpe not in other.get_cpes():
-                    return False
-
-            for other_cpe in other.get_cpes():
-                if other_cpe not in self.__cpes:
-                    return False
-
-        return state
+        return isinstance(other, Service) \
+               and self.__name == other.get_name() \
+               and self.__conf == other.get_conf() \
+               and self.__method == other.get_method() \
+               and self.__version == other.get_version() \
+               and self.__product == other.get_product() \
+               and self.__extrainfo == other.get_extra_info() \
+               and self.__tunnel == other.get_tunnel() \
+               and self.__proto == other.get_proto() \
+               and self.__rpcnum == other.get_rpc_num() \
+               and self.__lowver == other.get_low_version() \
+               and self.__highver == other.get_high_version() \
+               and self.__hostname == other.get_hostname() \
+               and self.__ostype == other.get_os_type() \
+               and self.__devicetype == other.get_device_type() \
+               and self.__servicefp == other.get_service_fp() \
+               and compare_lists(self.__cpes, other.get_cpes())
 
     def get_xml(self):
         return self.__xml

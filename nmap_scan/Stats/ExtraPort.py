@@ -29,6 +29,7 @@
 
 import logging
 
+from nmap_scan.CompareHelper import compare_lists_equal
 from nmap_scan.Stats.ExtraReason import ExtraReason
 
 
@@ -42,30 +43,10 @@ class ExtraPort:
         self.__parse_xml()
 
     def equals(self, other):
-        status = isinstance(other, ExtraPort) \
-                 and self.__state == other.get_state() \
-                 and self.__count == other.get_count() \
-                 and len(self.__reasons) == len(other.get_reasons())
-
-        if status:
-            for own_reason in self.__reasons:
-                exist = False
-                for other_reason in other.get_reasons():
-                    if own_reason.equals(other_reason):
-                        exist = True
-                        break
-                if not exist:
-                    return False
-            for other_reason in other.get_reasons():
-                exist = False
-                for own_reason in self.__reasons:
-                    if own_reason.equals(other_reason):
-                        exist = True
-                        break
-                if not exist:
-                    return False
-
-        return status
+        return isinstance(other, ExtraPort) \
+               and self.__state == other.get_state() \
+               and self.__count == other.get_count() \
+               and compare_lists_equal(self.__reasons, other.get_reasons())
 
     def get_xml(self):
         return self.__xml
