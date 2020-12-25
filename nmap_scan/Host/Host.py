@@ -29,6 +29,7 @@
 
 import logging
 
+from nmap_scan.CompareHelper import compare_lists_equal, compare_lists, compare_script_maps
 from nmap_scan.Host.HostAddress import HostAddress
 from nmap_scan.Host.HostName import HostName
 from nmap_scan.Host.Port import Port
@@ -38,6 +39,7 @@ from nmap_scan.Sequence.IPIDSequence import IPIDSequence
 from nmap_scan.Sequence.TCPSequence import TCPSequence
 from nmap_scan.Sequence.TCPTSSequence import TCPTSSequence
 from nmap_scan.Stats.Status import Status
+from nmap_scan.Stats.Time import Time
 from nmap_scan.Stats.Uptime import Uptime
 from nmap_scan.Trace.Trace import Trace
 
@@ -66,9 +68,28 @@ class Host:
         self.__closed_ports = None
         self.__filtered_ports = None
         self.__unfiltered_ports = None
-        self.__extra_ports = []
         self.__hostnames = []
         self.__parse_xml()
+
+    def equals(self, other):
+        return isinstance(other, Host) \
+               and self.__start_time == other.get_start_time() \
+               and self.__end_time == other.get_end_time() \
+               and self.__status.equals(other.get_status()) \
+               and self.__comment == other.get_comment() \
+               and self.__os.equals(other.get_os()) \
+               and compare_lists_equal(self.__addresses, other.get_addresses()) \
+               and compare_lists_equal(self.__uptimes, other.get_uptimes()) \
+               and compare_lists_equal(self.__hostnames, other.get_hostnames()) \
+               and compare_lists_equal(self.__ports, other.get_ports()) \
+               and compare_lists_equal(self.__traces, other.get_traces()) \
+               and compare_lists_equal(self.__ipidsequences, other.get_ipid_sequences()) \
+               and compare_lists_equal(self.__tcpsequences, other.get_tcp_sequences()) \
+               and compare_lists_equal(self.__tcptssequences, other.get_tcpts_sequences()) \
+               and compare_lists_equal(self.__times, other.get_times()) \
+               and compare_lists(self.__distances, other.get_distances()) \
+               and compare_lists(self.__smurfs, other.get_smurfs()) \
+               and compare_script_maps(self.__hostscripts, other.get_host_scripts())
 
     def get_xml(self):
         return self.__xml
@@ -114,9 +135,6 @@ class Host:
 
     def get_ports(self):
         return self.__ports
-
-    def get_extra_ports(self):
-        return self.__extra_ports
 
     def get_smurfs(self):
         return self.__smurfs
@@ -195,31 +213,31 @@ class Host:
         return ports
 
     def get_ports_with_script(self, script_id):
-        return self.get_ports_with_scripts(script_id)
+        return self.get_ports_with_scripts([script_id])
 
     def get_ports_with_scripts(self, script_ids):
         return self.__get_ports_with_scripts(script_ids, self.__ports)
 
     def get_open_ports_with_script(self, script_id):
-        return self.get_open_ports_with_scripts(script_id)
+        return self.get_open_ports_with_scripts([script_id])
 
     def get_open_ports_with_scripts(self, script_ids):
         return self.__get_ports_with_scripts(script_ids, self.get_open_ports())
 
     def get_closed_ports_with_script(self, script_id):
-        return self.get_closed_ports_with_scripts(script_id)
+        return self.get_closed_ports_with_scripts([script_id])
 
     def get_closed_ports_with_scripts(self, script_ids):
         return self.__get_ports_with_scripts(script_ids, self.get_closed_ports())
 
     def get_filtered_ports_with_script(self, script_id):
-        return self.get_filtered_ports_with_scripts(script_id)
+        return self.get_filtered_ports_with_scripts([script_id])
 
     def get_filtered_ports_with_scripts(self, script_ids):
         return self.__get_ports_with_scripts(script_ids, self.get_filtered_ports())
 
     def get_unfiltered_ports_with_script(self, script_id):
-        return self.get_unfiltered_ports_with_scripts(script_id)
+        return self.get_unfiltered_ports_with_scripts([script_id])
 
     def get_unfiltered_ports_with_scripts(self, script_ids):
         return self.__get_ports_with_scripts(script_ids, self.get_unfiltered_ports())
@@ -338,8 +356,8 @@ class Host:
                 else:
                     self.__hostscripts[script.get_id()] = [existing_script, script]
 
-        for time_xml in self.__xml.findall('time'):
-            self.__times.append(time_xml.attrib['responses'])
+        for time_xml in self.__xml.findall('times'):
+            self.__times.append(Time(time_xml))
         for trace_xml in self.__xml.findall('trace'):
             self.__traces.append(Trace(trace_xml))
         for uptime_xml in self.__xml.findall('uptime'):
