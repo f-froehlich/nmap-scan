@@ -37,6 +37,9 @@ class UDPReport(Report):
         logging.info('Create UDP Report')
         Report.__init__(self, xml)
 
+    def equals(self, other):
+        return isinstance(other, UDPReport) and Report.equals(self, other)
+
     @staticmethod
     def from_file(filepath):
         et = ElementTree()

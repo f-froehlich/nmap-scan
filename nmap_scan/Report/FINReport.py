@@ -37,6 +37,9 @@ class FINReport(Report):
         logging.info('Create FIN Report')
         Report.__init__(self, xml)
 
+    def equals(self, other):
+        return isinstance(other, FINReport) and Report.equals(self, other)
+
     @staticmethod
     def from_file(filepath):
         et = ElementTree()

@@ -37,6 +37,9 @@ class TCPNullReport(Report):
         logging.info('Create TCPNull Report')
         Report.__init__(self, xml)
 
+    def equals(self, other):
+        return isinstance(other, TCPNullReport) and Report.equals(self, other)
+
     @staticmethod
     def from_file(filepath):
         et = ElementTree()

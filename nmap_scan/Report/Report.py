@@ -29,6 +29,7 @@ import logging
 from threading import Thread
 from xml.etree.ElementTree import ElementTree
 
+from nmap_scan.CompareHelper import compare_lists_equal, compare_script_maps
 from nmap_scan.Host.Host import Host
 from nmap_scan.Scripts.ScriptParser import parse
 from nmap_scan.Stats.Output import Output
@@ -70,13 +71,36 @@ class Report:
 
         self.__parse_xml()
 
+    def equals(self, other):
+        return isinstance(other, Report) \
+               and self.__scanner == other.get_scanner() \
+               and self.__scanner_args == other.get_scanner_args() \
+               and self.__start == other.get_start() \
+               and self.__startstr == other.get_start_string() \
+               and self.__version == other.get_version() \
+               and self.__profile_name == other.get_profile_name() \
+               and self.__xmloutputversion == other.get_xml_output_version() \
+               and self.__verbose_level == other.get_verbose_level() \
+               and self.__debugging_level == other.get_debugging_level() \
+               and self.__run_stats.equals(other.get_run_stats()) \
+               and compare_lists_equal(self.__scaninfos, other.get_scaninfos()) \
+               and compare_lists_equal(self.__scaninfos, other.get_scaninfos()) \
+               and compare_lists_equal(self.__targets, other.get_targets()) \
+               and compare_lists_equal(self.__outputs, other.get_outputs()) \
+               and compare_lists_equal(self.__task_progresses, other.get_task_progresses()) \
+               and compare_lists_equal(self.__task_begins, other.get_task_begins()) \
+               and compare_lists_equal(self.__task_ends, other.get_task_ends()) \
+               and compare_lists_equal(self.__hosts, other.get_hosts()) \
+               and compare_script_maps(self.__pre_scripts, other.get_pre_scripts()) \
+               and compare_script_maps(self.__post_scripts, other.get_post_scripts())
+
     def get_xml(self):
         return self.__xml
 
     def get_scanner(self):
         return self.__scanner
 
-    def get_scannder_args(self):
+    def get_scanner_args(self):
         return self.__scanner_args
 
     def get_start(self):
@@ -126,22 +150,22 @@ class Report:
 
     def get_hosts_up(self):
         if None == self.__hosts_up:
-            self.__hosts_up = [h for h in self.__hosts_up if h.is_up()]
+            self.__hosts_up = [h for h in self.__hosts if h.is_up()]
         return self.__hosts_up
 
     def get_hosts_down(self):
         if None == self.__hosts_down:
-            self.__hosts_down = [h for h in self.__hosts_down if h.is_down()]
+            self.__hosts_down = [h for h in self.__hosts if h.is_down()]
         return self.__hosts_down
 
     def get_hosts_unknown(self):
         if None == self.__hosts_unknown:
-            self.__hosts_unknown = [h for h in self.__hosts_unknown if h.is_unknown()]
+            self.__hosts_unknown = [h for h in self.__hosts if h.is_unknown()]
         return self.__hosts_unknown
 
     def get_hosts_skipped(self):
         if None == self.__hosts_skipped:
-            self.__hosts_skipped = [h for h in self.__hosts_skipped if h.is_skipped()]
+            self.__hosts_skipped = [h for h in self.__hosts if h.is_skipped()]
         return self.__hosts_skipped
 
     def get_pre_scripts(self):
@@ -426,3 +450,10 @@ class Report:
     def save(self, filepath):
         et = ElementTree(element=self.get_xml())
         et.write(filepath, encoding='utf-8')
+
+    @staticmethod
+    def from_file(filepath):
+        et = ElementTree()
+        xml = et.parse(source=filepath)
+
+        return Report(xml)

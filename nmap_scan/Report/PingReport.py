@@ -37,6 +37,9 @@ class PingReport(Report):
         logging.info('Create Ping Report')
         Report.__init__(self, xml)
 
+    def equals(self, other):
+        return isinstance(other, PingReport) and Report.equals(self, other)
+
     @staticmethod
     def from_file(filepath):
         et = ElementTree()

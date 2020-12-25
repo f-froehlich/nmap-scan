@@ -37,6 +37,9 @@ class MaimonReport(Report):
         logging.info('Create Maimon Report')
         Report.__init__(self, xml)
 
+    def equals(self, other):
+        return isinstance(other, MaimonReport) and Report.equals(self, other)
+
     @staticmethod
     def from_file(filepath):
         et = ElementTree()

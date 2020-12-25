@@ -37,6 +37,9 @@ class WindowReport(Report):
         logging.info('Create WINDOW Report')
         Report.__init__(self, xml)
 
+    def equals(self, other):
+        return isinstance(other, WindowReport) and Report.equals(self, other)
+
     @staticmethod
     def from_file(filepath):
         et = ElementTree()

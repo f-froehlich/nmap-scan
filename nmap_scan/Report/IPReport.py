@@ -37,6 +37,9 @@ class IPReport(Report):
         logging.info('Create IP Report')
         Report.__init__(self, xml)
 
+    def equals(self, other):
+        return isinstance(other, IPReport) and Report.equals(self, other)
+
     @staticmethod
     def from_file(filepath):
         et = ElementTree()

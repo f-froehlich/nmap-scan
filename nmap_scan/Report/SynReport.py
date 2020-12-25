@@ -37,6 +37,9 @@ class SynReport(Report):
         logging.info('Create Syn Report')
         Report.__init__(self, xml)
 
+    def equals(self, other):
+        return isinstance(other, SynReport) and Report.equals(self, other)
+
     @staticmethod
     def from_file(filepath):
         et = ElementTree()

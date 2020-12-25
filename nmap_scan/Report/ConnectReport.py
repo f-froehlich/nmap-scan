@@ -37,6 +37,9 @@ class ConnectReport(Report):
         logging.info('Create Connect Report')
         Report.__init__(self, xml)
 
+    def equals(self, other):
+        return isinstance(other, ConnectReport) and Report.equals(self, other)
+
     @staticmethod
     def from_file(filepath):
         et = ElementTree()

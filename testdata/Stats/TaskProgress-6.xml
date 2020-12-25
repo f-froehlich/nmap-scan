@@ -1,1 +1,1 @@
-<hop task="task1" percent="20" remaining="30" etc="50"/>
+<taskprogress task="task1" percent="20" remaining="30" etc="50"/>

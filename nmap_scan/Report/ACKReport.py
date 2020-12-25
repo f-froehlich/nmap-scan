@@ -37,6 +37,9 @@ class ACKReport(Report):
         logging.info('Create ACK Report')
         Report.__init__(self, xml)
 
+    def equals(self, other):
+        return isinstance(other, ACKReport) and Report.equals(self, other)
+
     @staticmethod
     def from_file(filepath):
         et = ElementTree()

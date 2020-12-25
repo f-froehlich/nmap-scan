@@ -37,6 +37,9 @@ class TCPReport(Report):
         logging.info('Create TCP Report')
         Report.__init__(self, xml)
 
+    def equals(self, other):
+        return isinstance(other, TCPReport) and Report.equals(self, other)
+
     @staticmethod
     def from_file(filepath):
         et = ElementTree()

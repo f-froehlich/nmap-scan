@@ -37,6 +37,9 @@ class XmasReport(Report):
         logging.info('Create Xmas Report')
         Report.__init__(self, xml)
 
+    def equals(self, other):
+        return isinstance(other, XmasReport) and Report.equals(self, other)
+
     @staticmethod
     def from_file(filepath):
         et = ElementTree()
