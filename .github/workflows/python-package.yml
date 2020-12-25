@@ -50,7 +50,7 @@ jobs:
       uses: schneegans/dynamic-badges-action@v1.0.0
       with:
         auth: ${{ secrets.GIST_SECRET }}
-        gistID: f-froehlich
+        gistID: 6df544fd2b6e1bcb95989ba402b8cd67
         filename: nmap-scan-coverage.json
         label: Coverage
         message: ${{ env.PERCENT }}
