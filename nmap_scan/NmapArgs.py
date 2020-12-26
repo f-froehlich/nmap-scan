@@ -46,6 +46,7 @@ class NmapArgs:
                  always_dns_resolution=False, pn=False
                  ):
         self.__argpaser = None
+        self.__locked = False
 
         self.__always_dns_resolution = always_dns_resolution
         self.__never_dns_resolution = never_dns_resolution
@@ -109,7 +110,628 @@ class NmapArgs:
         self.__num_hosts = num_hosts
         self.__hosts = hosts
 
+    def lock(self):
+        self.__locked = True
+
+    def is_locked(self):
+        return self.__locked
+
+    def set_always_dns_resolution(self, always_dns_resolution):
+        if not self.__locked:
+            self.__always_dns_resolution = always_dns_resolution
+
+        return self
+
+    def get_always_dns_resolution(self):
+        return self.__always_dns_resolution
+
+    def set_never_dns_resolution(self, never_dns_resolution):
+        if not self.__locked:
+            self.__never_dns_resolution = never_dns_resolution
+
+        return self
+
+    def get_never_dns_resolution(self):
+        return self.__never_dns_resolution
+
+    def set_port_ratio(self, port_ratio):
+        if not self.__locked:
+            self.__port_ratio = port_ratio
+
+        return self
+
+    def get_port_ratio(self):
+        return self.__port_ratio
+
+    def set_top_ports(self, top_ports):
+        if not self.__locked:
+            self.__top_ports = top_ports
+
+        return self
+
+    def get_top_ports(self):
+        return self.__top_ports
+
+    def set_scan_consecutively(self, scan_consecutively):
+        if not self.__locked:
+            self.__scan_consecutively = scan_consecutively
+
+        return self
+
+    def get_scan_consecutively(self):
+        return self.__scan_consecutively
+
+    def set_fast_mode(self, fast_mode):
+        if not self.__locked:
+            self.__fast_mode = fast_mode
+
+        return self
+
+    def get_fast_mode(self):
+        return self.__fast_mode
+
+    def set_exclude_ports(self, exclude_ports):
+        if not self.__locked:
+            self.__exclude_ports = exclude_ports
+
+        return self
+
+    def get_exclude_ports(self):
+        return self.__exclude_ports
+
+    def set_version_all(self, version_all):
+        if not self.__locked:
+            self.__version_all = version_all
+
+        return self
+
+    def get_version_all(self):
+        return self.__version_all
+
+    def set_script_trace(self, script_trace):
+        if not self.__locked:
+            self.__script_trace = script_trace
+
+        return self
+
+    def get_script_trace(self):
+        return self.__script_trace
+
+    def set_version_light(self, version_light):
+        if not self.__locked:
+            self.__version_light = version_light
+
+        return self
+
+    def get_version_light(self):
+        return self.__version_light
+
+    def set_version_intensity(self, version_intensity):
+        if not self.__locked:
+            self.__version_intensity = version_intensity
+
+        return self
+
+    def get_version_intensity(self):
+        return self.__version_intensity
+
+    def set_service_discovery(self, service_discovery):
+        if not self.__locked:
+            self.__service_discovery = service_discovery
+
+        return self
+
+    def get_service_discovery(self):
+        return self.__service_discovery
+
+    def set_pn(self, pn):
+        if not self.__locked:
+            self.__pn = pn
+
+        return self
+
+    def get_pn(self):
+        return self.__pn
+
+    def set_script_args(self, script_args):
+        if not self.__locked:
+            self.__script_args = script_args
+
+        return self
+
+    def get_script_args(self):
+        return self.__script_args
+
+    def set_scripts(self, scripts):
+        if not self.__locked:
+            self.__scripts = scripts
+
+        return self
+
+    def get_scripts(self):
+        return self.__scripts
+
+    def set_default_script(self, default_script):
+        if not self.__locked:
+            self.__default_script = default_script
+
+        return self
+
+    def get_default_script(self):
+        return self.__default_script
+
+    def set_version_trace(self, version_trace):
+        if not self.__locked:
+            self.__version_trace = version_trace
+
+        return self
+
+    def get_version_trace(self):
+        return self.__version_trace
+
+    def set_min_hostgroup(self, min_hostgroup):
+        if not self.__locked:
+            self.__min_hostgroup = min_hostgroup
+
+        return self
+
+    def get_min_hostgroup(self):
+        return self.__min_hostgroup
+
+    def set_timing(self, timing):
+        if not self.__locked:
+            self.__timing = timing
+
+        return self
+
+    def get_timing(self):
+        return self.__timing
+
+    def set_os_scan_limit(self, os_scan_limit):
+        if not self.__locked:
+            self.__os_scan_limit = os_scan_limit
+
+        return self
+
+    def get_os_scan_limit(self):
+        return self.__os_scan_limit
+
+    def set_os_guess(self, os_guess):
+        if not self.__locked:
+            self.__os_guess = os_guess
+
+        return self
+
+    def get_os_guess(self):
+        return self.__os_guess
+
+    def set_os_detection(self, os_detection):
+        if not self.__locked:
+            self.__os_detection = os_detection
+
+        return self
+
+    def get_os_detection(self):
+        return self.__os_detection
+
+    def set_min_rtt_timeout(self, min_rtt_timeout):
+        if not self.__locked:
+            self.__min_rtt_timeout = min_rtt_timeout
+
+        return self
+
+    def get_min_rtt_timeout(self):
+        return self.__min_rtt_timeout
+
+    def set_max_parallelism(self, max_parallelism):
+        if not self.__locked:
+            self.__max_parallelism = max_parallelism
+
+        return self
+
+    def get_max_parallelism(self):
+        return self.__max_parallelism
+
+    def set_min_parallelism(self, min_parallelism):
+        if not self.__locked:
+            self.__min_parallelism = min_parallelism
+
+        return self
+
+    def get_min_parallelism(self):
+        return self.__min_parallelism
+
+    def set_max_hostgroup(self, max_hostgroup):
+        if not self.__locked:
+            self.__max_hostgroup = max_hostgroup
+
+        return self
+
+    def get_max_hostgroup(self):
+        return self.__max_hostgroup
+
+    def set_scan_delay(self, scan_delay):
+        if not self.__locked:
+            self.__scan_delay = scan_delay
+
+        return self
+
+    def get_scan_delay(self):
+        return self.__scan_delay
+
+    def set_host_timeout(self, host_timeout):
+        if not self.__locked:
+            self.__host_timeout = host_timeout
+
+        return self
+
+    def get_host_timeout(self):
+        return self.__host_timeout
+
+    def set_max_retries(self, max_retries):
+        if not self.__locked:
+            self.__max_retries = max_retries
+
+        return self
+
+    def get_max_retries(self):
+        return self.__max_retries
+
+    def set_initial_rtt_timeout(self, initial_rtt_timeout):
+        if not self.__locked:
+            self.__initial_rtt_timeout = initial_rtt_timeout
+
+        return self
+
+    def get_initial_rtt_timeout(self):
+        return self.__initial_rtt_timeout
+
+    def set_privileged(self, privileged):
+        if not self.__locked:
+            self.__privileged = privileged
+
+        return self
+
+    def get_privileged(self):
+        return self.__privileged
+
+    def set_max_rtt_timeout(self, max_rtt_timeout):
+        if not self.__locked:
+            self.__max_rtt_timeout = max_rtt_timeout
+
+        return self
+
+    def get_max_rtt_timeout(self):
+        return self.__max_rtt_timeout
+
+    def set_decoys(self, decoys):
+        if not self.__locked:
+            self.__decoys = decoys
+
+        return self
+
+    def get_decoys(self):
+        return self.__decoys
+
+    def set_mtu(self, mtu):
+        if not self.__locked:
+            self.__mtu = mtu
+
+        return self
+
+    def get_mtu(self):
+        return self.__mtu
+
+    def set_misc_a(self, misc_a):
+        if not self.__locked:
+            self.__misc_a = misc_a
+
+        return self
+
+    def get_misc_a(self):
+        return self.__misc_a
+
+    def set_datadir(self, datadir):
+        if not self.__locked:
+            self.__datadir = datadir
+
+        return self
+
+    def get_datadir(self):
+        return self.__datadir
+
+    def set_ipv6_scan(self, ipv6_scan):
+        if not self.__locked:
+            self.__ipv6_scan = ipv6_scan
+
+        return self
+
+    def get_ipv6_scan(self):
+        return self.__ipv6_scan
+
+    def set_max_rate(self, max_rate):
+        if not self.__locked:
+            self.__max_rate = max_rate
+
+        return self
+
+    def get_max_rate(self):
+        return self.__max_rate
+
+    def set_min_rate(self, min_rate):
+        if not self.__locked:
+            self.__min_rate = min_rate
+
+        return self
+
+    def get_min_rate(self):
+        return self.__min_rate
+
+    def set_data_string(self, data_string):
+        if not self.__locked:
+            self.__data_string = data_string
+
+        return self
+
+    def get_data_string(self):
+        return self.__data_string
+
+    def set_data(self, data):
+        if not self.__locked:
+            self.__data = data
+
+        return self
+
+    def get_data(self):
+        return self.__data
+
+    def set_proxies(self, proxies):
+        if not self.__locked:
+            self.__proxies = proxies
+
+        return self
+
+    def get_proxies(self):
+        return self.__proxies
+
+    def set_source_port(self, source_port):
+        if not self.__locked:
+            self.__source_port = source_port
+
+        return self
+
+    def get_source_port(self):
+        return self.__source_port
+
+    def set_send_ip(self, send_ip):
+        if not self.__locked:
+            self.__send_ip = send_ip
+
+        return self
+
+    def get_send_ip(self):
+        return self.__send_ip
+
+    def set_unprivileged(self, unprivileged):
+        if not self.__locked:
+            self.__unprivileged = unprivileged
+
+        return self
+
+    def get_unprivileged(self):
+        return self.__unprivileged
+
+    def set_send_eth(self, send_eth):
+        if not self.__locked:
+            self.__send_eth = send_eth
+
+        return self
+
+    def get_send_eth(self):
+        return self.__send_eth
+
+    def set_max_scan_delay(self, max_scan_delay):
+        if not self.__locked:
+            self.__max_scan_delay = max_scan_delay
+
+        return self
+
+    def get_max_scan_delay(self):
+        return self.__max_scan_delay
+
+    def set_interface(self, interface):
+        if not self.__locked:
+            self.__interface = interface
+
+        return self
+
+    def get_interface(self):
+        return self.__interface
+
+    def set_spoof_ip(self, spoof_ip):
+        if not self.__locked:
+            self.__spoof_ip = spoof_ip
+
+        return self
+
+    def get_spoof_ip(self):
+        return self.__spoof_ip
+
+    def set_bad_sum(self, bad_sum):
+        if not self.__locked:
+            self.__bad_sum = bad_sum
+
+        return self
+
+    def get_bad_sum(self):
+        return self.__bad_sum
+
+    def set_spoof_mac(self, spoof_mac):
+        if not self.__locked:
+            self.__spoof_mac = spoof_mac
+
+        return self
+
+    def get_spoof_mac(self):
+        return self.__spoof_mac
+
+    def set_ttl(self, ttl):
+        if not self.__locked:
+            self.__ttl = ttl
+
+        return self
+
+    def get_ttl(self):
+        return self.__ttl
+
+    def set_ip_options(self, ip_options):
+        if not self.__locked:
+            self.__ip_options = ip_options
+
+        return self
+
+    def get_ip_options(self):
+        return self.__ip_options
+
+    def set_data_length(self, data_length):
+        if not self.__locked:
+            self.__data_length = data_length
+
+        return self
+
+    def get_data_length(self):
+        return self.__data_length
+
+    def set_ports(self, ports):
+        if not self.__locked:
+            self.__ports = ports
+
+        return self
+
+    def get_ports(self):
+        return self.__ports
+
+    def set_traceroute(self, traceroute):
+        if not self.__locked:
+            self.__traceroute = traceroute
+
+        return self
+
+    def get_traceroute(self):
+        return self.__traceroute
+
+    def set_system_dns(self, system_dns):
+        if not self.__locked:
+            self.__system_dns = system_dns
+
+        return self
+
+    def get_system_dns(self):
+        return self.__system_dns
+
+    def set_dns_servers(self, dns_servers):
+        if not self.__locked:
+            self.__dns_servers = dns_servers
+
+        return self
+
+    def get_dns_servers(self):
+        return self.__dns_servers
+
+    def set_exclude_hosts(self, exclude_hosts):
+        if not self.__locked:
+            self.__exclude_hosts = exclude_hosts
+
+        return self
+
+    def get_exclude_hosts(self):
+        return self.__exclude_hosts
+
+    def set_num_hosts(self, num_hosts):
+        if not self.__locked:
+            self.__num_hosts = num_hosts
+
+        return self
+
+    def get_num_hosts(self):
+        return self.__num_hosts
+
+    def set_hosts(self, hosts):
+        if not self.__locked:
+            self.__hosts = hosts
+
+        return self
+
+    def get_hosts(self):
+        return self.__hosts
+
+    def clone(self):
+        return NmapArgs(
+            always_dns_resolution=self.__always_dns_resolution,
+            never_dns_resolution=self.__never_dns_resolution,
+            port_ratio=self.__port_ratio,
+            top_ports=self.__top_ports,
+            scan_consecutively=self.__scan_consecutively,
+            fast_mode=self.__fast_mode,
+            exclude_ports=self.__exclude_ports,
+            version_all=self.__version_all,
+            script_trace=self.__script_trace,
+            version_light=self.__version_light,
+            version_intensity=self.__version_intensity,
+            service_discovery=self.__service_discovery,
+            pn=self.__pn,
+            script_args=self.__script_args,
+            scripts=self.__scripts,
+            default_script=self.__default_script,
+            version_trace=self.__version_trace,
+            min_hostgroup=self.__min_hostgroup,
+            timing=self.__timing,
+            os_scan_limit=self.__os_scan_limit,
+            os_guess=self.__os_guess,
+            os_detection=self.__os_detection,
+            min_rtt_timeout=self.__min_rtt_timeout,
+            max_parallelism=self.__max_parallelism,
+            min_parallelism=self.__min_parallelism,
+            max_hostgroup=self.__max_hostgroup,
+            scan_delay=self.__scan_delay,
+            host_timeout=self.__host_timeout,
+            max_retries=self.__max_retries,
+            initial_rtt_timeout=self.__initial_rtt_timeout,
+            privileged=self.__privileged,
+            max_rtt_timeout=self.__max_rtt_timeout,
+            decoys=self.__decoys,
+            mtu=self.__mtu,
+            misc_a=self.__misc_a,
+            datadir=self.__datadir,
+            ipv6_scan=self.__ipv6_scan,
+            max_rate=self.__max_rate,
+            min_rate=self.__min_rate,
+            data_string=self.__data_string,
+            data=self.__data,
+            proxies=self.__proxies,
+            source_port=self.__source_port,
+            send_ip=self.__send_ip,
+            unprivileged=self.__unprivileged,
+            send_eth=self.__send_eth,
+            max_scan_delay=self.__max_scan_delay,
+            interface=self.__interface,
+            spoof_ip=self.__spoof_ip,
+            bad_sum=self.__bad_sum,
+            spoof_mac=self.__spoof_mac,
+            ttl=self.__ttl,
+            ip_options=self.__ip_options,
+            data_length=self.__data_length,
+            ports=self.__ports,
+            traceroute=self.__traceroute,
+            system_dns=self.__system_dns,
+            dns_servers=self.__dns_servers,
+            exclude_hosts=self.__exclude_hosts,
+            num_hosts=self.__num_hosts,
+            hosts=self.__hosts
+        )
+
     def get_arg_list(self):
+        self.__locked = True
         args = ['-oX', '-']
 
         if 0 != len(self.__exclude_hosts):
