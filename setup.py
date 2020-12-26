@@ -65,7 +65,7 @@ setup_args = dict(
 )
 
 install_requires = [
-    'compare-xml>=1.0',
+    'compare-xml>=1.1',
     'lxml>=4.5',
 ]
 
