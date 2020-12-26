@@ -26,8 +26,10 @@
 #  Checkout this project on github <https://github.com/f-froehlich/nmap-scan>
 #  and also my other projects <https://github.com/f-froehlich>
 
+import concurrent.futures
 import logging
 import threading
+import time
 
 from nmap_scan.Exceptions.NmapConfigurationException import NmapConfigurationException
 from nmap_scan.MultiScannerConfiguration import MultiScannerConfiguration
@@ -48,35 +50,40 @@ class MultiScanner:
         logging.info('Prepare real scan for thread {thread}'.format(thread=thread_id))
 
         configuration = self.__configurations[thread_id]
-        method = configuration.get_scan_method()
         configured_args = configuration.get_nmap_args()
 
-        scanners = []
+        thread_pool = concurrent.futures.ThreadPoolExecutor(max_workers=configuration.get_max_parallel_scans())
+        futures = []
         for host in report.get_hosts():
             for address in host.get_addresses():
                 if address.is_ip():
                     logging.info('Initiate Scan for host with IP "{ip}" in thread {thread}'
                                  .format(ip=address.get_addr(), thread=thread_id))
+
                     args = configured_args.clone()
                     args.set_hosts([address.get_addr()])
-                    scanner = Scanner(args)
-                    scanners.append(scanner)
+                    futures.append(thread_pool.submit(
+                        self.__init_scan,
+                        args=args,
+                        address=address.get_addr(),
+                        thread_id=thread_id,
+                        configuration=configuration
+                    ))
 
-                    def cm(r, s):
-                        if None != configuration.get_callback_method():
-                            logging.info('Call callback method for "{ip}" in thread {thread}'
-                                         .format(ip=address.get_addr(), thread=thread_id))
-                            configuration.get_callback_method()(
-                                address.get_addr(),
-                                r,
-                                s
-                            )
+        for future in futures:
+            future.result()
 
-                    scanner.scan_background(configuration.get_scan_method(), cm)
-                    break
+    def __init_scan(self, args, address, thread_id, configuration):
+        time.sleep(15)
+        scanner = Scanner(args)
 
-        for scanner in scanners:
-            scanner.wait_all()
+        def cm(r, s, ip=address, tid=thread_id):
+            if None != configuration.get_callback_method():
+                logging.info('Call callback method for "{ip}" in thread {thread}'
+                             .format(ip=ip, thread=tid))
+                configuration.get_callback_method()(ip, r, s)
+
+        scanner.scan(configuration.get_scan_method(), cm)
 
     def __run(self, ping_args, thread_id):
         logging.debug('Start ping scan for thread {thread}'.format(thread=thread_id))
