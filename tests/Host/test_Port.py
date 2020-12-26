@@ -194,6 +194,10 @@ class TestPort(BaseXMLTest):
         xml = self.create_xml(filepath)
         e = self.create_instance(xml)
         assert expected == e.has_script(script)
+        if expected:
+            assert script == e.get_script(script).get_id()
+        else:
+            assert None == e.get_script(script)
 
     @pytest.mark.parametrize(("filepath1", "filepath2", "expected"), [
         ('testdata/Host/Port-1.xml', 'testdata/Host/Port-1.xml', True),

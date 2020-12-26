@@ -159,5 +159,12 @@
         </hostscript>
         <times srtt="16592" rttvar="2595" to="100000"/>
     </host>
+    <hosthint>
+        <status state="up" reason="reason" reason_ttl="10"/>
+        <address addr="address" addrtype="ipv4" vendor="vendor"/>
+        <hostnames>
+            <hostname name="name" type="type"/>
+        </hostnames>
+    </hosthint>
 
 </nmaprun>

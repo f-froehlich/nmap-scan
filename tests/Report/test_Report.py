@@ -1,6 +1,8 @@
 import pytest
 
+from nmap_scan.CompareHelper import compare_lists_equal
 from nmap_scan.Host.Host import Host
+from nmap_scan.Host.HostHint import HostHint
 from nmap_scan.Report.Report import Report
 from nmap_scan.Scripts.ScriptParser import parse
 from nmap_scan.Stats.Output import Output
@@ -358,3 +360,15 @@ class TestReport(BaseXMLTest):
         e2 = self.create_instance(xml2)
 
         assert expected == e1.equals(e2)
+
+    @pytest.mark.parametrize(("filepath", "expected"), [
+        ('testdata/Report/Report-1.xml', ['testdata/Host/HostHint-1.xml']),
+    ])
+    def test_hostname(self, filepath, expected):
+        xml = self.create_xml(filepath)
+        e = self.create_instance(xml)
+        hints = []
+        for a in expected:
+            hints.append(HostHint(self.create_xml(a)))
+
+        assert compare_lists_equal(e.get_host_hints(), hints)

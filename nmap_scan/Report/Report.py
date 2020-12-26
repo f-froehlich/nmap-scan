@@ -31,6 +31,7 @@ from xml.etree.ElementTree import ElementTree
 
 from nmap_scan.CompareHelper import compare_lists_equal, compare_script_maps
 from nmap_scan.Host.Host import Host
+from nmap_scan.Host.HostHint import HostHint
 from nmap_scan.Scripts.ScriptParser import parse
 from nmap_scan.Stats.Output import Output
 from nmap_scan.Stats.RunStats import RunStats
@@ -64,6 +65,7 @@ class Report:
         self.__debugging_level = None
         self.__run_stats = None
         self.__hosts = []
+        self.__host_hints = []
         self.__hosts_up = None
         self.__hosts_down = None
         self.__hosts_unknown = None
@@ -91,6 +93,7 @@ class Report:
                and compare_lists_equal(self.__task_begins, other.get_task_begins()) \
                and compare_lists_equal(self.__task_ends, other.get_task_ends()) \
                and compare_lists_equal(self.__hosts, other.get_hosts()) \
+               and compare_lists_equal(self.__host_hints, other.get_host_hints()) \
                and compare_script_maps(self.__pre_scripts, other.get_pre_scripts()) \
                and compare_script_maps(self.__post_scripts, other.get_post_scripts())
 
@@ -144,6 +147,9 @@ class Report:
 
     def get_run_stats(self):
         return self.__run_stats
+
+    def get_host_hints(self):
+        return self.__host_hints
 
     def get_hosts(self):
         return self.__hosts
@@ -417,6 +423,9 @@ class Report:
 
         for task_end_xml in self.__xml.findall('taskend'):
             self.__task_ends.append(TaskEnd(task_end_xml))
+
+        for hosthint_xml in self.__xml.findall('hosthint'):
+            self.__host_hints.append(HostHint(hosthint_xml))
 
         for prescript_xml in self.__xml.findall('prescript'):
             for script_xml in prescript_xml.findall('script'):
