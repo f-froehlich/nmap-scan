@@ -1,1 +1,1 @@
-<target specification="specification" status="status" reason="reason"/>
+<target specification="specification" status="skipped" reason="invalid"/>

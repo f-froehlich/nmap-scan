@@ -1,6 +1,7 @@
 from xml.etree.ElementTree import ElementTree
 
 import pytest
+from lxml import etree
 
 
 @pytest.mark.parsing
@@ -13,8 +14,9 @@ class BaseXMLTest:
         raise Exception('Must be override get_all_files')
 
     def create_xml(self, filepath):
+        parser = etree.XMLParser()
         et = ElementTree()
-        return et.parse(source=filepath)
+        return et.parse(source=filepath, parser=parser)
 
     @pytest.mark.xml
     def test_set_xml(self):

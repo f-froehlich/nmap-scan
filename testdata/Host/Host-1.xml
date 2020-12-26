@@ -2,7 +2,7 @@
     <status state="up" reason="reason" reason_ttl="10"/>
     <address addr="address" addrtype="ipv4" vendor="vendor"/>
     <hostnames>
-        <hostname name="name" type="type"/>
+        <hostname name="name" type="PTR"/>
     </hostnames>
     <ports>
         <extraports state="state" count="10">
@@ -12,7 +12,7 @@
         <port protocol="tcp" portid="22">
             <state state="open" reason="reason" reason_ttl="10" reason_ip="ip"/>
             <owner name="owner"/>
-            <service name="name" conf="conf" method="method"></service>
+            <service name="name" conf="10" method="table"></service>
             <script id="unknownId" output="scriptOutput"></script>
         </port>
     </ports>
@@ -22,7 +22,7 @@
         <osmatch name="name2" accuracy="44" line="55">
         </osmatch>
     </os>
-    <hop seconds="10" lastboot="boottime"/>
+    <uptime seconds="10" lastboot="boottime"/>
     <tcpsequence index="1" difficulty="difficulty" values="values"/>
     <ipidsequence class="class" values="values"/>
     <tcptssequence class="class" values="values"/>
@@ -31,12 +31,11 @@
         <script id="unknownId" output="scriptOutput"></script>
         <script id="unknownId" output="scriptOutput"></script>
     </hostscript>
-    <times srtt="16592" rttvar="2595" to="100000"/>
     <smurf responses="smurf"/>
     <distance value="5"/>
     <trace proto="tcp" port="10">
         <hop ttl="ttl" rtt="rtt" ipaddr="IP" host="host"/>
     </trace>
     <uptime seconds="10" lastboot="boottime"/>
-
+    <times srtt="16592" rttvar="2595" to="100000"/>
 </host>

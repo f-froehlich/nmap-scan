@@ -14,7 +14,7 @@ class TestScanInfo(BaseXMLTest):
         return ['testdata/Stats/ScanInfo-' + str(i) + '.xml' for i in range(1, 3)]
 
     @pytest.mark.parametrize(("filepath", "expected"), [
-        ('testdata/Stats/ScanInfo-1.xml', 'type'),
+        ('testdata/Stats/ScanInfo-1.xml', 'syn'),
         ('testdata/Stats/ScanInfo-2.xml', 'type'),
     ])
     def test_type(self, filepath, expected):

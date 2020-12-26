@@ -1,17 +1,16 @@
 <nmaprun scanner="nmap" args="args" start="1607786410" startstr="start" version="7.91SVN" xmloutputversion="1.05"
          profile_name="profile_name">
-    <scaninfo type="type" scanflags="scanflags" protocol="tcp" numservices="10" services="services"/>
+    <scaninfo type="syn" scanflags="scanflags" protocol="tcp" numservices="10" services="services"/>
     <verbose level="1"/>
     <debugging level="2"/>
+
+
     <taskbegin task="task1" time="10" extrainfo="foo"/>
     <taskend task="task1" time="10" extrainfo="foo"/>
     <taskprogress task="task1" time="10" percent="20" remaining="30" etc="50"/>
-    <output type="foo">foo</output>
-    <runstats>
-        <finished time="10" timestr="timestr" summary="summary" elapsed="10.5" exit="success"/>
-        <hosts up="2" down="0" total="2"/>
-    </runstats>
-    <target specification="specification" status="status" reason="reason"/>
+    <output type="interactive">foo</output>
+
+    <target specification="specification" status="skipped" reason="invalid"/>
     <prescript>
         <script id="unknownId" output="scriptOutput"></script>
     </prescript>
@@ -23,7 +22,7 @@
         <status state="up" reason="reason" reason_ttl="10"/>
         <address addr="address" addrtype="ipv4" vendor="vendor"/>
         <hostnames>
-            <hostname name="name" type="type"/>
+            <hostname name="name" type="PTR"/>
         </hostnames>
         <ports>
             <extraports state="state" count="10">
@@ -33,7 +32,7 @@
             <port protocol="tcp" portid="22">
                 <state state="open" reason="reason" reason_ttl="10" reason_ip="ip"/>
                 <owner name="owner"/>
-                <service name="name" conf="conf" method="method"></service>
+                <service name="name" conf="10" method="table"></service>
                 <script id="unknownId" output="scriptOutput"></script>
             </port>
         </ports>
@@ -43,7 +42,7 @@
             <osmatch name="name2" accuracy="44" line="55">
             </osmatch>
         </os>
-        <hop seconds="10" lastboot="boottime"/>
+        <uptime seconds="10" lastboot="boottime"/>
         <tcpsequence index="1" difficulty="difficulty" values="values"/>
         <ipidsequence class="class" values="values"/>
         <tcptssequence class="class" values="values"/>
@@ -52,19 +51,19 @@
             <script id="unknownId" output="scriptOutput"></script>
             <script id="unknownId" output="scriptOutput"></script>
         </hostscript>
-        <times srtt="16592" rttvar="2595" to="100000"/>
         <smurf responses="smurf"/>
         <distance value="5"/>
         <trace proto="tcp" port="10">
             <hop ttl="ttl" rtt="rtt" ipaddr="IP" host="host"/>
         </trace>
         <uptime seconds="10" lastboot="boottime"/>
+        <times srtt="16592" rttvar="2595" to="100000"/>
     </host>
     <host starttime="1607786452" endtime="1607794904">
         <status state="down" reason="syn-ack" reason_ttl="58"/>
         <address addr="address6" addrtype="ipv6" vendor="vendor"/>
         <hostnames>
-            <hostname name="name" type="type"/>
+            <hostname name="name" type="PTR"/>
         </hostnames>
         <ports>
             <extraports state="state" count="10">
@@ -74,7 +73,7 @@
             <port protocol="tcp" portid="22">
                 <state state="closed" reason="reason" reason_ttl="10" reason_ip="ip"/>
                 <owner name="owner"/>
-                <service name="name" conf="conf" method="method"></service>
+                <service name="name" conf="10" method="table"></service>
                 <script id="unknownId" output="scriptOutput"></script>
             </port>
         </ports>
@@ -84,7 +83,7 @@
             <osmatch name="name2" accuracy="44" line="55">
             </osmatch>
         </os>
-        <hop seconds="10" lastboot="boottime"/>
+        <uptime seconds="10" lastboot="boottime"/>
         <tcpsequence index="1" difficulty="difficulty" values="values"/>
         <ipidsequence class="class" values="values"/>
         <tcptssequence class="class" values="values"/>
@@ -97,7 +96,7 @@
         <status state="unknown" reason="syn-ack" reason_ttl="58"/>
         <address addr="mac" addrtype="mac" vendor="vendor"/>
         <hostnames>
-            <hostname name="name" type="type"/>
+            <hostname name="name" type="PTR"/>
         </hostnames>
         <ports>
             <extraports state="state" count="10">
@@ -107,7 +106,7 @@
             <port protocol="tcp" portid="22">
                 <state state="filtered" reason="reason" reason_ttl="10" reason_ip="ip"/>
                 <owner name="owner"/>
-                <service name="name" conf="conf" method="method"></service>
+                <service name="name" conf="10" method="table"></service>
                 <script id="unknownId" output="scriptOutput"></script>
             </port>
         </ports>
@@ -117,7 +116,7 @@
             <osmatch name="name2" accuracy="44" line="55">
             </osmatch>
         </os>
-        <hop seconds="10" lastboot="boottime"/>
+        <uptime seconds="10" lastboot="boottime"/>
         <tcpsequence index="1" difficulty="difficulty" values="values"/>
         <ipidsequence class="class" values="values"/>
         <tcptssequence class="class" values="values"/>
@@ -130,7 +129,7 @@
         <status state="skipped" reason="syn-ack" reason_ttl="58"/>
         <address addr="address" addrtype="ipv4" vendor="vendor"/>
         <hostnames>
-            <hostname name="name" type="type"/>
+            <hostname name="name" type="PTR"/>
         </hostnames>
         <ports>
             <extraports state="state" count="10">
@@ -140,7 +139,7 @@
             <port protocol="tcp" portid="22">
                 <state state="unfiltered" reason="reason" reason_ttl="10" reason_ip="ip"/>
                 <owner name="owner"/>
-                <service name="name" conf="conf" method="method"></service>
+                <service name="name" conf="10" method="table"></service>
                 <script id="unknownId" output="scriptOutput"></script>
             </port>
         </ports>
@@ -150,7 +149,7 @@
             <osmatch name="name2" accuracy="44" line="55">
             </osmatch>
         </os>
-        <hop seconds="10" lastboot="boottime"/>
+        <uptime seconds="10" lastboot="boottime"/>
         <tcpsequence index="1" difficulty="difficulty" values="values"/>
         <ipidsequence class="class" values="values"/>
         <tcptssequence class="class" values="values"/>
@@ -163,8 +162,13 @@
         <status state="up" reason="reason" reason_ttl="10"/>
         <address addr="address" addrtype="ipv4" vendor="vendor"/>
         <hostnames>
-            <hostname name="name" type="type"/>
+            <hostname name="name" type="PTR"/>
         </hostnames>
     </hosthint>
+
+    <runstats>
+        <finished time="10" timestr="timestr" summary="summary" elapsed="10.5" exit="success"/>
+        <hosts up="2" down="0" total="2"/>
+    </runstats>
 
 </nmaprun>

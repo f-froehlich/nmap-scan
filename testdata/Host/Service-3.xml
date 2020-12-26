@@ -1,6 +1,1 @@
-<service
-        name="name"
-        conf="conf"
-        method="method"
->
-</service>
+<service name="name" conf="10" method="table"></service>

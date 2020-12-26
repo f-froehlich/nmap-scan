@@ -23,7 +23,7 @@ class TestHostName(BaseXMLTest):
         assert expected == e.get_name()
 
     @pytest.mark.parametrize(("filepath", "expected"), [
-        ('testdata/Host/HostName-1.xml', 'type'),
+        ('testdata/Host/HostName-1.xml', 'PTR'),
         ('testdata/Host/HostName-2.xml', None),
     ])
     def test_type(self, filepath, expected):

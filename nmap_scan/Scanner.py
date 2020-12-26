@@ -30,7 +30,8 @@ import logging
 import subprocess
 import threading
 from xml.etree import ElementTree
-from xml.etree.ElementTree import ParseError
+
+from lxml import etree
 
 from nmap_scan.Exceptions.LogicException import LogicException
 from nmap_scan.Exceptions.NmapExecutionException import NmapExecutionException
@@ -130,7 +131,7 @@ class Scanner(NmapScanMethods):
                 raise err
 
         try:
-            xml = ElementTree.fromstring(stdout)
+            xml = self.__parse_xml(stdout)
             self.__output[method] = xml
 
             try:
@@ -176,8 +177,16 @@ class Scanner(NmapScanMethods):
                 callback_method(report, method)
 
             return report
-        except ParseError:
+        except Exception as e:
+            self.__has_error[method] = e
             raise NmapXMLParserException()
+
+    def __parse_xml(self, stdout):
+
+        parser = etree.XMLParser()
+        xml = ElementTree.fromstring(stdout, parser)
+
+        return xml
 
     def get_report(self, scan_method):
         if None != self.__reports.get(scan_method, None):

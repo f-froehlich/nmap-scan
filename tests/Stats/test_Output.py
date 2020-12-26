@@ -14,10 +14,10 @@ class TestOutput(BaseXMLTest):
         return ['testdata/Stats/Output-' + str(i) + '.xml' for i in range(1, 3)]
 
     @pytest.mark.parametrize(("filepath", "expected"), [
-        ('testdata/Stats/Output-1.xml', 'foo'),
+        ('testdata/Stats/Output-1.xml', 'interactive'),
         ('testdata/Stats/Output-2.xml', 'bar'),
     ])
-    def test_time(self, filepath, expected):
+    def test_type(self, filepath, expected):
         xml = self.create_xml(filepath)
         e = self.create_instance(xml)
         assert expected == e.get_type()

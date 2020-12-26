@@ -43,6 +43,7 @@ additional_files = [
     'CHANGELOG.md',
     'CONTRIBUTORS.md',
     'LICENSE',
+    'nmap.dtd'
 ]
 setup_args = dict(
     name='nmap_scan',
@@ -64,7 +65,8 @@ setup_args = dict(
 )
 
 install_requires = [
-    'compare-xml>=1.0'
+    'compare-xml>=1.0',
+    'lxml>=4.5',
 ]
 
 if __name__ == '__main__':

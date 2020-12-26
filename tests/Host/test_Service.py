@@ -26,7 +26,7 @@ class TestService(BaseXMLTest):
     @pytest.mark.parametrize(("filepath", "expected"), [
         ('testdata/Host/Service-1.xml', 'conf'),
         ('testdata/Host/Service-2.xml', 'conf'),
-        ('testdata/Host/Service-3.xml', 'conf'),
+        ('testdata/Host/Service-3.xml', '10'),
     ])
     def test_conf(self, filepath, expected):
         xml = self.create_xml(filepath)
@@ -156,7 +156,7 @@ class TestService(BaseXMLTest):
     @pytest.mark.parametrize(("filepath", "expected"), [
         ('testdata/Host/Service-1.xml', 'method'),
         ('testdata/Host/Service-2.xml', 'method'),
-        ('testdata/Host/Service-3.xml', 'method'),
+        ('testdata/Host/Service-3.xml', 'table'),
     ])
     def test_method(self, filepath, expected):
         xml = self.create_xml(filepath)

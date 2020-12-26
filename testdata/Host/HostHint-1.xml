@@ -2,6 +2,6 @@
     <status state="up" reason="reason" reason_ttl="10"/>
     <address addr="address" addrtype="ipv4" vendor="vendor"/>
     <hostnames>
-        <hostname name="name" type="type"/>
+        <hostname name="name" type="PTR"/>
     </hostnames>
 </hosthint>

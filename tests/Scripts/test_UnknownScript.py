@@ -1,6 +1,5 @@
-from xml.etree.ElementTree import Element as XMLElement
-
 import pytest
+from lxml import etree
 
 from nmap_scan.Data.Element import Element
 from nmap_scan.Data.Table import Table
@@ -80,7 +79,7 @@ class TestUnknownScript(BaseXMLTest):
         assert 0 == len(e.get_elements())
         assert 1 == len(e.get_data())
 
-        assert isinstance(e.get_data()[0], XMLElement)
+        assert isinstance(e.get_data()[0], etree._Element)
         assert 'foo' == e.get_data()[0].tag
         assert 'ParseAsXMLElement' == e.get_data()[0].text
 
@@ -99,7 +98,7 @@ class TestUnknownScript(BaseXMLTest):
         assert isinstance(e.get_elements()[0], Element)
         assert 'element1' == e.get_elements()[0].get_key()
 
-        assert isinstance(e.get_data()[0], XMLElement)
+        assert isinstance(e.get_data()[0], etree._Element)
         assert 'foo' == e.get_data()[0].tag
         assert 'ParseAsXMLElement' == e.get_data()[0].text
 

@@ -23,7 +23,7 @@ class TestTarget(BaseXMLTest):
         assert expected == e.get_specification()
 
     @pytest.mark.parametrize(("filepath", "expected"), [
-        ('testdata/Stats/Target-1.xml', 'status'),
+        ('testdata/Stats/Target-1.xml', 'skipped'),
         ('testdata/Stats/Target-2.xml', None),
     ])
     def test_status(self, filepath, expected):
@@ -32,7 +32,7 @@ class TestTarget(BaseXMLTest):
         assert expected == e.get_status()
 
     @pytest.mark.parametrize(("filepath", "expected"), [
-        ('testdata/Stats/Target-1.xml', 'reason'),
+        ('testdata/Stats/Target-1.xml', 'invalid'),
         ('testdata/Stats/Target-2.xml', None),
     ])
     def test_reason(self, filepath, expected):

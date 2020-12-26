@@ -28,6 +28,8 @@
 import logging
 from xml.etree.ElementTree import ElementTree
 
+from lxml import etree
+
 from nmap_scan.Report.Report import Report
 
 
@@ -42,7 +44,8 @@ class ConnectReport(Report):
 
     @staticmethod
     def from_file(filepath):
+        parser = etree.XMLParser()
         et = ElementTree()
-        xml = et.parse(source=filepath)
+        xml = et.parse(source=filepath, parser=parser)
 
         return ConnectReport(xml)
