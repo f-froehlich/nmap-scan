@@ -1,0 +1,6 @@
+<table>
+    <elem key="bits">3072</elem>
+    <elem key="key">key</elem>
+    <elem key="type">ssh-rsa</elem>
+    <elem key="fingerprint">fingerprint</elem>
+</table>

@@ -1,0 +1,14 @@
+<script id="ssh-hostkey" output="scriptOutput">
+    <table>
+        <elem key="bits">3072</elem>
+        <elem key="key">key</elem>
+        <elem key="type">ssh-rsa</elem>
+        <elem key="fingerprint">fingerprint</elem>
+    </table>
+    <table>
+        <elem key="bits">3072</elem>
+        <elem key="key">key</elem>
+        <elem key="type">ssh-rsa</elem>
+        <elem key="fingerprint">fingerprint2</elem>
+    </table>
+</script>
