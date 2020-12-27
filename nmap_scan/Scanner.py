@@ -64,12 +64,23 @@ class Scanner(NmapScanMethods):
         self.__reports = {}
         self.__threads = {}
         self.__has_error = {}
+        self.__which_nmap_lock = threading.Lock()
+        self.__nmap_path = None
 
     def get_nmap_args(self):
         return self.__nmap_args
 
-    @staticmethod
-    def get_nmap_path():
+    def set_nmap_path(self, path):
+        logging.info('Set nmap path to "{path}", I hop you know what you are doing!'.format(path=path))
+        self.__nmap_path = path
+
+    def get_nmap_path(self):
+
+        self.__which_nmap_lock.acquire()
+        if None != self.__nmap_path:
+            self.__which_nmap_lock.release()
+            return self.__nmap_path
+
         logging.info('Run command "which nmap"')
 
         out = subprocess.Popen(['which', 'nmap'],
@@ -91,7 +102,9 @@ class Scanner(NmapScanMethods):
         executable = stdout.split("\n")[0]
         logging.debug('Found nmap executable "{executable}"'.format(executable=executable))
 
-        return executable
+        self.__nmap_path = executable
+        self.__which_nmap_lock.release()
+        return self.__nmap_path
 
     def __run(self, method, callback_method=None):
         if None != self.__output.get(method, None):

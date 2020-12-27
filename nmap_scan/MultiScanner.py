@@ -47,6 +47,11 @@ class MultiScanner:
         self.__finished = {i: False for i in range(0, len(configurations))}
         self.__reports = []
         self.__lock = threading.Lock()
+        self.__nmap_path = None
+
+    def set_nmap_path(self, path):
+        logging.info('Set nmap path to "{path}", I hop you know what you are doing!'.format(path=path))
+        self.__nmap_path = path
 
     def get_reports(self):
         self.wait()
@@ -60,7 +65,7 @@ class MultiScanner:
         self.__reports.append(report)
         self.__lock.release()
 
-    def __prepare_real_scan(self, report, thread_id):
+    def __prepare_real_scan(self, report, thread_id, nmap_path):
         logging.info('Prepare real scan for thread {thread}'.format(thread=thread_id))
 
         configuration = self.__configurations[thread_id]
@@ -81,7 +86,8 @@ class MultiScanner:
                         args=args,
                         address=address.get_addr(),
                         thread_id=thread_id,
-                        configuration=configuration
+                        configuration=configuration,
+                        nmap_path=nmap_path
                     ))
                     if not configuration.get_use_all_ips():
                         break
@@ -91,8 +97,9 @@ class MultiScanner:
 
         self.__finished[thread_id] = True
 
-    def __init_scan(self, args, address, thread_id, configuration):
+    def __init_scan(self, args, address, thread_id, configuration, nmap_path):
         scanner = Scanner(args)
+        scanner.set_nmap_path(nmap_path)
 
         def cm(r, s, ip=address, tid=thread_id):
             if None != configuration.get_callback_method():
@@ -106,9 +113,10 @@ class MultiScanner:
     def __run(self, ping_args, thread_id):
         logging.debug('Start ping scan for thread {thread}'.format(thread=thread_id))
         scanner = Scanner(ping_args)
+        scanner.set_nmap_path(self.__nmap_path)
         report = scanner.scan_ping()
         logging.debug('Finishing ping scan for thread {thread}'.format(thread=thread_id))
-        self.__prepare_real_scan(report, thread_id)
+        self.__prepare_real_scan(report, thread_id, scanner.get_nmap_path())
 
     def scan(self):
         self.scan_background()
