@@ -27,6 +27,8 @@
 #  and also my other projects <https://github.com/f-froehlich>
 import logging
 import os
+import shutil
+from pathlib import Path
 from threading import Thread
 from xml.etree.ElementTree import ElementTree
 
@@ -463,8 +465,23 @@ class Report:
         logging.debug('Thread with id "{id}" ended'.format(id=thread_id))
 
     def save(self, filepath):
+        shutil.rmtree(filepath, ignore_errors=True)
+        Path(os.path.dirname(os.path.realpath(filepath))).mkdir(parents=True, exist_ok=True)
         et = ElementTree(element=self.get_xml())
         et.write(filepath, encoding='utf-8')
+
+    def save_html(self, filepath):
+        logging.info('Convert Report to HTML')
+
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        xsl = etree.parse(dir_path + '/../nmap.xsl')
+
+        transform = etree.XSLT(xsl)
+        xhtml = transform(self.__xml)
+
+        shutil.rmtree(filepath, ignore_errors=True)
+        Path(os.path.dirname(os.path.realpath(filepath))).mkdir(parents=True, exist_ok=True)
+        xhtml.write(filepath, pretty_print=True, encoding='utf-8')
 
     @staticmethod
     def from_file(filepath):
@@ -483,7 +500,7 @@ class Report:
         if not dtd.validate(xml):
             logging.info('Scan report is not valid')
             for e in dtd.error_log.filter_from_errors():
-                logging.debug(e)
+                logging.error(e)
             raise NmapXMLParserException('Scan report is not valid. Please update to the last version of nmap')
 
         try:

@@ -79,6 +79,14 @@ reports = scanner.get_reports()
 
 ```
 
+## debugging
+
+```python
+import logging
+
+logging.basicConfig(level=logging.DEBUG, filename='debug.log')
+```
+
 # License
 This section contains the additional terms of the AGPLv3 license agreement, a copy of the AGPLv3 is included in the [LICENSE](https://github.com/f-froehlich/nmap-scan/blob/master/LICENSE) file.
 
