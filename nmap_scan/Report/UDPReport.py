@@ -49,3 +49,7 @@ class UDPReport(Report):
         xml = et.parse(source=filepath, parser=parser)
 
         return UDPReport(xml)
+
+    @staticmethod
+    def from_json_file(filepath):
+        return UDPReport(Report._parse_json_file(filepath))

@@ -49,3 +49,7 @@ class FINReport(Report):
         xml = et.parse(source=filepath, parser=parser)
 
         return FINReport(xml)
+
+    @staticmethod
+    def from_json_file(filepath):
+        return FINReport(Report._parse_json_file(filepath))

@@ -49,3 +49,7 @@ class IPReport(Report):
         xml = et.parse(source=filepath, parser=parser)
 
         return IPReport(xml)
+
+    @staticmethod
+    def from_json_file(filepath):
+        return IPReport(Report._parse_json_file(filepath))

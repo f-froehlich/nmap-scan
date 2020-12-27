@@ -349,6 +349,21 @@ class TestReport(BaseXMLTest):
             e.save('.testreport.xml')
             assert self.get_class().from_file('.testreport.xml').equals(e)
 
+    @pytest.mark.xml
+    def test_save_and_load_json(self):
+        for filepath in self.get_all_files():
+            xml = self.create_xml(filepath)
+            e = self.create_instance(xml)
+            e.save_json('.testreport.json')
+            assert self.get_class().from_json_file('.testreport.json').equals(e)
+
+    @pytest.mark.xml
+    def test_save_html(self):
+        for filepath in self.get_all_files():
+            xml = self.create_xml(filepath)
+            e = self.create_instance(xml)
+            e.save_html('.testreport.html')
+
     @pytest.mark.parametrize(("filepath1", "filepath2", "expected"), [
         ('testdata/Report/Report-1.xml', 'testdata/Report/Report-1.xml', True),
 

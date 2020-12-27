@@ -49,3 +49,7 @@ class ConnectReport(Report):
         xml = et.parse(source=filepath, parser=parser)
 
         return ConnectReport(xml)
+
+    @staticmethod
+    def from_json_file(filepath):
+        return ConnectReport(Report._parse_json_file(filepath))
