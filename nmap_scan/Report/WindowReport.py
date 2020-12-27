@@ -49,3 +49,7 @@ class WindowReport(Report):
         xml = et.parse(source=filepath, parser=parser)
 
         return WindowReport(xml)
+
+    @staticmethod
+    def from_json_file(filepath):
+        return WindowReport(Report._parse_json_file(filepath))

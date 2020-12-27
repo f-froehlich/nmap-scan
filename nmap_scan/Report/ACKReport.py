@@ -49,3 +49,7 @@ class ACKReport(Report):
         xml = et.parse(source=filepath, parser=parser)
 
         return ACKReport(xml)
+
+    @staticmethod
+    def from_json_file(filepath):
+        return ACKReport(Report._parse_json_file(filepath))

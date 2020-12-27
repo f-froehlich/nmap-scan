@@ -49,3 +49,7 @@ class TCPNullReport(Report):
         xml = et.parse(source=filepath, parser=parser)
 
         return TCPNullReport(xml)
+
+    @staticmethod
+    def from_json_file(filepath):
+        return TCPNullReport(Report._parse_json_file(filepath))

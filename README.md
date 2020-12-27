@@ -1,6 +1,6 @@
 Nmap scan
 =========
-Nmap wrapper for python with ***full Nmap DTD support***, parallel scans and threaded callback methods support for faster analytics.
+Nmap wrapper for python with ***full Nmap DTD support***, parallel scans and threaded callback methods support for faster analytics. You can also save your report to xml, json and html.
 
 Copyright (c) 2020 Fabian Fröhlich <mail@nmap-scan.de> [https://nmap-scan.de](https://nmap-scan.de)
 
@@ -36,6 +36,8 @@ def callback_method(report, scan_method):
     }
 
     report.save('reports/scan-' + filename.get(scan_method) + '.xml')
+    report.save_html('reports/scan-' + filename.get(scan_method) + '.html')
+    report.save_json('reports/scan-' + filename.get(scan_method) + '.json')
 
 
 scanner.scan_udp_background(callback_method)
@@ -64,6 +66,8 @@ def callback_method(ip, report, scan_method):
         NmapScanMethods.UDP: 'udp',
     }
     report.save('reports/' + ip + '_' + filename.get(scan_method) + '.xml')
+    report.save_html('reports/' + ip + '_' + filename.get(scan_method) + '.html')
+    report.save_json('reports/' + ip + '_' + filename.get(scan_method) + '.json')
 
 
 configs = [

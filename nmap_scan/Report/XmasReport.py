@@ -49,3 +49,7 @@ class XmasReport(Report):
         xml = et.parse(source=filepath, parser=parser)
 
         return XmasReport(xml)
+
+    @staticmethod
+    def from_json_file(filepath):
+        return XmasReport(Report._parse_json_file(filepath))

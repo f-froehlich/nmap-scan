@@ -49,3 +49,7 @@ class SynReport(Report):
         xml = et.parse(source=filepath, parser=parser)
 
         return SynReport(xml)
+
+    @staticmethod
+    def from_json_file(filepath):
+        return SynReport(Report._parse_json_file(filepath))

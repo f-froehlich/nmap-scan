@@ -25,14 +25,17 @@
 #
 #  Checkout this project on github <https://github.com/f-froehlich/nmap-scan>
 #  and also my other projects <https://github.com/f-froehlich>
+import json
 import logging
 import os
 import shutil
+import xml.etree as ET
 from pathlib import Path
 from threading import Thread
 from xml.etree.ElementTree import ElementTree
 
 import requests
+import xmltodict
 from lxml import etree
 
 from nmap_scan.CompareHelper import compare_lists_equal, compare_script_maps
@@ -482,6 +485,29 @@ class Report:
         shutil.rmtree(filepath, ignore_errors=True)
         Path(os.path.dirname(os.path.realpath(filepath))).mkdir(parents=True, exist_ok=True)
         xhtml.write(filepath, pretty_print=True, encoding='utf-8')
+
+    def save_json(self, filepath):
+        logging.info('Convert Report to JSON')
+
+        shutil.rmtree(filepath, ignore_errors=True)
+        Path(os.path.dirname(os.path.realpath(filepath))).mkdir(parents=True, exist_ok=True)
+
+        json_object = xmltodict.parse(etree.tostring(self.__xml))
+        with open(filepath, "w", encoding='utf-8') as file:
+            file.write(json.dumps(json_object))
+
+    @staticmethod
+    def _parse_json_file(filepath):
+        with open(filepath, "r", encoding='utf-8') as json_file:
+            data = json.load(json_file)
+
+        new_xml = xmltodict.unparse(data, encoding='utf-8')
+        parser = etree.XMLParser()
+        return ET.ElementTree.fromstring(new_xml, parser)
+
+    @staticmethod
+    def from_json_file(filepath):
+        return Report(Report._parse_json_file(filepath))
 
     @staticmethod
     def from_file(filepath):

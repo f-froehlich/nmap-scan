@@ -49,3 +49,7 @@ class SCTPCookieReport(Report):
         xml = et.parse(source=filepath, parser=parser)
 
         return SCTPCookieReport(xml)
+
+    @staticmethod
+    def from_json_file(filepath):
+        return SCTPCookieReport(Report._parse_json_file(filepath))

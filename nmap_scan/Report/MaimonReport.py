@@ -49,3 +49,7 @@ class MaimonReport(Report):
         xml = et.parse(source=filepath, parser=parser)
 
         return MaimonReport(xml)
+
+    @staticmethod
+    def from_json_file(filepath):
+        return MaimonReport(Report._parse_json_file(filepath))

@@ -49,3 +49,7 @@ class PingReport(Report):
         xml = et.parse(source=filepath, parser=parser)
 
         return PingReport(xml)
+
+    @staticmethod
+    def from_json_file(filepath):
+        return PingReport(Report._parse_json_file(filepath))

@@ -49,3 +49,7 @@ class SCTPInitReport(Report):
         xml = et.parse(source=filepath, parser=parser)
 
         return SCTPInitReport(xml)
+
+    @staticmethod
+    def from_json_file(filepath):
+        return SCTPInitReport(Report._parse_json_file(filepath))
