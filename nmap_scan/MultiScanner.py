@@ -29,7 +29,6 @@
 import concurrent.futures
 import logging
 import threading
-import time
 
 from nmap_scan.Exceptions.NmapConfigurationException import NmapConfigurationException
 from nmap_scan.MultiScannerConfiguration import MultiScannerConfiguration
@@ -45,6 +44,21 @@ class MultiScanner:
                 raise NmapConfigurationException()
         self.__configurations = configurations
         self.__threads = {i: None for i in range(0, len(configurations))}
+        self.__finished = {i: False for i in range(0, len(configurations))}
+        self.__reports = []
+        self.__lock = threading.Lock()
+
+    def get_reports(self):
+        self.wait()
+        return self.__reports
+
+    def is_finished(self):
+        return all(self.__finished)
+
+    def __add_report(self, report):
+        self.__lock.acquire()
+        self.__reports.append(report)
+        self.__lock.release()
 
     def __prepare_real_scan(self, report, thread_id):
         logging.info('Prepare real scan for thread {thread}'.format(thread=thread_id))
@@ -69,12 +83,15 @@ class MultiScanner:
                         thread_id=thread_id,
                         configuration=configuration
                     ))
+                    if not configuration.get_use_all_ips():
+                        break
 
         for future in futures:
             future.result()
 
+        self.__finished[thread_id] = True
+
     def __init_scan(self, args, address, thread_id, configuration):
-        time.sleep(15)
         scanner = Scanner(args)
 
         def cm(r, s, ip=address, tid=thread_id):
@@ -83,7 +100,8 @@ class MultiScanner:
                              .format(ip=ip, thread=tid))
                 configuration.get_callback_method()(ip, r, s)
 
-        scanner.scan(configuration.get_scan_method(), cm)
+        report = scanner.scan(configuration.get_scan_method(), cm)
+        self.__add_report(report)
 
     def __run(self, ping_args, thread_id):
         logging.debug('Start ping scan for thread {thread}'.format(thread=thread_id))
@@ -93,15 +111,21 @@ class MultiScanner:
         self.__prepare_real_scan(report, thread_id)
 
     def scan(self):
+        self.scan_background()
+        self.wait()
+
+    def scan_background(self):
         logging.info('Execute multi scan')
         thread_id = 0
         for configuration in self.__configurations:
             self.__scan(configuration, thread_id)
             thread_id += 1
 
+    def wait(self):
         for thread_id in self.__threads:
             thread = self.__threads[thread_id]
-            thread.join()
+            if None != thread:
+                thread.join()
 
     def __scan(self, configuration, thread_id):
         args = configuration.get_nmap_args()

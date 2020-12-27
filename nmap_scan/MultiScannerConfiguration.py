@@ -29,7 +29,8 @@
 
 class MultiScannerConfiguration:
 
-    def __init__(self, nmap_args, scan_method, callback_method=None, max_parallel_scans=32):
+    def __init__(self, nmap_args, scan_method, callback_method=None, max_parallel_scans=32, use_all_ips=False):
+        self.__use_all_ips = use_all_ips
         self.__max_parallel_scans = max_parallel_scans
         self.__callback_method = callback_method
         self.__scan_method = scan_method
@@ -46,3 +47,6 @@ class MultiScannerConfiguration:
 
     def get_max_parallel_scans(self):
         return self.__max_parallel_scans
+
+    def get_use_all_ips(self):
+        return self.__use_all_ips

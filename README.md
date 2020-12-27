@@ -41,7 +41,41 @@ def callback_method(report, scan_method):
 scanner.scan_udp_background(callback_method)
 scanner.scan_tcp_background(callback_method)
 
+# Do other stuff here
+
 scanner.wait_all()
+
+```
+
+## Advanced usage
+Simple script to scan multiple networks with different configurations. Each configuration is executed parallel and also each host will be scanned parallel. You can set up the maximum parallel threads per configuration (default 32) so in the following example it will execute nmap within 64 threads. To do so we first will create for each configuration a ping scan with your given hosts and even set `pn` from your `args` but all other arguments are ignored for the ping scan. Afterwords for each host it will create a scan thread with your `args` but update the hosts to the ip of the host resulted by the ping scan. You even can choose, if you want to scan every ip from the host or only the first (default). Of each executed scan (except the ping scan) we will call the `callback_method` asynchronous as in the **simple usage** mentored. If you don't need a callback on report finishing just remove the argument in the `MultiScannerConfiguration`. You can simply get all reports after execution with `get_reports()`it will automatically wait until the complete scan is finished.
+
+```python
+from nmap_scan.MultiScanner import MultiScanner
+from nmap_scan.MultiScannerConfiguration import MultiScannerConfiguration
+from nmap_scan.NmapArgs import NmapArgs
+from nmap_scan.NmapScanMethods import NmapScanMethods
+
+args = NmapArgs(['192.168.0.10/24'])
+
+def callback_method(ip, report, scan_method):
+    filename = {
+        NmapScanMethods.TCP: 'tcp',
+        NmapScanMethods.UDP: 'udp',
+    }
+    report.save('reports/' + ip + '_' + filename.get(scan_method) + '.xml')
+
+
+configs = [
+    MultiScannerConfiguration(nmap_args=args, scan_method=NmapScanMethods.TCP, callback_method=callback_method),
+    MultiScannerConfiguration(nmap_args=args, scan_method=NmapScanMethods.UDP, callback_method=callback_method),
+]
+scanner = MultiScanner(configs)
+scanner.scan_background()
+
+# Do other stuff here
+
+reports = scanner.get_reports()
 
 ```
 

