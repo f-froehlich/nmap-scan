@@ -29,6 +29,7 @@
 
 import logging
 
+from nmap_scan.Scripts.ReverseIndex import ReverseIndex
 from nmap_scan.Scripts.SSH.SSH2EnumAlgos import SSH2EnumAlgos
 from nmap_scan.Scripts.SSH.SSHHostkey import SSHHostkey
 from nmap_scan.Scripts.SSLEnumCiphers import SSLEnumCiphers
@@ -45,6 +46,8 @@ def parse(script_xml):
         return SSH2EnumAlgos(script_xml)
     elif 'ssh-hostkey' == script_id:
         return SSHHostkey(script_xml)
+    elif 'reverse-index' == script_id:
+        return ReverseIndex(script_xml)
 
     logging.debug(
         'No specific script class for script with id "{id}" exists. Using UnknownScript.'.format(id=script_id))

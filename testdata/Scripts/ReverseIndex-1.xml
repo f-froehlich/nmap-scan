@@ -1,0 +1,10 @@
+<script id="reverse-index" output="scriptOutput">
+    <table key="port1/proto">
+        <elem>ip1</elem>
+        <elem>ip2</elem>
+    </table>
+    <table key="port2/proto">
+        <elem>ip1</elem>
+        <elem>ip3</elem>
+    </table>
+</script>
