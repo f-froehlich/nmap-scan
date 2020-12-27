@@ -1,0 +1,21 @@
+<script id="ssh2-enum-algos" output="scriptOutput">
+    <table key="kex_algorithms">
+        <elem>kex_algorithms</elem>
+    </table>
+    <table key="server_host_key_algorithms">
+        <elem>server_host_key_algorithms</elem>
+    </table>
+    <table key="encryption_algorithms">
+        <elem>encryption_algorithms</elem>
+    </table>
+    <table key="mac_algorithms">
+        <elem>mac_algorithms</elem>
+    </table>
+    <table key="compression_algorithms">
+        <elem>compression_algorithms</elem>
+    </table>
+    <table key="other">
+        <elem>other1</elem>
+        <elem>other2</elem>
+    </table>
+</script>

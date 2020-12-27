@@ -139,7 +139,11 @@ class MultiScanner:
         args = configuration.get_nmap_args()
         args.lock()
 
-        ping_args = NmapArgs(hosts=args.get_hosts(), pn=args.get_pn())
+        ping_args = NmapArgs(
+            hosts=args.get_hosts(),
+            pn=args.get_pn(),
+            min_parallelism=configuration.get_max_parallel_scans()
+        )
 
         logging.info('Starting thread {thread}'.format(thread=thread_id))
 

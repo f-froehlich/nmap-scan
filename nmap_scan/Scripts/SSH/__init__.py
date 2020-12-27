@@ -25,24 +25,3 @@
 #
 #  Checkout this project on github <https://github.com/f-froehlich/nmap-scan>
 #  and also my other projects <https://github.com/f-froehlich>
-
-
-import logging
-
-from nmap_scan.Scripts.SSH.SSH2EnumAlgos import SSH2EnumAlgos
-from nmap_scan.Scripts.SSLEnumCiphers import SSLEnumCiphers
-from nmap_scan.Scripts.UnknownScript import UnknownScript
-
-
-def parse(script_xml):
-    script_id = script_xml.attrib['id']
-    logging.info('Parsing script with id "{id}"'.format(id=script_id))
-
-    if 'ssl-enum-ciphers' == script_id:
-        return SSLEnumCiphers(script_xml)
-    elif 'ssh2-enum-algos' == script_id:
-        return SSH2EnumAlgos(script_xml)
-
-    logging.debug(
-        'No specific script class for script with id "{id}" exists. Using UnknownScript.'.format(id=script_id))
-    return UnknownScript(script_xml)

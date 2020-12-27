@@ -43,7 +43,8 @@ additional_files = [
     'CHANGELOG.md',
     'CONTRIBUTORS.md',
     'LICENSE',
-    'nmap.dtd'
+    'nmap.dtd',
+    'nmap.xsl',
 ]
 setup_args = dict(
     name='nmap_scan',
