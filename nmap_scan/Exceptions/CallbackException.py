@@ -27,35 +27,7 @@
 #  and also my other projects <https://github.com/f-froehlich>
 
 
-import logging
-
-
-class Script:
-
-    def __init__(self, xml):
-        self.__xml = xml
-        self.__id = None
-        self.__output = None
-        self.__parse_xml()
-
-    def equals(self, other):
-        return isinstance(other, Script) \
-               and self.__id == other.get_id() \
-               and self.__output == other.get_output()
-
-    def get_xml(self):
-        return self.__xml
-
-    def get_id(self):
-        return self.__id
-
-    def get_output(self):
-        return self.__output
-
-    def __parse_xml(self):
-        logging.info('Parsing Script')
-        attr = self.__xml.attrib
-        self.__id = attr['id']
-        self.__output = attr.get('output', None)
-        logging.debug('ID: "{name}"'.format(name=self.__id))
-        logging.debug('Output: "{output}"'.format(output=self.__output))
+class CallbackException(Exception):
+    def __init__(self, previous=None, message="Exception in your callback method occurred"):
+        super().__init__(message)
+        self.previous = previous

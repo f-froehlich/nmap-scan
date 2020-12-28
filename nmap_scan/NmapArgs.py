@@ -43,10 +43,11 @@ class NmapArgs:
                  unprivileged=False, send_eth=False, send_ip=False, datadir=None, misc_a=False, mtu=None, decoys=[],
                  spoof_ip=None, interface=None, source_port=None, proxies=[], data=None, data_string=None,
                  data_length=None, ip_options=None, ttl=None, spoof_mac=None, bad_sum=False, never_dns_resolution=False,
-                 always_dns_resolution=False, pn=False
+                 always_dns_resolution=False, pn=False, as_root=False
                  ):
         self.__argpaser = None
         self.__locked = False
+        self.__as_root = as_root
 
         self.__always_dns_resolution = always_dns_resolution
         self.__never_dns_resolution = never_dns_resolution
@@ -1145,5 +1146,10 @@ class NmapArgs:
                               type=str, default=default, required=False, help='{desc}'.format(desc=description))
 
     def require_root(self):
-        return self.__os_detection \
+        return self.__as_root \
+               or self.__os_detection \
                or self.__traceroute
+
+    def set_require_root(self, as_root):
+        if not self.__locked:
+            self.__as_root = as_root

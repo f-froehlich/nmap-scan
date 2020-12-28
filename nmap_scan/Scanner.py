@@ -33,6 +33,7 @@ from xml.etree import ElementTree
 
 from lxml import etree
 
+from nmap_scan.Exceptions.CallbackException import CallbackException
 from nmap_scan.Exceptions.LogicException import LogicException
 from nmap_scan.Exceptions.NmapExecutionException import NmapExecutionException
 from nmap_scan.Exceptions.NmapNotInstalledException import NmapNotInstalledException
@@ -183,8 +184,16 @@ class Scanner(NmapScanMethods):
                 self.__has_error[method] = e
                 raise e
 
-            self.__reports[method] = report
+        except NmapXMLParserException as e:
+            self.__has_error[method] = e
+            raise e
+        except Exception as e:
+            self.__has_error[method] = e
+            raise NmapXMLParserException()
 
+        self.__reports[method] = report
+
+        try:
             if callable(callback_method):
                 logging.info('Call callback method for {scan} scan.'.format(scan=self.get_name_of_method(method)))
                 callback_method(report, method)
@@ -192,7 +201,9 @@ class Scanner(NmapScanMethods):
             return report
         except Exception as e:
             self.__has_error[method] = e
-            raise NmapXMLParserException()
+            logging.error(
+                'Error in callback method for {scan} scan detected.'.format(scan=self.get_name_of_method(method)))
+            raise CallbackException(e)
 
     def __parse_xml(self, stdout):
 

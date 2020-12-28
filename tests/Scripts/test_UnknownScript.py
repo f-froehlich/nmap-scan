@@ -40,6 +40,7 @@ class TestUnknownScript(BaseXMLTest):
     @pytest.mark.invalidXML
     @pytest.mark.xml
     @pytest.mark.parametrize("filepath", ['testdata/Scripts/UnknownScript-7.xml'])
+    @pytest.mark.skipif(True, reason="Changed nmap dtd because not all scripts set output attribute")
     def test_key_error_on_missing_output(self, filepath):
         with pytest.raises(KeyError) as excinfo:
             xml = self.create_xml(filepath)

@@ -1,5 +1,6 @@
 import pytest
 
+from nmap_scan.Exceptions.CallbackException import CallbackException
 from nmap_scan.Exceptions.LogicException import LogicException
 from nmap_scan.Exceptions.NmapConfigurationException import NmapConfigurationException
 from nmap_scan.Exceptions.NmapExecutionException import NmapExecutionException
@@ -16,7 +17,8 @@ from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
     NmapPasswordRequiredException,
     NmapScanMethodUnknownException,
     NmapXMLParserException,
-    NmapConfigurationException
+    NmapConfigurationException,
+    CallbackException
 ])
 def test_error_on_missing_required_param(exception):
     with pytest.raises(exception) as excinfo:

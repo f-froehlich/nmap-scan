@@ -46,7 +46,9 @@ class MultiScanner:
         self.__threads = {i: None for i in range(0, len(configurations))}
         self.__finished = {i: False for i in range(0, len(configurations))}
         self.__reports = []
+        self.__errors = []
         self.__lock = threading.Lock()
+        self.__error_lock = threading.Lock()
         self.__nmap_path = None
 
     def set_nmap_path(self, path):
@@ -107,8 +109,11 @@ class MultiScanner:
                              .format(ip=ip, thread=tid))
                 configuration.get_callback_method()(ip, r, s)
 
-        report = scanner.scan(configuration.get_scan_method(), cm)
-        self.__add_report(report)
+        try:
+            report = scanner.scan(configuration.get_scan_method(), cm)
+            self.__add_report(report)
+        except Exception as e:
+            self.__add_error(configuration, address, e)
 
     def __run(self, ping_args, thread_id):
         logging.debug('Start ping scan for thread {thread}'.format(thread=thread_id))
@@ -150,3 +155,12 @@ class MultiScanner:
         thread = threading.Thread(target=self.__run, args=(ping_args, thread_id,))
         self.__threads[thread_id] = thread
         thread.start()
+
+    def __add_error(self, configuration, address, exception):
+        self.__error_lock.acquire()
+        self.__errors.append({'config': configuration, 'address': address, 'exception': exception})
+        self.__error_lock.release()
+
+    def get_errors(self):
+        self.wait()
+        return self.__errors
