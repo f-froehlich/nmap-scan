@@ -59,9 +59,9 @@
         <xsl:param name="child"/>
         <xsl:text>"</xsl:text>
         <xsl:value-of select="$key"/>
-        <xsl:text>":[</xsl:text>
+        <xsl:text>":{</xsl:text>
         <xsl:value-of select="$child"/>
-        <xsl:text>],</xsl:text>
+        <xsl:text>},</xsl:text>
     </xsl:template>
 
 
@@ -132,6 +132,18 @@
             <xsl:with-param name="key">hosts</xsl:with-param>
             <xsl:with-param name="child">
                 <xsl:call-template name="hosts"/>
+            </xsl:with-param>
+        </xsl:call-template>
+        <xsl:call-template name="array">
+            <xsl:with-param name="key">prescripts</xsl:with-param>
+            <xsl:with-param name="child">
+                <xsl:apply-templates select="/nmaprun/prescript"/>
+            </xsl:with-param>
+        </xsl:call-template>
+        <xsl:call-template name="array">
+            <xsl:with-param name="key">postscripts</xsl:with-param>
+            <xsl:with-param name="child">
+                <xsl:apply-templates select="/nmaprun/postscript"/>
             </xsl:with-param>
         </xsl:call-template>
         <xsl:text>}</xsl:text>
@@ -332,6 +344,12 @@
                 <xsl:with-param name="key">ipidsequence</xsl:with-param>
                 <xsl:with-param name="child">
                     <xsl:apply-templates select="ipidsequence"/>
+                </xsl:with-param>
+            </xsl:call-template>
+            <xsl:call-template name="array">
+                <xsl:with-param name="key">hostscripts</xsl:with-param>
+                <xsl:with-param name="child">
+                    <xsl:apply-templates select="hostscript"/>
                 </xsl:with-param>
             </xsl:call-template>
 
@@ -569,6 +587,86 @@
             <xsl:call-template name="string-arg-optional">
                 <xsl:with-param name="key">values</xsl:with-param>
                 <xsl:with-param name="value" select="@values"/>
+            </xsl:call-template>
+            <xsl:text>},</xsl:text>
+        </xsl:for-each>
+    </xsl:template>
+
+    <!-- scripts -->
+    <xsl:template match="hostscript" name="hostscript">
+        <xsl:apply-templates select="script"/>
+    </xsl:template>
+    <xsl:template match="postscript" name="postscript">
+        <xsl:apply-templates select="script"/>
+    </xsl:template>
+    <xsl:template match="prescript" name="prescript">
+        <xsl:apply-templates select="script"/>
+    </xsl:template>
+
+
+    <xsl:template match="script" name="script">
+        <xsl:for-each select=".">
+            <xsl:text>{</xsl:text>
+            <xsl:call-template name="string-arg-required">
+                <xsl:with-param name="key">id</xsl:with-param>
+                <xsl:with-param name="value" select="@id"/>
+            </xsl:call-template>
+            <xsl:call-template name="string-arg-optional">
+                <xsl:with-param name="key">output</xsl:with-param>
+                <xsl:with-param name="value" select="@output"/>
+            </xsl:call-template>
+
+            <xsl:call-template name="array">
+                <xsl:with-param name="key">tables</xsl:with-param>
+                <xsl:with-param name="child">
+                    <xsl:apply-templates select="table"/>
+                </xsl:with-param>
+            </xsl:call-template>
+            <xsl:call-template name="array">
+                <xsl:with-param name="key">elements</xsl:with-param>
+                <xsl:with-param name="child">
+                    <xsl:apply-templates select="elem"/>
+                </xsl:with-param>
+            </xsl:call-template>
+            <xsl:text>},</xsl:text>
+        </xsl:for-each>
+    </xsl:template>
+
+    <xsl:template match="table" name="table">
+        <xsl:for-each select=".">
+            <xsl:text>{</xsl:text>
+            <xsl:call-template name="string-arg-optional">
+                <xsl:with-param name="key">key</xsl:with-param>
+                <xsl:with-param name="value" select="@key"/>
+            </xsl:call-template>
+
+            <xsl:call-template name="array">
+                <xsl:with-param name="key">tables</xsl:with-param>
+                <xsl:with-param name="child">
+                    <xsl:apply-templates select="table"/>
+                </xsl:with-param>
+            </xsl:call-template>
+            <xsl:call-template name="array">
+                <xsl:with-param name="key">elements</xsl:with-param>
+                <xsl:with-param name="child">
+                    <xsl:apply-templates select="elem"/>
+                </xsl:with-param>
+            </xsl:call-template>
+            <xsl:text>},</xsl:text>
+        </xsl:for-each>
+    </xsl:template>
+    <xsl:template match="elem" name="elem">
+        <xsl:for-each select=".">
+            <xsl:text>{</xsl:text>
+            <xsl:call-template name="string-arg-required">
+                <xsl:with-param name="key">value</xsl:with-param>
+                <xsl:with-param name="value">
+                    <xsl:value-of select="."/>
+                </xsl:with-param>
+            </xsl:call-template>
+            <xsl:call-template name="string-arg-optional">
+                <xsl:with-param name="key">key</xsl:with-param>
+                <xsl:with-param name="value" select="@key"/>
             </xsl:call-template>
             <xsl:text>},</xsl:text>
         </xsl:for-each>
