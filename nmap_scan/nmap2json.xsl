@@ -300,6 +300,41 @@
                     <xsl:apply-templates select="address"/>
                 </xsl:with-param>
             </xsl:call-template>
+            <xsl:apply-templates select="hostnames"/>
+            <xsl:apply-templates select="smurf"/>
+            <xsl:apply-templates select="os"/>
+            <xsl:call-template name="array">
+                <xsl:with-param name="key">distances</xsl:with-param>
+                <xsl:with-param name="child">
+                    <xsl:apply-templates select="distance"/>
+                </xsl:with-param>
+            </xsl:call-template>
+            <xsl:call-template name="array">
+                <xsl:with-param name="key">uptime</xsl:with-param>
+                <xsl:with-param name="child">
+                    <xsl:apply-templates select="uptime"/>
+                </xsl:with-param>
+            </xsl:call-template>
+
+            <xsl:call-template name="array">
+                <xsl:with-param name="key">tcpsequence</xsl:with-param>
+                <xsl:with-param name="child">
+                    <xsl:apply-templates select="tcpsequence"/>
+                </xsl:with-param>
+            </xsl:call-template>
+            <xsl:call-template name="array">
+                <xsl:with-param name="key">tcptssequence</xsl:with-param>
+                <xsl:with-param name="child">
+                    <xsl:apply-templates select="tcptssequence"/>
+                </xsl:with-param>
+            </xsl:call-template>
+            <xsl:call-template name="array">
+                <xsl:with-param name="key">ipidsequence</xsl:with-param>
+                <xsl:with-param name="child">
+                    <xsl:apply-templates select="ipidsequence"/>
+                </xsl:with-param>
+            </xsl:call-template>
+
             <xsl:text>},</xsl:text>
         </xsl:for-each>
     </xsl:template>
@@ -340,5 +375,203 @@
         </xsl:for-each>
     </xsl:template>
 
+    <!-- Hostnames -->
+    <xsl:template match="hostnames" name="hostnames">
+        <xsl:call-template name="array">
+            <xsl:with-param name="key">hostnames</xsl:with-param>
+            <xsl:with-param name="child">
+                <xsl:for-each select="hostname">
+                    <xsl:text>{</xsl:text>
+                    <xsl:call-template name="string-arg-optional">
+                        <xsl:with-param name="key">name</xsl:with-param>
+                        <xsl:with-param name="value" select="@name"/>
+                    </xsl:call-template>
+                    <xsl:call-template name="string-arg-optional">
+                        <xsl:with-param name="key">type</xsl:with-param>
+                        <xsl:with-param name="value" select="@type"/>
+                    </xsl:call-template>
+                    <xsl:text>},</xsl:text>
+                </xsl:for-each>
+            </xsl:with-param>
+        </xsl:call-template>
+    </xsl:template>
+
+
+    <!-- Smurf -->
+    <xsl:template match="smurf" name="smurfs">
+        <xsl:call-template name="array">
+            <xsl:with-param name="key">smurfs</xsl:with-param>
+            <xsl:with-param name="child">
+                <xsl:for-each select=".">
+                    <xsl:text>"</xsl:text>
+                    <xsl:value-of select="@responses"/>
+                    <xsl:text>",</xsl:text>
+                </xsl:for-each>
+            </xsl:with-param>
+        </xsl:call-template>
+    </xsl:template>
+
+    <!-- OS -->
+    <xsl:template match="os" name="os">
+        <xsl:call-template name="array">
+            <xsl:with-param name="key">os</xsl:with-param>
+            <xsl:with-param name="child">
+                <xsl:for-each select=".">
+                    <xsl:text>{</xsl:text>
+                    <xsl:call-template name="array">
+                        <xsl:with-param name="key">portused</xsl:with-param>
+                        <xsl:with-param name="child">
+                            <xsl:for-each select=".">
+                                <xsl:apply-templates select="portused"/>
+                            </xsl:for-each>
+                        </xsl:with-param>
+                    </xsl:call-template>
+                    <xsl:call-template name="array">
+                        <xsl:with-param name="key">osmatch</xsl:with-param>
+                        <xsl:with-param name="child">
+                            <xsl:for-each select=".">
+                                <xsl:apply-templates select="osmatch"/>
+                            </xsl:for-each>
+                        </xsl:with-param>
+                    </xsl:call-template>
+                    <xsl:call-template name="array">
+                        <xsl:with-param name="key">osfingerprint</xsl:with-param>
+                        <xsl:with-param name="child">
+                            <xsl:for-each select=".">
+                                <xsl:apply-templates select="osfingerprint"/>
+                            </xsl:for-each>
+                        </xsl:with-param>
+                    </xsl:call-template>
+                    <xsl:text>},</xsl:text>
+                </xsl:for-each>
+            </xsl:with-param>
+        </xsl:call-template>
+    </xsl:template>
+
+    <!-- portused -->
+    <xsl:template match="portused" name="portused">
+        <xsl:text>{</xsl:text>
+        <xsl:call-template name="string-arg-required">
+            <xsl:with-param name="key">state</xsl:with-param>
+            <xsl:with-param name="value" select="@state"/>
+        </xsl:call-template>
+        <xsl:call-template name="string-arg-required">
+            <xsl:with-param name="key">proto</xsl:with-param>
+            <xsl:with-param name="value" select="@proto"/>
+        </xsl:call-template>
+        <xsl:call-template name="int-arg-required">
+            <xsl:with-param name="key">portid</xsl:with-param>
+            <xsl:with-param name="value" select="@portid"/>
+        </xsl:call-template>
+        <xsl:text>},</xsl:text>
+    </xsl:template>
+
+
+    <!-- osmatch -->
+    <xsl:template match="osmatch" name="osmatch">
+
+        <xsl:text>{</xsl:text>
+        <xsl:call-template name="string-arg-required">
+            <xsl:with-param name="key">name</xsl:with-param>
+            <xsl:with-param name="value" select="@name"/>
+        </xsl:call-template>
+        <xsl:call-template name="int-arg-required">
+            <xsl:with-param name="key">accuracy</xsl:with-param>
+            <xsl:with-param name="value" select="@accuracy"/>
+        </xsl:call-template>
+        <xsl:call-template name="int-arg-required">
+            <xsl:with-param name="key">line</xsl:with-param>
+            <xsl:with-param name="value" select="@line"/>
+        </xsl:call-template>
+        <xsl:text>},</xsl:text>
+    </xsl:template>
+
+    <!-- osfingerprint -->
+    <xsl:template match="osfingerprint" name="osfingerprint">
+
+        <xsl:text>"</xsl:text>
+        <xsl:value-of select="@fingerprint"/>
+        <xsl:text>",</xsl:text>
+    </xsl:template>
+
+
+    <!-- distance -->
+    <xsl:template match="distance" name="distance">
+
+        <xsl:for-each select=".">
+            <xsl:value-of select="@value"/>
+            <xsl:text>,</xsl:text>
+        </xsl:for-each>
+    </xsl:template>
+
+    <!-- uptime -->
+    <xsl:template match="uptime" name="uptime">
+
+        <xsl:for-each select=".">
+            <xsl:text>{</xsl:text>
+            <xsl:call-template name="int-arg-required">
+                <xsl:with-param name="key">seconds</xsl:with-param>
+                <xsl:with-param name="value" select="@seconds"/>
+            </xsl:call-template>
+            <xsl:call-template name="string-arg-optional">
+                <xsl:with-param name="key">lastboot</xsl:with-param>
+                <xsl:with-param name="value" select="@lastboot"/>
+            </xsl:call-template>
+            <xsl:text>},</xsl:text>
+        </xsl:for-each>
+    </xsl:template>
+
+    <!-- tcpsequence -->
+    <xsl:template match="tcpsequence" name="tcpsequence">
+
+        <xsl:for-each select=".">
+            <xsl:text>{</xsl:text>
+            <xsl:call-template name="int-arg-required">
+                <xsl:with-param name="key">index</xsl:with-param>
+                <xsl:with-param name="value" select="@index"/>
+            </xsl:call-template>
+            <xsl:call-template name="string-arg-required">
+                <xsl:with-param name="key">difficulty</xsl:with-param>
+                <xsl:with-param name="value" select="@difficulty"/>
+            </xsl:call-template>
+            <xsl:call-template name="string-arg-required">
+                <xsl:with-param name="key">values</xsl:with-param>
+                <xsl:with-param name="value" select="@values"/>
+            </xsl:call-template>
+            <xsl:text>},</xsl:text>
+        </xsl:for-each>
+    </xsl:template>
+    <!-- ipidsequence -->
+    <xsl:template match="ipidsequence" name="ipidsequence">
+
+        <xsl:for-each select=".">
+            <xsl:text>{</xsl:text>
+            <xsl:call-template name="string-arg-required">
+                <xsl:with-param name="key">class</xsl:with-param>
+                <xsl:with-param name="value" select="@class"/>
+            </xsl:call-template>
+            <xsl:call-template name="string-arg-required">
+                <xsl:with-param name="key">values</xsl:with-param>
+                <xsl:with-param name="value" select="@values"/>
+            </xsl:call-template>
+            <xsl:text>},</xsl:text>
+        </xsl:for-each>
+    </xsl:template>
+    <!-- tcptssequence -->
+    <xsl:template match="tcptssequence" name="tcptssequence">
+
+        <xsl:for-each select=".">
+            <xsl:text>{</xsl:text>
+            <xsl:call-template name="string-arg-required">
+                <xsl:with-param name="key">class</xsl:with-param>
+                <xsl:with-param name="value" select="@class"/>
+            </xsl:call-template>
+            <xsl:call-template name="string-arg-optional">
+                <xsl:with-param name="key">values</xsl:with-param>
+                <xsl:with-param name="value" select="@values"/>
+            </xsl:call-template>
+            <xsl:text>},</xsl:text>
+        </xsl:for-each>
+    </xsl:template>
 
 </xsl:stylesheet>
