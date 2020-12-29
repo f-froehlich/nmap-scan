@@ -1,0 +1,232 @@
+<nmaprun args="unknown" start="0" startstr="Unknown because it is a combined report" version="unknown"
+         xmloutputversion="unknown" profile_name="unknown" scanner="nmap">
+    <verbose level="-1"/>
+    <debugging level="-1"/>
+    <prescript>
+        <script id="unknownId" output="scriptOutput"/>
+        <script id="unknownId" output="scriptOutput"/>
+    </prescript>
+    <host starttime="0" endtime="0" comment="Combined">
+        <status state="unknown" reason="combined" reason_ttl="0"/>
+        <address addr="address" addrtype="ipv4" vendor="vendor"/>
+        <hostnames>
+            <hostname name="name" type="PTR"/>
+        </hostnames>
+        <ports>
+            <extraports state="state" count="10">
+                <extrareasons reason="reason" count="count"/>
+                <extrareasons reason="reason2" count="count2"/>
+            </extraports>
+            <extraports state="state" count="10">
+                <extrareasons reason="reason" count="count"/>
+                <extrareasons reason="reason2" count="count2"/>
+            </extraports>
+            <port portid="22" protocol="tcp">
+                <state state="open" reason="reason" reason_ttl="10" reason_ip="ip"/>
+                <owner name="owner"/>
+                <service name="name" conf="10" method="table"/>
+                <script id="unknownId" output="scriptOutput"/>
+                <script id="unknownId" output="scriptOutput"/>
+            </port>
+            <port protocol="tcp" portid="10">
+                <state state="open" reason="reason" reason_ttl="10" reason_ip="ip"/>
+                <owner name="owner"/>
+                <service name="name" conf="10" method="table"/>
+                <script id="unknownId2" output="scriptOutput"/>
+            </port>
+        </ports>
+    </host>
+    <host starttime="1607786452" endtime="1607794904">
+        <status state="down" reason="syn-ack" reason_ttl="58"/>
+        <address addr="address6" addrtype="ipv6" vendor="vendor"/>
+        <hostnames>
+            <hostname name="name" type="PTR"/>
+        </hostnames>
+        <ports>
+            <extraports state="state" count="10">
+                <extrareasons reason="reason" count="count"/>
+                <extrareasons reason="reason2" count="count2"/>
+            </extraports>
+            <port protocol="tcp" portid="22">
+                <state state="closed" reason="reason" reason_ttl="10" reason_ip="ip"/>
+                <owner name="owner"/>
+                <service name="name" conf="10" method="table"/>
+                <script id="unknownId" output="scriptOutput"/>
+            </port>
+        </ports>
+        <os>
+            <osmatch name="name1" accuracy="44" line="55">
+            </osmatch>
+            <osmatch name="name2" accuracy="44" line="55">
+            </osmatch>
+        </os>
+        <uptime seconds="10" lastboot="boottime"/>
+        <tcpsequence index="1" difficulty="difficulty" values="values"/>
+        <ipidsequence class="class" values="values"/>
+        <tcptssequence class="class" values="values"/>
+        <hostscript>
+            <script id="unknownId" output="scriptOutput"/>
+        </hostscript>
+        <times srtt="16592" rttvar="2595" to="100000"/>
+    </host>
+    <host starttime="1607786452" endtime="1607794904">
+        <status state="unknown" reason="syn-ack" reason_ttl="58"/>
+        <address addr="mac" addrtype="mac" vendor="vendor"/>
+        <hostnames>
+            <hostname name="name" type="PTR"/>
+        </hostnames>
+        <ports>
+            <extraports state="state" count="10">
+                <extrareasons reason="reason" count="count"/>
+                <extrareasons reason="reason2" count="count2"/>
+            </extraports>
+            <port protocol="tcp" portid="22">
+                <state state="filtered" reason="reason" reason_ttl="10" reason_ip="ip"/>
+                <owner name="owner"/>
+                <service name="name" conf="10" method="table"/>
+                <script id="unknownId" output="scriptOutput"/>
+            </port>
+        </ports>
+        <os>
+            <osmatch name="name1" accuracy="44" line="55">
+            </osmatch>
+            <osmatch name="name2" accuracy="44" line="55">
+            </osmatch>
+        </os>
+        <uptime seconds="10" lastboot="boottime"/>
+        <tcpsequence index="1" difficulty="difficulty" values="values"/>
+        <ipidsequence class="class" values="values"/>
+        <tcptssequence class="class" values="values"/>
+        <hostscript>
+            <script id="unknownId" output="scriptOutput"/>
+        </hostscript>
+        <times srtt="16592" rttvar="2595" to="100000"/>
+    </host>
+    <host starttime="1607786452" endtime="1607794904">
+        <status state="skipped" reason="syn-ack" reason_ttl="58"/>
+        <address addr="address" addrtype="ipv4" vendor="vendor"/>
+        <hostnames>
+            <hostname name="name" type="PTR"/>
+        </hostnames>
+        <ports>
+            <extraports state="state" count="10">
+                <extrareasons reason="reason" count="count"/>
+                <extrareasons reason="reason2" count="count2"/>
+            </extraports>
+            <port protocol="tcp" portid="22">
+                <state state="unfiltered" reason="reason" reason_ttl="10" reason_ip="ip"/>
+                <owner name="owner"/>
+                <service name="name" conf="10" method="table"/>
+                <script id="unknownId" output="scriptOutput"/>
+            </port>
+        </ports>
+        <os>
+            <osmatch name="name1" accuracy="44" line="55">
+            </osmatch>
+            <osmatch name="name2" accuracy="44" line="55">
+            </osmatch>
+        </os>
+        <uptime seconds="10" lastboot="boottime"/>
+        <tcpsequence index="1" difficulty="difficulty" values="values"/>
+        <ipidsequence class="class" values="values"/>
+        <tcptssequence class="class" values="values"/>
+        <hostscript>
+            <script id="unknownId" output="scriptOutput"/>
+        </hostscript>
+        <times srtt="16592" rttvar="2595" to="100000"/>
+    </host>
+    <host starttime="5643" endtime="1607794904">
+        <status state="up" reason="reason" reason_ttl="10"/>
+        <address addr="address55" addrtype="ipv4" vendor="vendor"/>
+        <hostnames>
+            <hostname name="name" type="PTR"/>
+        </hostnames>
+        <ports>
+            <extraports state="state" count="10">
+                <extrareasons reason="reason" count="count"/>
+                <extrareasons reason="reason2" count="count2"/>
+            </extraports>
+            <port protocol="tcp" portid="55">
+                <state state="open" reason="reason" reason_ttl="10" reason_ip="ip"/>
+                <owner name="owner"/>
+                <service name="name" conf="10" method="table"/>
+                <script id="unknownId" output="scriptOutput"/>
+            </port>
+            <port protocol="tcp" portid="10">
+                <state state="open" reason="reason" reason_ttl="10" reason_ip="ip"/>
+                <owner name="owner"/>
+                <service name="name" conf="10" method="table"/>
+                <script id="unknownId2" output="scriptOutput"/>
+            </port>
+        </ports>
+        <os>
+            <osmatch name="name1" accuracy="44" line="55">
+            </osmatch>
+            <osmatch name="name3" accuracy="44" line="55">
+            </osmatch>
+        </os>
+        <uptime seconds="10" lastboot="boottime"/>
+        <tcpsequence index="1" difficulty="difficulty" values="values"/>
+        <ipidsequence class="class" values="values"/>
+        <tcptssequence class="class" values="values"/>
+        <hostscript>
+            <script id="unknownId" output="scriptOutput"/>
+            <script id="unknownId" output="scriptOutput"/>
+            <script id="unknownId" output="scriptOutput"/>
+        </hostscript>
+        <smurf responses="smurf"/>
+        <distance value="5"/>
+        <trace proto="tcp" port="10">
+            <hop ttl="ttl" rtt="rtt" ipaddr="IP" host="host"/>
+        </trace>
+        <uptime seconds="10" lastboot="boottime"/>
+        <times srtt="16592" rttvar="2595" to="100000"/>
+    </host>
+    <output type="interactive">foo</output>
+
+    <output type="interactive">foo</output>
+
+    <postscript>
+        <script id="unknownId" output="scriptOutput"/>
+        <script id="unknownId" output="scriptOutput"/>
+    </postscript>
+    <hosthint>
+        <status state="unknown" reason="combined" reason_ttl="0"/>
+        <address addr="address" addrtype="ipv4" vendor="vendor"/>
+        <hostnames>
+            <hostname name="name" type="PTR"/>
+        </hostnames>
+    </hosthint>
+    <hosthint>
+        <status state="down" reason="syn-ack" reason_ttl="58"/>
+        <address addr="address6" addrtype="ipv6" vendor="vendor"/>
+        <hostnames>
+            <hostname name="name" type="PTR"/>
+        </hostnames>
+    </hosthint>
+    <hosthint>
+        <status state="unknown" reason="syn-ack" reason_ttl="58"/>
+        <address addr="mac" addrtype="mac" vendor="vendor"/>
+        <hostnames>
+            <hostname name="name" type="PTR"/>
+        </hostnames>
+    </hosthint>
+    <hosthint>
+        <status state="skipped" reason="syn-ack" reason_ttl="58"/>
+        <address addr="address" addrtype="ipv4" vendor="vendor"/>
+        <hostnames>
+            <hostname name="name" type="PTR"/>
+        </hostnames>
+    </hosthint>
+    <hosthint>
+        <status state="up" reason="reason" reason_ttl="10"/>
+        <address addr="address55" addrtype="ipv4" vendor="vendor"/>
+        <hostnames>
+            <hostname name="name" type="PTR"/>
+        </hostnames>
+    </hosthint>
+    <runstats>
+        <finished time="0" timestr="Unknown because it is a combined report" elapsed="0" exit="success"/>
+        <hosts up="1" down="1" total="5"/>
+    </runstats>
+</nmaprun>

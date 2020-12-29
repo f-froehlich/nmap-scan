@@ -52,7 +52,7 @@ class Host:
         self.__end_time = None
         self.__status = None
         self.__comment = None
-        self.__os = None
+        self.__os = []
         self.__addresses = []
         self.__uptimes = []
         self.__smurfs = []
@@ -77,7 +77,7 @@ class Host:
                and self.__end_time == other.get_end_time() \
                and self.__status.equals(other.get_status()) \
                and self.__comment == other.get_comment() \
-               and self.__os.equals(other.get_os()) \
+               and compare_lists_equal(self.__os, other.get_os()) \
                and compare_lists_equal(self.__addresses, other.get_addresses()) \
                and compare_lists_equal(self.__uptimes, other.get_uptimes()) \
                and compare_lists_equal(self.__hostnames, other.get_hostnames()) \
@@ -368,7 +368,5 @@ class Host:
             self.__tcpsequences.append(TCPSequence(tcpsequence_xml))
         for tcptssequence_xml in self.__xml.findall('tcptssequence'):
             self.__tcptssequences.append(TCPTSSequence(tcptssequence_xml))
-
-        os_xml = self.__xml.find('os')
-        if os_xml != None:
-            self.__os = OS(os_xml)
+        for os_xml in self.__xml.findall('os'):
+            self.__os.append(OS(os_xml))

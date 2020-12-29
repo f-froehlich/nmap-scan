@@ -75,6 +75,12 @@ class RunStats:
     def get_exit(self):
         return self.__exit
 
+    def is_success(self):
+        return 'success' == self.__exit
+
+    def is_error(self):
+        return 'error' == self.__exit
+
     def get_errormsg(self):
         return self.__errormsg
 

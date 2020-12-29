@@ -25,6 +25,7 @@
 #
 #  Checkout this project on github <https://github.com/f-froehlich/nmap-scan>
 #  and also my other projects <https://github.com/f-froehlich>
+import copy
 import json
 import logging
 import os
@@ -40,6 +41,7 @@ from lxml import etree
 
 from nmap_scan.CompareHelper import compare_lists_equal, compare_script_maps
 from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
+from nmap_scan.Exceptions.ReportCombineException import ReportCombineException
 from nmap_scan.Host.Host import Host
 from nmap_scan.Host.HostHint import HostHint
 from nmap_scan.Scripts.ScriptParser import parse
@@ -80,6 +82,7 @@ class Report:
         self.__hosts_down = None
         self.__hosts_unknown = None
         self.__hosts_skipped = None
+        self.__is_combined = False
 
         self.__parse_xml()
 
@@ -109,6 +112,9 @@ class Report:
 
     def get_xml(self):
         return self.__xml
+
+    def is_combined(self):
+        return self.__is_combined
 
     def get_scanner(self):
         return self.__scanner
@@ -536,3 +542,290 @@ class Report:
 
         logging.info('Scan report is valid')
         return True
+
+    def __reset(self):
+        self.__xml = None
+        self.__scanner = None
+        self.__scanner_args = None
+        self.__start = None
+        self.__startstr = None
+        self.__version = None
+        self.__profile_name = None
+        self.__xmloutputversion = None
+        self.__scaninfos = []
+        self.__targets = []
+        self.__outputs = []
+        self.__task_progresses = []
+        self.__task_begins = []
+        self.__task_ends = []
+        self.__pre_scripts = {}
+        self.__post_scripts = {}
+        self.__verbose_level = None
+        self.__debugging_level = None
+        self.__run_stats = None
+        self.__hosts = []
+        self.__host_hints = []
+        self.__hosts_up = None
+        self.__hosts_down = None
+        self.__hosts_unknown = None
+        self.__hosts_skipped = None
+
+    def combine(self, new_report):
+        logging.info('Combine reports')
+        if not isinstance(new_report, Report):
+            raise ReportCombineException('Can only combine a report with another!')
+
+        if not new_report.get_run_stats().is_success():
+            raise ReportCombineException('Can only combine successful executed reports!')
+
+        combined_xml = etree.Element('nmaprun')
+
+        # Set attributes
+        combined_xml.attrib['args'] = 'unknown'
+        combined_xml.attrib['start'] = '0'
+        combined_xml.attrib['startstr'] = 'Unknown because it is a combined report'
+        combined_xml.attrib['version'] = 'unknown'
+        combined_xml.attrib['xmloutputversion'] = 'unknown'
+        combined_xml.attrib['profile_name'] = 'unknown'
+        combined_xml.attrib['scanner'] = 'nmap'
+
+        combined_xml.append(etree.Element('verbose', {'level': '-1'}))
+        combined_xml.append(etree.Element('debugging', {'level': '-1'}))
+
+        # add prescript
+        prescipts_xml = etree.Element('prescript')
+        for prescript_xml in self.__xml.findall('prescript') + new_report.get_xml().findall('prescript'):
+            for script_xml in prescript_xml.findall('script'):
+                logging.debug('Add prescript "{prescript}"'.format(prescript=script_xml.attrib['id']))
+                prescipts_xml.append(script_xml)
+        combined_xml.append(prescipts_xml)
+
+        other_hosts_xml = new_report.get_xml().findall('host')
+        for own_host_xml in self.__xml.findall('host'):
+            own_ips = self.__get_ips(own_host_xml)
+            if 0 == len(own_ips):
+                logging.info('Add host because no ips found for this host')
+                combined_xml.append(own_host_xml)
+                continue
+            added = False
+            for other_host_xml in other_hosts_xml:
+                other_ips = self.__get_ips(other_host_xml)
+                for other_ip in other_ips:
+                    if other_ip in own_ips:
+                        logging.info('Combine host with matching ip "{ip}"'.format(ip=other_ip))
+                        combined_xml.append(self.__combine_hosts(own_host_xml, other_host_xml, new_report))
+                        other_hosts_xml.remove(other_host_xml)
+                        added = True
+                        break
+            if not added:
+                logging.info('Add host with ip "{ip}" because no other host found with any of this ip'
+                             .format(ip=', '.join(own_ips)))
+                combined_xml.append(own_host_xml)
+
+        for other_host_xml in other_hosts_xml:
+            other_ips = self.__get_ips(other_host_xml)
+            if 0 == len(other_ips):
+                logging.info('Add host because no ips found for this host')
+                combined_xml.append(other_host_xml)
+                continue
+
+            added = False
+            for own_host_xml in self.__xml.findall('host'):
+                own_ips = self.__get_ips(own_host_xml)
+                for own_ip in own_ips:
+                    if own_ip in other_ips:
+                        logging.info('Combine host with matching ip "{ip}"'.format(ip=own_ip))
+                        combined_xml.append(self.__combine_hosts(own_host_xml, other_host_xml, new_report))
+                        added = True
+                        break
+            if not added:
+                logging.info('Add host with ip "{ip}" because no other host found with any of this ip'
+                             .format(ip=', '.join(other_ips)))
+                combined_xml.append(other_host_xml)
+
+        # add output
+        for output_xml in self.__xml.findall('output') + new_report.get_xml().findall('output'):
+            combined_xml.append(output_xml)
+
+        # add postscript
+        postscipts_xml = etree.Element('postscript')
+        for postscript_xml in self.__xml.findall('postscript') + new_report.get_xml().findall('postscript'):
+            for script_xml in postscript_xml.findall('script'):
+                logging.debug('Add postscript "{postscript}"'.format(postscript=script_xml.attrib['id']))
+                postscipts_xml.append(script_xml)
+        combined_xml.append(postscipts_xml)
+
+        host_counter = {'up': 0, 'down': 0, 'total': 0}
+        for host_xml in combined_xml.findall('host'):
+            logging.debug('Add hosthint for host with ip "{ip}"'.format(ip=', '.join(self.__get_ips(host_xml))))
+            status_xml = copy.deepcopy(host_xml.find('status'))
+            hosthint = etree.Element('hosthint')
+            hosthint.append(status_xml)
+            for address in host_xml.findall('address'):
+                hosthint.append(copy.deepcopy(address))
+            for hostname in host_xml.findall('hostnames'):
+                hosthint.append(copy.deepcopy(hostname))
+            combined_xml.append(hosthint)
+
+            if 'up' == status_xml.attrib['state']:
+                host_counter['up'] += 1
+            elif 'down' == status_xml.attrib['state']:
+                host_counter['down'] += 1
+
+            host_counter['total'] += 1
+
+        # create runstats as last step
+        logging.debug('Add runstats')
+        runstats_xml = etree.Element('runstats')
+        runstats_xml.append(etree.Element('finished', {
+            'time': '0',
+            'timestr': 'Unknown because it is a combined report',
+            'elapsed': '0',
+            'exit': 'success',
+        }))
+        runstats_xml.append(etree.Element('hosts', {
+            'up': str(host_counter['up']),
+            'down': str(host_counter['down']),
+            'total': str(host_counter['total']),
+        }))
+        combined_xml.append(runstats_xml)
+
+        Report.validate(combined_xml)
+        self.__reset()
+        self.__is_combined = True
+        self.__xml = combined_xml
+        self.__parse_xml()
+
+    @staticmethod
+    def __get_ips(host_xml):
+        ips = []
+        for address in host_xml.findall('address'):
+            if address.attrib['addrtype'] in ['ipv4', 'ipv6']:
+                ips.append(address.attrib['addr'])
+        logging.debug('Found ips "{ips}" for host'.format(ips=', '.join(ips)))
+        return ips
+
+    def __combine_hosts(self, host1_xml, host2_xml, new_report):
+        logging.debug('Combine hosts')
+        new_host_xml = etree.Element('host', {'starttime': '0', 'endtime': '0', 'comment': 'Combined'})
+        new_host_xml.append(etree.Element('status', {'state': 'unknown', 'reason': 'combined', 'reason_ttl': '0'}))
+
+        # add addresses
+        addresses = {'mac': [], 'ipv4': [], 'ipv6': []}
+        for address_xml in host1_xml.findall('address'):
+            addresses[address_xml.attrib['addrtype']].append(address_xml.attrib['addr'])
+            logging.debug('Add address "{addr}" of type "{type}"'.format(addr=address_xml.attrib['addr'],
+                                                                         type=address_xml.attrib['addrtype']))
+            new_host_xml.append(address_xml)
+
+        for address_xml in host2_xml.findall('address'):
+            if address_xml.attrib['addr'] not in addresses[address_xml.attrib['addrtype']]:
+                logging.debug('Add address "{addr}" of type "{type}"'.format(addr=address_xml.attrib['addr'],
+                                                                             type=address_xml.attrib['addrtype']))
+                new_host_xml.append(address_xml)
+
+        # add hostnames
+        hostnames = []
+        for hostnames_xml in host1_xml.findall('hostnames') + host2_xml.findall('hostnames'):
+            for hostname in hostnames_xml.findall('hostname'):
+                map = {'name': hostname.attrib.get('name', None), 'type': hostname.attrib.get('type', None)}
+                if None == map['name']:
+                    continue
+                if map not in hostnames:
+                    hostnames.append(map)
+        hostnames_xml = etree.Element('hostnames')
+        for hostname in hostnames:
+            logging.debug('Add Hostname "{name}" of type "{type}"'.format(name=hostname['name'],
+                                                                          type=hostname['type']))
+            if None == hostname['type']:
+                hostnames_xml.append(etree.Element('hostname', {'name': hostname['name']}))
+            else:
+                hostnames_xml.append(etree.Element('hostname',
+                                                   {'name': hostname['name'], 'type': hostname['type']}))
+
+        new_host_xml.append(hostnames_xml)
+
+        for os_xml in self.__xml.findall('os') + new_report.get_xml().findall('os'):
+            new_host_xml.append(os_xml)
+        for hostscript_xml in self.__xml.findall('hostscript') + new_report.get_xml().findall('hostscript'):
+            new_host_xml.append(hostscript_xml)
+        for trace_xml in self.__xml.findall('trace') + new_report.get_xml().findall('trace'):
+            new_host_xml.append(trace_xml)
+        for smurf_xml in self.__xml.findall('smurf') + new_report.get_xml().findall('smurf'):
+            new_host_xml.append(smurf_xml)
+        for tcpsequence_xml in self.__xml.findall('tcpsequence') + new_report.get_xml().findall('tcpsequence'):
+            new_host_xml.append(tcpsequence_xml)
+        for ipidsequence_xml in self.__xml.findall('ipidsequence') + new_report.get_xml().findall('ipidsequence'):
+            new_host_xml.append(ipidsequence_xml)
+        for sequence_xml in self.__xml.findall('tcptssequence') + new_report.get_xml().findall('tcptssequence'):
+            new_host_xml.append(sequence_xml)
+
+        new_host_xml.append(self.__combine_ports(host1_xml, host2_xml))
+
+        return new_host_xml
+
+    @staticmethod
+    def __combine_ports(host1_xml, host2_xml):
+        logging.info('combine ports')
+        ports_xml = etree.Element('ports')
+
+        host1_ports = []
+        for p in host1_xml.findall('ports'):
+            host1_ports += p.findall('port')
+            for extra_port in p.findall('extraports'):
+                ports_xml.append(extra_port)
+
+        host2_ports = []
+        for p in host2_xml.findall('ports'):
+            host2_ports += p.findall('port')
+            for extra_port in p.findall('extraports'):
+                ports_xml.append(extra_port)
+
+        port_ids = {'ip': [], 'tcp': [], 'udp': [], 'sctp': []}
+        for host1_port in host1_ports:
+            port_ids[host1_port.attrib['protocol']].append(int(host1_port.attrib['portid']))
+            added = False
+            for host2_port in host2_ports:
+                if int(host1_port.attrib['portid']) == int(host2_port.attrib['portid']) \
+                        and host1_port.attrib['protocol'] == host2_port.attrib['protocol']:
+                    logging.debug('Combine port "{port}" with protocol "{proto} because matching port exist'
+                                  .format(port=int(host1_port.attrib['portid']), proto=host1_port.attrib['protocol']))
+                    added = True
+                    new_port = etree.Element('port', {
+                        'portid': host1_port.attrib['portid'],
+                        'protocol': host1_port.attrib['protocol']
+                    })
+                    new_port.append(host1_port.find('state'))
+
+                    if None != host1_port.find('owner'):
+                        logging.debug('Add owner of port 1')
+                        new_port.append(host1_port.find('owner'))
+                    elif None != host2_port.find('owner'):
+                        logging.debug('Add owner of port 2')
+                        new_port.append(host2_port.find('owner'))
+
+                    if None != host1_port.find('service'):
+                        logging.debug('Add service of port 1')
+                        new_port.append(host1_port.find('service'))
+                    elif None != host2_port.find('service'):
+                        logging.debug('Add service of port 2')
+                        new_port.append(host2_port.find('service'))
+
+                    for script in host1_port.findall('script') + host2_port.findall('script'):
+                        logging.debug('Add Script "{script}"'.format(script=script.attrib['id']))
+                        new_port.append(script)
+
+                    ports_xml.append(new_port)
+                    break
+            if not added:
+                logging.debug('Add port "{port}" with protocol "{proto}" because no matching port exist'
+                              .format(port=int(host1_port.attrib['portid']), proto=host1_port.attrib['protocol']))
+                ports_xml.append(host1_port)
+
+        for host2_port in host2_ports:
+            if int(host2_port.attrib['portid']) not in port_ids[host2_port.attrib['protocol']]:
+                logging.debug('Add port "{port}" because no matching port with protocol"{proto}" exist'.
+                              format(port=int(host2_port.attrib['portid']), proto=host2_port.attrib['protocol']))
+                ports_xml.append(host2_port)
+
+        return ports_xml

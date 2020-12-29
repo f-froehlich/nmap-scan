@@ -376,6 +376,24 @@ class TestReport(BaseXMLTest):
 
         assert expected == e1.equals(e2)
 
+    @pytest.mark.parametrize(("filepath1", "filepath2", "expected"), [
+        ('testdata/Report/Report-1.xml', 'testdata/Report/Report-2.xml', 'testdata/Report/Report-3.xml'),
+
+    ])
+    def test_combine(self, filepath1, filepath2, expected):
+        report1 = self.create_instance(self.create_xml(filepath1))
+        report2 = self.create_instance(self.create_xml(filepath2))
+        combined = self.create_instance(self.create_xml(expected))
+
+        assert not report1.is_combined()
+        assert not report2.is_combined()
+        assert not combined.is_combined()
+
+        report1.combine(report2)
+        assert report1.is_combined()
+
+        assert combined.equals(report1)
+
     @pytest.mark.parametrize(("filepath", "expected"), [
         ('testdata/Report/Report-1.xml', ['testdata/Host/HostHint-1.xml']),
     ])

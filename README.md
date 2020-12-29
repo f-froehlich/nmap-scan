@@ -92,11 +92,11 @@ logging.basicConfig(level=logging.DEBUG, filename='debug.log')
 ```
 
 ## Hints
-We decided to make a few changes in the nmap DPT and also in our script to avoid errors during parsing. We changed the script attribute "output" from required to optional, because not all scipts of nmap set this attribute. Also the new hosthint feature of nmap is not valid with its DTD. Here are the changes:
+We decided to make a few changes in the nmap DTD and also in our script to avoid errors during parsing. We changed the script attribute "output" from required to optional, because not all scipts of nmap set this attribute. Also the new hosthint feature of nmap is not valid with its DTD. Here are the changes:
 
 ```shell script
 - <!ELEMENT hosthint (status,address,hostnames)* >
-+ <!ELEMENT hosthint (status,address*,hostnames)* >
++ <!ELEMENT hosthint (status,address*,hostnames*) >
 
   <!ATTLIST script
   id    CDATA    #REQUIRED

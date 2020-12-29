@@ -59,6 +59,17 @@ class MultiScanner:
         self.wait()
         return self.__reports
 
+    def get_combined_report(self):
+        self.wait()
+        if 0 == len(self.__reports):
+            return None
+
+        report = self.__reports[0]
+        for other_report in self.__reports[1:]:
+            report.combine(other_report)
+
+        return report
+
     def is_finished(self):
         return all(self.__finished)
 
