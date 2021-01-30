@@ -31,6 +31,22 @@ class TestExtraReason(BaseXMLTest):
         e = self.create_instance(xml)
         assert expected == e.get_count()
 
+    @pytest.mark.parametrize(("filepath", "expected"), [
+        ('testdata/Stats/ExtraReason-6.xml', 'proto'),
+    ])
+    def test_proto(self, filepath, expected):
+        xml = self.create_xml(filepath)
+        e = self.create_instance(xml)
+        assert expected == e.get_proto()
+
+    @pytest.mark.parametrize(("filepath", "expected"), [
+        ('testdata/Stats/ExtraReason-6.xml', 'ports'),
+    ])
+    def test_proto(self, filepath, expected):
+        xml = self.create_xml(filepath)
+        e = self.create_instance(xml)
+        assert expected == e.get_ports()
+
     @pytest.mark.invalidXML
     @pytest.mark.xml
     @pytest.mark.parametrize("filepath", ['testdata/Stats/ExtraReason-3.xml'])

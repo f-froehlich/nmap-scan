@@ -36,12 +36,16 @@ class ExtraReason:
         self.__xml = xml
         self.__reason = None
         self.__count = None
+        self.__proto = None
+        self.__ports = None
         self.__parse_xml()
 
     def equals(self, other):
         return isinstance(other, ExtraReason) \
                and self.__reason == other.get_reason() \
-               and self.__count == other.get_count()
+               and self.__count == other.get_count() \
+               and self.__proto == other.get_proto() \
+               and self.__ports == other.get_ports()
 
     def get_xml(self):
         return self.__xml
@@ -52,11 +56,21 @@ class ExtraReason:
     def get_reason(self):
         return self.__reason
 
+    def get_ports(self):
+        return self.__ports
+
+    def get_proto(self):
+        return self.__proto
+
     def __parse_xml(self):
         logging.info('Parsing ExtraReason')
         attr = self.__xml.attrib
         self.__reason = attr['reason']
         self.__count = attr['count']
+        self.__proto = attr.get('proto', None)
+        self.__ports = attr.get('ports', None)
 
         logging.debug('Reason: "{reason}"'.format(reason=self.__reason))
         logging.debug('Count: "{count}"'.format(count=self.__count))
+        logging.debug('Proto: "{proto}"'.format(proto=self.__proto))
+        logging.debug('Ports: "{ports}"'.format(ports=self.__ports))

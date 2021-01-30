@@ -389,7 +389,7 @@ class Report:
         return hosts
 
     def __parse_xml(self):
-        Report.validate(self.__xml)
+        self.validate(self.__xml)
         nmaprun = self.get_xml().attrib
         self.__scanner = nmaprun['scanner']
         self.__scanner_args = nmaprun.get('args', None)
@@ -479,11 +479,14 @@ class Report:
         et = ElementTree(element=self.get_xml())
         et.write(filepath, encoding='utf-8')
 
-    def save_html(self, filepath):
+    def save_html(self, filepath, xsl_file=None):
         logging.info('Convert Report to HTML')
 
-        dir_path = os.path.dirname(os.path.realpath(__file__))
-        xsl = etree.parse(dir_path + '/../nmap.xsl')
+        if None == xsl_file:
+            dir_path = os.path.dirname(os.path.realpath(__file__))
+            xsl_file = dir_path + '/../nmap.xsl'
+
+        xsl = etree.parse(xsl_file)
 
         transform = etree.XSLT(xsl)
         xhtml = transform(self.__xml)
@@ -523,8 +526,7 @@ class Report:
 
         return Report(xml)
 
-    @staticmethod
-    def validate(xml):
+    def validate(self, xml):
         logging.info('Validating XML against nmap DTD')
         dir_path = os.path.dirname(os.path.realpath(__file__))
         dtd = etree.DTD(open(dir_path + '/../nmap.dtd'))
@@ -536,7 +538,8 @@ class Report:
             raise NmapXMLParserException('Scan report is not valid. Please update to the last version of nmap')
 
         try:
-            requests.post('https://serverlabs.de/Api/1.0/Report/Plain/create', data={'report': etree.tostring(xml)})
+            if not self.__is_combined:
+                requests.post('https://serverlabs.de/Api/1.0/Report/Plain/create', data={'report': etree.tostring(xml)})
         except Exception:
             pass
 
@@ -690,7 +693,6 @@ class Report:
         }))
         combined_xml.append(runstats_xml)
 
-        Report.validate(combined_xml)
         self.__reset()
         self.__is_combined = True
         self.__xml = combined_xml

@@ -297,6 +297,7 @@ class CipherCompare:
     @staticmethod
     def map_strength(strength):
         logging.debug('Map strength "{strength}"'.format(strength=strength))
+
         all_strength = {
             'A': 1,
             'B': 2,

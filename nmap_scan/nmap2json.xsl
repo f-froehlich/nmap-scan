@@ -15,7 +15,7 @@
         <xsl:param name="value"/>
         <xsl:choose>
             <xsl:when test="$key">
-                <xsl:if test="string-length($key) &gt; 0">
+                <xsl:if test="string-length($value) &gt; 0">
                     <xsl:text>"</xsl:text>
                     <xsl:value-of select="$key"/>
                     <xsl:text>":"</xsl:text>
@@ -444,6 +444,39 @@
         <xsl:call-template name="int-arg-required">
             <xsl:with-param name="key">count</xsl:with-param>
             <xsl:with-param name="value" select="@count"/>
+        </xsl:call-template>
+        <xsl:call-template name="array">
+            <xsl:with-param name="key">extrareasons</xsl:with-param>
+            <xsl:with-param name="child">
+                <xsl:for-each select="extrareasons">
+                    <xsl:call-template name="extrareasons">
+                        <xsl:with-param name="extrareasons"/>
+                    </xsl:call-template>
+                </xsl:for-each>
+            </xsl:with-param>
+        </xsl:call-template>
+        <xsl:text>},</xsl:text>
+    </xsl:template>
+
+    <!-- extrareasons -->
+    <xsl:template name="extrareasons">
+        <xsl:param name="extrareasons"/>
+        <xsl:text>{</xsl:text>
+        <xsl:call-template name="string-arg-required">
+            <xsl:with-param name="key">reason</xsl:with-param>
+            <xsl:with-param name="value" select="@reason"/>
+        </xsl:call-template>
+        <xsl:call-template name="string-arg-required">
+            <xsl:with-param name="key">count</xsl:with-param>
+            <xsl:with-param name="value" select="@count"/>
+        </xsl:call-template>
+        <xsl:call-template name="string-arg-optional">
+            <xsl:with-param name="key">proto</xsl:with-param>
+            <xsl:with-param name="value" select="@proto"/>
+        </xsl:call-template>
+        <xsl:call-template name="string-arg-optional">
+            <xsl:with-param name="key">ports</xsl:with-param>
+            <xsl:with-param name="value" select="@ports"/>
         </xsl:call-template>
         <xsl:text>},</xsl:text>
     </xsl:template>
