@@ -29,15 +29,53 @@
 
 import logging
 
+from lxml import etree
+
+from nmap_scan.Exceptions.NmapDictParserException import NmapDictParserException
+from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
+from nmap_scan.Validator import validate
+
 
 class HostAddress:
 
     def __init__(self, xml):
+        validate(xml)
         self.__xml = xml
         self.__addr = None
         self.__vendor = None
         self.__type = None
         self.__parse_xml()
+
+    def __iter__(self):
+        yield "addr", self.__addr
+        yield "vendor", self.__vendor
+        yield "type", self.__type
+
+    @staticmethod
+    def dict_to_xml(d, validate_xml=True):
+        xml = etree.Element('address')
+
+        if None != d.get('addr', None):
+            xml.attrib['addr'] = d.get('addr', None)
+        if None != d.get('vendor', None):
+            xml.attrib['vendor'] = d.get('vendor', None)
+        if None != d.get('type', None):
+            xml.attrib['addrtype'] = d.get('type', None)
+
+        if validate_xml:
+            try:
+                validate(xml)
+            except NmapXMLParserException:
+                raise NmapDictParserException()
+
+        return xml
+
+    @staticmethod
+    def from_dict(d):
+        try:
+            return HostAddress(HostAddress.dict_to_xml(d, False))
+        except NmapXMLParserException:
+            raise NmapDictParserException()
 
     def equals(self, other):
         return isinstance(other, HostAddress) \
@@ -73,7 +111,7 @@ class HostAddress:
         logging.info('Parsing HostAddress')
         attr = self.__xml.attrib
         self.__addr = attr['addr']
-        self.__type = attr['addrtype']
+        self.__type = attr.get('addrtype', 'ipv4')
         self.__vendor = attr.get('vendor', None)
         logging.debug('Address: "{addr}"'.format(addr=self.__addr))
         logging.debug('Type: "{type}"'.format(type=self.__type))

@@ -1,6 +1,6 @@
 <port protocol="udp" portid="22">
     <state state="closed|filtered" reason="reason" reason_ttl="10" reason_ip="ip"/>
     <owner name="owner"/>
-    <service name="name2" conf="conf" method="method"></service>
+    <service name="name2" conf="10" method="probed"></service>
     <script id="unknownId" output="scriptOutput2"></script>
 </port>

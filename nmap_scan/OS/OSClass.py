@@ -29,12 +29,18 @@
 
 import logging
 
+from lxml import etree
+
 from nmap_scan.CompareHelper import compare_lists
+from nmap_scan.Exceptions.NmapDictParserException import NmapDictParserException
+from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
+from nmap_scan.Validator import validate
 
 
 class OSClass:
 
     def __init__(self, xml):
+        validate(xml)
         self.__xml = xml
         self.__type = None
         self.__vendor = None
@@ -43,6 +49,49 @@ class OSClass:
         self.__accuracy = None
         self.__cpes = []
         self.__parse_xml()
+
+    def __iter__(self):
+        yield "type", self.__type
+        yield "vendor", self.__vendor
+        yield "family", self.__family
+        yield "generation", self.__generation
+        yield "accuracy", self.__accuracy
+        yield "cpes", self.__cpes
+
+    @staticmethod
+    def dict_to_xml(d, validate_xml=True):
+        xml = etree.Element('osclass')
+        if None != d.get('vendor', None):
+            xml.attrib['vendor'] = d.get('vendor', None)
+        if None != d.get('generation', None):
+            xml.attrib['osgen'] = d.get('generation', None)
+        if None != d.get('type', None):
+            xml.attrib['type'] = d.get('type', None)
+        if None != d.get('family', None):
+            xml.attrib['osfamily'] = d.get('family', None)
+        if None != d.get('accuracy', None):
+            xml.attrib['accuracy'] = str(d.get('accuracy', None))
+
+        if None != d.get('cpes', None):
+            for cpe in d['cpes']:
+                cpe_xml = etree.Element('cpe')
+                cpe_xml.text = cpe
+                xml.append(cpe_xml)
+
+        if validate_xml:
+            try:
+                validate(xml)
+            except NmapXMLParserException:
+                raise NmapDictParserException()
+
+        return xml
+
+    @staticmethod
+    def from_dict(d):
+        try:
+            return OSClass(OSClass.dict_to_xml(d, False))
+        except NmapXMLParserException:
+            raise NmapDictParserException()
 
     def equals(self, other):
         return isinstance(other, OSClass) \

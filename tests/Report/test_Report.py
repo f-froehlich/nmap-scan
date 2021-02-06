@@ -28,6 +28,9 @@ class TestReport(BaseXMLTest):
     def get_all_files(self):
         return ['testdata/Report/Report-' + str(i) + '.xml' for i in range(1, 2)]
 
+    def get_all_invalid_files(self):
+        return ['testdata/Report/Report-' + str(i) + '.xml' for i in range(5, 6)]
+
     @pytest.mark.parametrize(("filepath", "expected"), [
         ('testdata/Report/Report-1.xml', 'nmap'),
     ])

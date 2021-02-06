@@ -29,18 +29,55 @@
 
 import logging
 
+from lxml import etree
+
 from nmap_scan.CompareHelper import compare_lists_equal
+from nmap_scan.Exceptions.NmapDictParserException import NmapDictParserException
+from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
 from nmap_scan.Trace.Hop import Hop
+from nmap_scan.Validator import validate
 
 
 class Trace:
 
     def __init__(self, xml):
+        validate(xml)
         self.__xml = xml
         self.__hops = []
         self.__proto = None
         self.__port = None
         self.__parse_xml()
+
+    def __iter__(self):
+        yield "hops", [dict(h) for h in self.__hops]
+        yield "proto", self.__proto
+        yield "port", self.__port
+
+    @staticmethod
+    def dict_to_xml(d, validate_xml=True):
+        xml = etree.Element('trace')
+        if None != d.get('port', None):
+            xml.attrib['port'] = str(d.get('port', None))
+        if None != d.get('proto', None):
+            xml.attrib['proto'] = d.get('proto', None)
+
+        if None != d.get('hops', None):
+            for hop_dict in d['hops']:
+                xml.append(Hop.dict_to_xml(hop_dict))
+
+        if validate_xml:
+            try:
+                validate(xml)
+            except NmapXMLParserException:
+                raise NmapDictParserException()
+        return xml
+
+    @staticmethod
+    def from_dict(d):
+        try:
+            return Trace(Trace.dict_to_xml(d, False))
+        except NmapXMLParserException:
+            raise NmapDictParserException()
 
     def get_xml(self):
         return self.__xml

@@ -6,13 +6,16 @@ from tests.BaseXMLTest import BaseXMLTest
 
 
 @pytest.mark.trace
-class TestHop(BaseXMLTest):
+class TestTrace(BaseXMLTest):
 
     def create_instance(self, xml):
         return Trace(xml)
 
     def get_all_files(self):
         return ['testdata/Trace/Trace-' + str(i) + '.xml' for i in range(1, 3)]
+
+    def get_all_invalid_files(self):
+        return ['testdata/Trace/Trace-' + str(i) + '.xml' for i in range(6, 7)]
 
     @pytest.mark.parametrize(("filepath", "expected"), [
         ('testdata/Trace/Trace-1.xml', 'tcp'),
@@ -91,3 +94,13 @@ class TestHop(BaseXMLTest):
         e2 = self.create_instance(xml2)
 
         assert expected == e1.equals(e2)
+
+    @pytest.mark.invalidXML
+    @pytest.mark.xml
+    def test_error_on_from_dict(self):
+        pass
+
+    @pytest.mark.invalidXML
+    @pytest.mark.xml
+    def test_error_on_dict_to_xml(self):
+        pass

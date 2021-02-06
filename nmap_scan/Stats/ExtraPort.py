@@ -29,18 +29,56 @@
 
 import logging
 
+from lxml import etree
+
 from nmap_scan.CompareHelper import compare_lists_equal
+from nmap_scan.Exceptions.NmapDictParserException import NmapDictParserException
+from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
 from nmap_scan.Stats.ExtraReason import ExtraReason
+from nmap_scan.Validator import validate
 
 
 class ExtraPort:
 
     def __init__(self, xml):
+        validate(xml)
         self.__xml = xml
         self.__state = None
         self.__count = None
         self.__reasons = []
         self.__parse_xml()
+
+    def __iter__(self):
+        yield "state", self.__state
+        yield "count", self.__count
+        yield "reasons", [dict(r) for r in self.__reasons]
+
+    @staticmethod
+    def dict_to_xml(d, validate_xml=True):
+        xml = etree.Element('extraports')
+        if None != d.get('state', None):
+            xml.attrib['state'] = d.get('state', None)
+        if None != d.get('count', None):
+            xml.attrib['count'] = str(d.get('count', None))
+
+        if None != d.get('reasons', None):
+            for hop_dict in d['reasons']:
+                xml.append(ExtraReason.dict_to_xml(hop_dict))
+
+        if validate_xml:
+            try:
+                validate(xml)
+            except NmapXMLParserException:
+                raise NmapDictParserException()
+
+        return xml
+
+    @staticmethod
+    def from_dict(d):
+        try:
+            return ExtraPort(ExtraPort.dict_to_xml(d, False))
+        except NmapXMLParserException:
+            raise NmapDictParserException()
 
     def equals(self, other):
         return isinstance(other, ExtraPort) \

@@ -29,19 +29,62 @@
 
 import logging
 
+from lxml import etree
+
 from nmap_scan.CompareHelper import compare_lists_equal, compare_lists
+from nmap_scan.Exceptions.NmapDictParserException import NmapDictParserException
+from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
 from nmap_scan.OS.OSMatch import OSMatch
 from nmap_scan.OS.OSUsedPort import OSUsedPort
+from nmap_scan.Validator import validate
 
 
 class OS:
 
     def __init__(self, xml):
+        validate(xml)
         self.__xml = xml
         self.__used_ports = []
         self.__os_matches = []
         self.__os_fingerprints = []
         self.__parse_xml()
+
+    def __iter__(self):
+        yield "portused", [dict(e) for e in self.__used_ports]
+        yield "osmatch", [dict(e) for e in self.__os_matches]
+        yield "osfingerprint", self.__os_fingerprints
+
+    @staticmethod
+    def dict_to_xml(d, validate_xml=True):
+        xml = etree.Element('os')
+
+        if None != d.get('portused', None):
+            for portused_dict in d['portused']:
+                xml.append(OSUsedPort.dict_to_xml(portused_dict, validate_xml))
+        if None != d.get('osmatch', None):
+            for osmatch_dict in d['osmatch']:
+                xml.append(OSMatch.dict_to_xml(osmatch_dict, validate_xml))
+
+        if None != d.get('osfingerprint', None):
+            for osfingerprint in d['osfingerprint']:
+                cpe_xml = etree.Element('osfingerprint')
+                cpe_xml.attrib['fingerprint'] = osfingerprint
+                xml.append(cpe_xml)
+
+        if validate_xml:
+            try:
+                validate(xml)
+            except NmapXMLParserException:
+                raise NmapDictParserException()
+
+        return xml
+
+    @staticmethod
+    def from_dict(d):
+        try:
+            return OS(OS.dict_to_xml(d, False))
+        except NmapXMLParserException:
+            raise NmapDictParserException()
 
     def equals(self, other):
         return isinstance(other, OS) \

@@ -1,5 +1,6 @@
 import pytest
 
+from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
 from nmap_scan.Stats.ExtraPort import ExtraPort
 from nmap_scan.Stats.ExtraReason import ExtraReason
 from tests.BaseXMLTest import BaseXMLTest
@@ -13,6 +14,9 @@ class TestExtraPort(BaseXMLTest):
 
     def get_all_files(self):
         return ['testdata/Stats/ExtraPort-' + str(i) + '.xml' for i in range(1, 3)]
+
+    def get_all_invalid_files(self):
+        return ['testdata/Stats/ExtraPort-' + str(i) + '.xml' for i in range(3, 5)]
 
     @pytest.mark.parametrize(("filepath", "expected"), [
         ('testdata/Stats/ExtraPort-1.xml', 'state'),
@@ -60,19 +64,17 @@ class TestExtraPort(BaseXMLTest):
     @pytest.mark.xml
     @pytest.mark.parametrize("filepath", ['testdata/Stats/ExtraPort-3.xml'])
     def test_error_on_missing_count(self, filepath):
-        with pytest.raises(KeyError) as excinfo:
+        with pytest.raises(NmapXMLParserException) as excinfo:
             xml = self.create_xml(filepath)
             e = self.create_instance(xml)
-        assert "count" in str(excinfo.value)
 
     @pytest.mark.invalidXML
     @pytest.mark.xml
     @pytest.mark.parametrize("filepath", ['testdata/Stats/ExtraPort-4.xml'])
     def test_error_on_missing_state(self, filepath):
-        with pytest.raises(KeyError) as excinfo:
+        with pytest.raises(NmapXMLParserException) as excinfo:
             xml = self.create_xml(filepath)
             e = self.create_instance(xml)
-        assert "state" in str(excinfo.value)
 
     @pytest.mark.parametrize(("filepath1", "filepath2", "expected"), [
         ('testdata/Stats/ExtraPort-1.xml', 'testdata/Stats/ExtraPort-1.xml', True),

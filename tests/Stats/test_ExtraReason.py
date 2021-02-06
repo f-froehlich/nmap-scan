@@ -1,5 +1,6 @@
 import pytest
 
+from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
 from nmap_scan.Stats.ExtraReason import ExtraReason
 from tests.BaseXMLTest import BaseXMLTest
 
@@ -12,6 +13,9 @@ class TestExtraReason(BaseXMLTest):
 
     def get_all_files(self):
         return ['testdata/Stats/ExtraReason-' + str(i) + '.xml' for i in range(1, 3)]
+
+    def get_all_invalid_files(self):
+        return ['testdata/Stats/ExtraReason-' + str(i) + '.xml' for i in range(3, 5)]
 
     @pytest.mark.parametrize(("filepath", "expected"), [
         ('testdata/Stats/ExtraReason-1.xml', 'reason'),
@@ -32,7 +36,7 @@ class TestExtraReason(BaseXMLTest):
         assert expected == e.get_count()
 
     @pytest.mark.parametrize(("filepath", "expected"), [
-        ('testdata/Stats/ExtraReason-6.xml', 'proto'),
+        ('testdata/Stats/ExtraReason-6.xml', 'ip'),
     ])
     def test_proto(self, filepath, expected):
         xml = self.create_xml(filepath)
@@ -51,19 +55,17 @@ class TestExtraReason(BaseXMLTest):
     @pytest.mark.xml
     @pytest.mark.parametrize("filepath", ['testdata/Stats/ExtraReason-3.xml'])
     def test_error_on_missing_count(self, filepath):
-        with pytest.raises(KeyError) as excinfo:
+        with pytest.raises(NmapXMLParserException) as excinfo:
             xml = self.create_xml(filepath)
             e = self.create_instance(xml)
-        assert "count" in str(excinfo.value)
 
     @pytest.mark.invalidXML
     @pytest.mark.xml
     @pytest.mark.parametrize("filepath", ['testdata/Stats/ExtraReason-4.xml'])
     def test_error_on_missing_reason(self, filepath):
-        with pytest.raises(KeyError) as excinfo:
+        with pytest.raises(NmapXMLParserException) as excinfo:
             xml = self.create_xml(filepath)
             e = self.create_instance(xml)
-        assert "reason" in str(excinfo.value)
 
     @pytest.mark.parametrize(("filepath1", "filepath2", "expected"), [
         ('testdata/Stats/ExtraReason-1.xml', 'testdata/Stats/ExtraReason-2.xml', False),

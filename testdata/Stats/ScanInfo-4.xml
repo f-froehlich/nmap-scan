@@ -1,1 +1,1 @@
-<scaninfo type="type" protocol="tcp" services="services"/>
+<scaninfo type="bounce" protocol="tcp" services="services"/>

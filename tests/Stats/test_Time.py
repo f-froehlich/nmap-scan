@@ -1,5 +1,6 @@
 import pytest
 
+from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
 from nmap_scan.Stats.Time import Time
 from tests.BaseXMLTest import BaseXMLTest
 
@@ -12,6 +13,9 @@ class TestTime(BaseXMLTest):
 
     def get_all_files(self):
         return ['testdata/Stats/Time-' + str(i) + '.xml' for i in range(1, 3)]
+
+    def get_all_invalid_files(self):
+        return ['testdata/Stats/Time-' + str(i) + '.xml' for i in range(3, 6)]
 
     @pytest.mark.parametrize(("filepath", "expected"), [
         ('testdata/Stats/Time-1.xml', "srtt"),
@@ -44,28 +48,25 @@ class TestTime(BaseXMLTest):
     @pytest.mark.xml
     @pytest.mark.parametrize("filepath", ['testdata/Stats/Time-3.xml'])
     def test_error_on_missing_to(self, filepath):
-        with pytest.raises(KeyError) as excinfo:
+        with pytest.raises(NmapXMLParserException) as excinfo:
             xml = self.create_xml(filepath)
             e = self.create_instance(xml)
-        assert "to" in str(excinfo.value)
 
     @pytest.mark.invalidXML
     @pytest.mark.xml
     @pytest.mark.parametrize("filepath", ['testdata/Stats/Time-4.xml'])
     def test_error_on_missing_rttvar(self, filepath):
-        with pytest.raises(KeyError) as excinfo:
+        with pytest.raises(NmapXMLParserException) as excinfo:
             xml = self.create_xml(filepath)
             e = self.create_instance(xml)
-        assert "rttvar" in str(excinfo.value)
 
     @pytest.mark.invalidXML
     @pytest.mark.xml
     @pytest.mark.parametrize("filepath", ['testdata/Stats/Time-5.xml'])
     def test_error_on_missing_srtt(self, filepath):
-        with pytest.raises(KeyError) as excinfo:
+        with pytest.raises(NmapXMLParserException) as excinfo:
             xml = self.create_xml(filepath)
             e = self.create_instance(xml)
-        assert "srtt" in str(excinfo.value)
 
     @pytest.mark.parametrize(("filepath1", "filepath2", "expected"), [
         ('testdata/Stats/Time-1.xml', 'testdata/Stats/Time-2.xml', False),

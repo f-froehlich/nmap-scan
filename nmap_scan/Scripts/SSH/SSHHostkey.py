@@ -31,13 +31,14 @@ import logging
 
 from nmap_scan.CompareHelper import compare_lists_equal
 from nmap_scan.Scripts.Script import Script
+from nmap_scan.Validator import validate
 
 
 class SSHHostkey(Script):
 
     def __init__(self, xml):
-        Script.__init__(self, xml)
         self.__xml = xml
+        Script.__init__(self, xml)
         self.__keys = []
         self.__parse_xml()
 
@@ -63,6 +64,7 @@ class SSHHostkey(Script):
 class Key:
 
     def __init__(self, xml):
+        validate(xml)
         self.__xml = xml
         self.__bits = None
         self.__key = None

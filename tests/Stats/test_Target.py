@@ -1,5 +1,6 @@
 import pytest
 
+from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
 from nmap_scan.Stats.Target import Target
 from tests.BaseXMLTest import BaseXMLTest
 
@@ -12,6 +13,9 @@ class TestTarget(BaseXMLTest):
 
     def get_all_files(self):
         return ['testdata/Stats/Target-' + str(i) + '.xml' for i in range(1, 3)]
+
+    def get_all_invalid_files(self):
+        return ['testdata/Stats/Target-' + str(i) + '.xml' for i in range(3, 4)]
 
     @pytest.mark.parametrize(("filepath", "expected"), [
         ('testdata/Stats/Target-1.xml', 'specification'),
@@ -44,10 +48,9 @@ class TestTarget(BaseXMLTest):
     @pytest.mark.xml
     @pytest.mark.parametrize("filepath", ['testdata/Stats/Target-3.xml'])
     def test_error_on_missing_time(self, filepath):
-        with pytest.raises(KeyError) as excinfo:
+        with pytest.raises(NmapXMLParserException) as excinfo:
             xml = self.create_xml(filepath)
             e = self.create_instance(xml)
-        assert "specification" in str(excinfo.value)
 
     @pytest.mark.parametrize(("filepath1", "filepath2", "expected"), [
         ('testdata/Stats/Target-1.xml', 'testdata/Stats/Target-2.xml', False),

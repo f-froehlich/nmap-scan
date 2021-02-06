@@ -29,15 +29,52 @@
 
 import logging
 
+from lxml import etree
+
+from nmap_scan.Exceptions.NmapDictParserException import NmapDictParserException
+from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
+from nmap_scan.Validator import validate
+
 
 class OSUsedPort:
 
     def __init__(self, xml):
+        validate(xml)
         self.__xml = xml
         self.__state = None
         self.__proto = None
         self.__port = None
         self.__parse_xml()
+
+    def __iter__(self):
+        yield "state", self.__state
+        yield "proto", self.__proto
+        yield "port", self.__port
+
+    @staticmethod
+    def dict_to_xml(d, validate_xml=True):
+        xml = etree.Element('portused')
+        if None != d.get('state', None):
+            xml.attrib['state'] = d.get('state', None)
+        if None != d.get('proto', None):
+            xml.attrib['proto'] = d.get('proto', None)
+        if None != d.get('port', None):
+            xml.attrib['portid'] = str(d.get('port', None))
+
+        if validate_xml:
+            try:
+                validate(xml)
+            except NmapXMLParserException:
+                raise NmapDictParserException()
+
+        return xml
+
+    @staticmethod
+    def from_dict(d):
+        try:
+            return OSUsedPort(OSUsedPort.dict_to_xml(d, False))
+        except NmapXMLParserException:
+            raise NmapDictParserException()
 
     def equals(self, other):
         return isinstance(other, OSUsedPort) \

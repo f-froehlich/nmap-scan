@@ -1,5 +1,6 @@
 import pytest
 
+from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
 from nmap_scan.OS.OSUsedPort import OSUsedPort
 from tests.BaseXMLTest import BaseXMLTest
 
@@ -12,6 +13,9 @@ class TestOSUsedPort(BaseXMLTest):
 
     def get_all_files(self):
         return ['testdata/OS/OSUsedPort-' + str(i) + '.xml' for i in range(1, 3)]
+
+    def get_all_invalid_files(self):
+        return ['testdata/OS/OSUsedPort-' + str(i) + '.xml' for i in range(3, 5)]
 
     @pytest.mark.parametrize(("filepath", "expected"), [
         ('testdata/OS/OSUsedPort-1.xml', 'up'),
@@ -48,10 +52,9 @@ class TestOSUsedPort(BaseXMLTest):
         ('testdata/OS/OSUsedPort-5.xml', 'state'),
     ])
     def test_error_on_missing_required_param(self, filepath, expected_error):
-        with pytest.raises(KeyError) as excinfo:
+        with pytest.raises(NmapXMLParserException) as excinfo:
             xml = self.create_xml(filepath)
             e = self.create_instance(xml)
-        assert expected_error in str(excinfo.value)
 
     @pytest.mark.parametrize(("filepath1", "filepath2", "expected"), [
         ('testdata/OS/OSUsedPort-1.xml', 'testdata/OS/OSUsedPort-1.xml', True),

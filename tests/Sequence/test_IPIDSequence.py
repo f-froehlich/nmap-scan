@@ -1,5 +1,6 @@
 import pytest
 
+from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
 from nmap_scan.Sequence.IPIDSequence import IPIDSequence
 from tests.BaseXMLTest import BaseXMLTest
 
@@ -12,6 +13,9 @@ class TestIPIDSequence(BaseXMLTest):
 
     def get_all_files(self):
         return ['testdata/Sequence/IPIDSequence-' + str(i) + '.xml' for i in range(1, 3)]
+
+    def get_all_invalid_files(self):
+        return ['testdata/Sequence/IPIDSequence-3.xml']
 
     @pytest.mark.parametrize(("filepath", "expected"), [
         ('testdata/Sequence/IPIDSequence-1.xml', 'class'),
@@ -35,19 +39,17 @@ class TestIPIDSequence(BaseXMLTest):
     @pytest.mark.xml
     @pytest.mark.parametrize("filepath", ['testdata/Sequence/IPIDSequence-3.xml'])
     def test_error_on_missing_values(self, filepath):
-        with pytest.raises(KeyError) as excinfo:
+        with pytest.raises(NmapXMLParserException) as excinfo:
             xml = self.create_xml(filepath)
             e = self.create_instance(xml)
-        assert "values" in str(excinfo.value)
 
     @pytest.mark.invalidXML
     @pytest.mark.xml
     @pytest.mark.parametrize("filepath", ['testdata/Sequence/IPIDSequence-4.xml'])
     def test_error_on_missing_difficulty(self, filepath):
-        with pytest.raises(KeyError) as excinfo:
+        with pytest.raises(NmapXMLParserException) as excinfo:
             xml = self.create_xml(filepath)
             e = self.create_instance(xml)
-        assert "class" in str(excinfo.value)
 
     @pytest.mark.parametrize(("filepath1", "filepath2", "expected"), [
         ('testdata/Sequence/IPIDSequence-1.xml', 'testdata/Sequence/IPIDSequence-2.xml', False),

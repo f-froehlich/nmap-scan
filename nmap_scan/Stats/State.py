@@ -28,15 +28,54 @@
 
 import logging
 
+from lxml import etree
+
+from nmap_scan.Exceptions.NmapDictParserException import NmapDictParserException
+from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
 from nmap_scan.Stats.Status import Status
+from nmap_scan.Validator import validate
 
 
 class State(Status):
 
     def __init__(self, xml):
+        validate(xml)
         Status.__init__(self, xml)
         self.__reason_ip = None
         self.__parse_xml()
+
+    def __iter__(self):
+        yield "state", self.get_state()
+        yield "reason", self.get_reason()
+        yield "reason_ttl", self.get_reason_ttl()
+        yield "reason_ip", self.__reason_ip
+
+    @staticmethod
+    def dict_to_xml(d, validate_xml=True):
+        xml = etree.Element('state')
+        if None != d.get('state', None):
+            xml.attrib['state'] = d.get('state', None)
+        if None != d.get('reason', None):
+            xml.attrib['reason'] = d.get('reason', None)
+        if None != d.get('reason_ttl', None):
+            xml.attrib['reason_ttl'] = str(d.get('reason_ttl', None))
+        if None != d.get('reason_ip', None):
+            xml.attrib['reason_ip'] = d.get('reason_ip', None)
+
+        if validate_xml:
+            try:
+                validate(xml)
+            except NmapXMLParserException:
+                raise NmapDictParserException()
+
+        return xml
+
+    @staticmethod
+    def from_dict(d):
+        try:
+            return State(State.dict_to_xml(d, False))
+        except NmapXMLParserException:
+            raise NmapDictParserException()
 
     def equals(self, other):
         return isinstance(other, State) \

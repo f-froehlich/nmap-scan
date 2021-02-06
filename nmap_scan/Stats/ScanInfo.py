@@ -29,10 +29,17 @@
 
 import logging
 
+from lxml import etree
+
+from nmap_scan.Exceptions.NmapDictParserException import NmapDictParserException
+from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
+from nmap_scan.Validator import validate
+
 
 class ScanInfo:
 
     def __init__(self, xml):
+        validate(xml)
         self.__xml = xml
         self.__type = None
         self.__protocol = None
@@ -40,6 +47,42 @@ class ScanInfo:
         self.__num_services = None
         self.__services = None
         self.__parse_xml()
+
+    def __iter__(self):
+        yield "type", self.__type
+        yield "protocol", self.__protocol
+        yield "scan_flags", self.__scan_flags
+        yield "num_services", self.__num_services
+        yield "services", self.__services
+
+    @staticmethod
+    def dict_to_xml(d, validate_xml=True):
+        xml = etree.Element('scaninfo')
+        if None != d.get('type', None):
+            xml.attrib['type'] = d.get('type', None)
+        if None != d.get('protocol', None):
+            xml.attrib['protocol'] = d.get('protocol', None)
+        if None != d.get('scan_flags', None):
+            xml.attrib['scanflags'] = d.get('scan_flags', None)
+        if None != d.get('num_services', None):
+            xml.attrib['numservices'] = str(d.get('num_services', None))
+        if None != d.get('services', None):
+            xml.attrib['services'] = d.get('services', None)
+
+        if validate_xml:
+            try:
+                validate(xml)
+            except NmapXMLParserException:
+                raise NmapDictParserException()
+
+        return xml
+
+    @staticmethod
+    def from_dict(d):
+        try:
+            return ScanInfo(ScanInfo.dict_to_xml(d, False))
+        except NmapXMLParserException:
+            raise NmapDictParserException()
 
     def equals(self, other):
         return isinstance(other, ScanInfo) \

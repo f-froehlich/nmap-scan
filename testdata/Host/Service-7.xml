@@ -1,6 +1,6 @@
 <service
         name="name2"
-        conf="conf"
-        method="method"
+        conf="10"
+        method="probed"
 >
 </service>

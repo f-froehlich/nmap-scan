@@ -19,6 +19,9 @@ class TestHost(BaseXMLTest):
     def get_all_files(self):
         return ['testdata/Host/Host-' + str(i) + '.xml' for i in range(1, 3)]
 
+    def get_all_invalid_files(self):
+        return ['testdata/Host/Host-5.xml']
+
     @pytest.mark.parametrize(("filepath", "expected"), [
         ('testdata/Host/Host-1.xml', 'testdata/Stats/Status-1.xml'),
     ])

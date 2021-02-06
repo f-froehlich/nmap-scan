@@ -29,10 +29,17 @@
 
 import logging
 
+from lxml import etree
+
+from nmap_scan.Exceptions.NmapDictParserException import NmapDictParserException
+from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
+from nmap_scan.Validator import validate
+
 
 class RunStats:
 
     def __init__(self, xml):
+        validate(xml)
         self.__xml = xml
         self.__time = None
         self.__time_str = None
@@ -44,6 +51,60 @@ class RunStats:
         self.__down = None
         self.__total = None
         self.__parse_xml()
+
+    def __iter__(self):
+        yield "time", self.__time
+        yield "time_str", self.__time_str
+        yield "summary", self.__summary
+        yield "elapsed", self.__elapsed
+        yield "exit", self.__exit
+        yield "errormsg", self.__errormsg
+        yield "up", self.__up
+        yield "down", self.__down
+        yield "total", self.__total
+
+    @staticmethod
+    def dict_to_xml(d, validate_xml=True):
+        xml = etree.Element('runstats')
+        xml_finished = etree.Element('finished')
+        xml_hosts = etree.Element('hosts')
+        if None != d.get('time', None):
+            xml_finished.attrib['time'] = str(d.get('time', None))
+        if None != d.get('time_str', None):
+            xml_finished.attrib['timestr'] = d.get('time_str', None)
+        if None != d.get('elapsed', None):
+            xml_finished.attrib['elapsed'] = str(d.get('elapsed', None))
+        if None != d.get('summary', None):
+            xml_finished.attrib['summary'] = d.get('summary', None)
+        if None != d.get('exit', None):
+            xml_finished.attrib['exit'] = d.get('exit', None)
+        if None != d.get('errormsg', None):
+            xml_finished.attrib['errormsg'] = d.get('errormsg', None)
+
+        if None != d.get('total', None):
+            xml_hosts.attrib['total'] = str(d.get('total', None))
+        if None != d.get('down', None):
+            xml_hosts.attrib['down'] = str(d.get('down', None))
+        if None != d.get('up', None):
+            xml_hosts.attrib['up'] = str(d.get('up', None))
+
+        xml.append(xml_finished)
+        xml.append(xml_hosts)
+
+        if validate_xml:
+            try:
+                validate(xml)
+            except NmapXMLParserException:
+                raise NmapDictParserException()
+
+        return xml
+
+    @staticmethod
+    def from_dict(d):
+        try:
+            return RunStats(RunStats.dict_to_xml(d, False))
+        except NmapXMLParserException:
+            raise NmapDictParserException()
 
     def equals(self, other):
         return isinstance(other, RunStats) \

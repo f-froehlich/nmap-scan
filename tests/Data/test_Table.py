@@ -15,6 +15,9 @@ class TestTable(BaseXMLTest):
         return ['testdata/Data/Table-1.xml', 'testdata/Data/Table-2.xml', 'testdata/Data/Table-3.xml',
                 'testdata/Data/Table-4.xml', 'testdata/Data/Table-5.xml']
 
+    def get_all_invalid_files(self):
+        return ['testdata/Data/Table-9.xml']
+
     @pytest.mark.parametrize("filepath",
                              ['testdata/Data/Table-1.xml', 'testdata/Data/Table-2.xml', 'testdata/Data/Table-3.xml',
                               'testdata/Data/Table-5.xml'])
@@ -145,3 +148,13 @@ class TestTable(BaseXMLTest):
         e2 = self.create_instance(xml2)
 
         assert expected == e1.equals(e2)
+
+    @pytest.mark.invalidXML
+    @pytest.mark.xml
+    def test_error_on_from_dict(self):
+        pass
+
+    @pytest.mark.invalidXML
+    @pytest.mark.xml
+    def test_error_on_dict_to_xml(self):
+        pass

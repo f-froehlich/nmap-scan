@@ -29,15 +29,52 @@
 
 import logging
 
+from lxml import etree
+
+from nmap_scan.Exceptions.NmapDictParserException import NmapDictParserException
+from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
+from nmap_scan.Validator import validate
+
 
 class TCPSequence:
 
     def __init__(self, xml):
+        validate(xml)
         self.__xml = xml
         self.__index = None
         self.__difficulty = None
         self.__values = None
         self.__parse_xml()
+
+    def __iter__(self):
+        yield "index", self.__index
+        yield "difficulty", self.__difficulty
+        yield "values", self.__values
+
+    @staticmethod
+    def dict_to_xml(d, validate_xml=True):
+        xml = etree.Element('tcpsequence')
+        if None != d.get('index', None):
+            xml.attrib['index'] = str(d.get('index', None))
+        if None != d.get('values', None):
+            xml.attrib['values'] = d.get('values', None)
+        if None != d.get('difficulty', None):
+            xml.attrib['difficulty'] = d.get('difficulty', None)
+
+        if validate_xml:
+            try:
+                validate(xml)
+            except NmapXMLParserException:
+                raise NmapDictParserException()
+
+        return xml
+
+    @staticmethod
+    def from_dict(d):
+        try:
+            return TCPSequence(TCPSequence.dict_to_xml(d, False))
+        except NmapXMLParserException:
+            raise NmapDictParserException()
 
     def equals(self, other):
         return isinstance(other, TCPSequence) \

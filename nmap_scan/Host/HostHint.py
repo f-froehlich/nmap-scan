@@ -29,20 +29,61 @@
 
 import logging
 
+from lxml import etree
+
 from nmap_scan.CompareHelper import compare_lists_equal
+from nmap_scan.Exceptions.NmapDictParserException import NmapDictParserException
+from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
 from nmap_scan.Host.HostAddress import HostAddress
 from nmap_scan.Host.HostName import HostName
 from nmap_scan.Stats.Status import Status
+from nmap_scan.Validator import validate
 
 
 class HostHint:
 
     def __init__(self, xml):
+        validate(xml)
         self.__xml = xml
         self.__statuses = []
         self.__addresses = []
         self.__hostnames = []
         self.__parse_xml()
+
+    def __iter__(self):
+        yield "statuses", [dict(e) for e in self.__statuses]
+        yield "addresses", [dict(e) for e in self.__addresses]
+        yield "hostnames", [dict(e) for e in self.__hostnames]
+
+    @staticmethod
+    def dict_to_xml(d, validate_xml=True):
+        xml = etree.Element('hosthint')
+        if None != d.get('statuses', None):
+            for status_dict in d['statuses']:
+                xml.append(Status.dict_to_xml(status_dict, validate_xml))
+        if None != d.get('addresses', None):
+            for address_dict in d['addresses']:
+                xml.append(HostAddress.dict_to_xml(address_dict, validate_xml))
+        if None != d.get('hostnames', None):
+            hostnames_xml = etree.Element('hostnames')
+            for hostname_dict in d['hostnames']:
+                hostnames_xml.append(HostName.dict_to_xml(hostname_dict, validate_xml))
+            xml.append(hostnames_xml)
+
+        if validate_xml:
+            try:
+                validate(xml)
+            except NmapXMLParserException:
+                raise NmapDictParserException()
+
+        return xml
+
+    @staticmethod
+    def from_dict(d):
+        try:
+            return HostHint(HostHint.dict_to_xml(d, False))
+        except NmapXMLParserException:
+            raise NmapDictParserException()
 
     def equals(self, other):
         return isinstance(other, HostHint) \

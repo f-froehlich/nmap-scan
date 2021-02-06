@@ -25,11 +25,14 @@
 #
 #  Checkout this project on github <https://github.com/f-froehlich/nmap-scan>
 #  and also my other projects <https://github.com/f-froehlich>
+import json
 import logging
 from xml.etree.ElementTree import ElementTree
 
 from lxml import etree
 
+from nmap_scan.Exceptions.NmapDictParserException import NmapDictParserException
+from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
 from nmap_scan.Report.Report import Report
 
 
@@ -51,5 +54,15 @@ class UDPReport(Report):
         return UDPReport(xml)
 
     @staticmethod
+    def from_dict(d):
+        try:
+            return UDPReport(UDPReport.dict_to_xml(d, False))
+        except NmapXMLParserException:
+            raise NmapDictParserException()
+
+    @staticmethod
     def from_json_file(filepath):
-        return UDPReport(Report._parse_json_file(filepath))
+        with open(filepath, "r", encoding='utf-8') as json_file:
+            data = json.load(json_file)
+
+        return UDPReport(UDPReport.dict_to_xml(data))

@@ -1,5 +1,6 @@
 import pytest
 
+from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
 from nmap_scan.Host.Service import Service
 from tests.BaseXMLTest import BaseXMLTest
 
@@ -13,6 +14,9 @@ class TestService(BaseXMLTest):
     def get_all_files(self):
         return ['testdata/Host/Service-' + str(i) + '.xml' for i in range(1, 3)]
 
+    def get_all_invalid_files(self):
+        return ['testdata/Host/Service-8.xml']
+
     @pytest.mark.parametrize(("filepath", "expected"), [
         ('testdata/Host/Service-1.xml', 'name'),
         ('testdata/Host/Service-2.xml', 'name'),
@@ -24,8 +28,8 @@ class TestService(BaseXMLTest):
         assert expected == e.get_name()
 
     @pytest.mark.parametrize(("filepath", "expected"), [
-        ('testdata/Host/Service-1.xml', 'conf'),
-        ('testdata/Host/Service-2.xml', 'conf'),
+        ('testdata/Host/Service-1.xml', '10'),
+        ('testdata/Host/Service-2.xml', '10'),
         ('testdata/Host/Service-3.xml', '10'),
     ])
     def test_conf(self, filepath, expected):
@@ -104,8 +108,8 @@ class TestService(BaseXMLTest):
         assert expected == e.get_rpc_num()
 
     @pytest.mark.parametrize(("filepath", "expected"), [
-        ('testdata/Host/Service-1.xml', 'proto'),
-        ('testdata/Host/Service-2.xml', 'proto'),
+        ('testdata/Host/Service-1.xml', 'rpc'),
+        ('testdata/Host/Service-2.xml', 'rpc'),
         ('testdata/Host/Service-3.xml', None),
     ])
     def test_proto(self, filepath, expected):
@@ -114,8 +118,8 @@ class TestService(BaseXMLTest):
         assert expected == e.get_proto()
 
     @pytest.mark.parametrize(("filepath", "expected"), [
-        ('testdata/Host/Service-1.xml', 'tunnel'),
-        ('testdata/Host/Service-2.xml', 'tunnel'),
+        ('testdata/Host/Service-1.xml', 'ssl'),
+        ('testdata/Host/Service-2.xml', 'ssl'),
         ('testdata/Host/Service-3.xml', None),
     ])
     def test_tunnel(self, filepath, expected):
@@ -154,8 +158,8 @@ class TestService(BaseXMLTest):
         assert expected == e.get_version()
 
     @pytest.mark.parametrize(("filepath", "expected"), [
-        ('testdata/Host/Service-1.xml', 'method'),
-        ('testdata/Host/Service-2.xml', 'method'),
+        ('testdata/Host/Service-1.xml', 'probed'),
+        ('testdata/Host/Service-2.xml', 'probed'),
         ('testdata/Host/Service-3.xml', 'table'),
     ])
     def test_method(self, filepath, expected):
@@ -187,10 +191,9 @@ class TestService(BaseXMLTest):
         ('testdata/Host/Service-6.xml', 'name'),
     ])
     def test_error_on_missing_required_param(self, filepath, expected_error):
-        with pytest.raises(KeyError) as excinfo:
+        with pytest.raises(NmapXMLParserException) as excinfo:
             xml = self.create_xml(filepath)
             e = self.create_instance(xml)
-        assert expected_error in str(excinfo.value)
 
     @pytest.mark.parametrize(("filepath1", "filepath2", "expected"), [
         ('testdata/Host/Service-1.xml', 'testdata/Host/Service-1.xml', True),

@@ -14,6 +14,9 @@ class TestSSLEnumCiphersCipher(BaseXMLTest):
         return ['testdata/Scripts/SSLEnumCiphers/Cipher-1.xml', 'testdata/Scripts/SSLEnumCiphers/Cipher-2.xml',
                 'testdata/Scripts/SSLEnumCiphers/Cipher-3.xml']
 
+    def get_all_invalid_files(self):
+        return ['testdata/Scripts/InvalidScript-1.xml']
+
     @pytest.mark.parametrize(("filepath", "expected"), [('testdata/Scripts/SSLEnumCiphers/Cipher-1.xml', 'Name'),
                                                         ('testdata/Scripts/SSLEnumCiphers/Cipher-2.xml', 'Name2'),
                                                         ('testdata/Scripts/SSLEnumCiphers/Cipher-3.xml', None)])

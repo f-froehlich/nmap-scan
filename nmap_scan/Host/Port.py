@@ -29,15 +29,22 @@
 
 import logging
 
+from lxml import etree
+
 from nmap_scan.CompareHelper import compare_script_maps
+from nmap_scan.Exceptions.NmapDictParserException import NmapDictParserException
+from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
 from nmap_scan.Host.Service import Service
+from nmap_scan.Scripts.Script import Script
 from nmap_scan.Scripts.ScriptParser import parse
 from nmap_scan.Stats.State import State
+from nmap_scan.Validator import validate
 
 
 class Port:
 
     def __init__(self, xml):
+        validate(xml)
         self.__xml = xml
         self.__protocol = None
         self.__port = None
@@ -46,6 +53,62 @@ class Port:
         self.__service = None
         self.__scripts = {}
         self.__parse_xml()
+
+    def __iter__(self):
+        yield "protocol", self.__protocol
+        yield "port", self.__port
+        yield "state", dict(self.__state)
+        yield "owner", self.__owner
+        yield "service", dict(self.__service)
+
+        scripts = []
+        for id in self.__scripts:
+            script = self.__scripts[id]
+            if isinstance(script, Script):
+                scripts.append(dict(script))
+            elif isinstance(script, list):
+                for s in script:
+                    scripts.append(dict(s))
+
+        yield "scripts", scripts
+
+    @staticmethod
+    def dict_to_xml(d, validate_xml=True):
+        xml = etree.Element('port')
+        if None != d.get('protocol', None):
+            xml.attrib['protocol'] = d.get('protocol', None)
+        if None != d.get('port', None):
+            xml.attrib['portid'] = str(d.get('port', None))
+
+        if None != d.get('state', None):
+            xml.append(State.dict_to_xml(d['state'], validate_xml))
+
+        if None != d.get('owner', None):
+            owner_xml = etree.Element('owner')
+            owner_xml.attrib['name'] = d.get('owner', None)
+            xml.append(owner_xml)
+
+        if None != d.get('service', None):
+            xml.append(Service.dict_to_xml(d['service'], validate_xml))
+
+        if None != d.get('scripts', None):
+            for script_dict in d['scripts']:
+                xml.append(Script.dict_to_xml(script_dict, validate_xml))
+
+        if validate_xml:
+            try:
+                validate(xml)
+            except NmapXMLParserException:
+                raise NmapDictParserException()
+
+        return xml
+
+    @staticmethod
+    def from_dict(d):
+        try:
+            return Port(Port.dict_to_xml(d, False))
+        except NmapXMLParserException:
+            raise NmapDictParserException()
 
     def equals(self, other):
         return isinstance(other, Port) \

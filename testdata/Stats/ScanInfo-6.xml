@@ -1,1 +1,1 @@
-<scaninfo protocol="tcp" numservices="10" services="services"/>
+<scaninfo protocol="bounce" numservices="10" services="services"/>

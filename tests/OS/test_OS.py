@@ -13,6 +13,9 @@ class TestOS(BaseXMLTest):
     def get_all_files(self):
         return ['testdata/OS/OS-' + str(i) + '.xml' for i in range(1, 7)]
 
+    def get_all_invalid_files(self):
+        return ['testdata/OS/OS-7.xml']
+
     @pytest.mark.parametrize(("filepath1", "filepath2", "expected"), [
         ('testdata/OS/OS-1.xml', 'testdata/OS/OS-1.xml', True),
         ('testdata/OS/OS-1.xml', 'testdata/OS/OS-2.xml', False),
@@ -64,3 +67,13 @@ class TestOS(BaseXMLTest):
         e1 = self.create_instance(xml1)
 
         assert not e1.equals('foo')
+
+    @pytest.mark.invalidXML
+    @pytest.mark.xml
+    def test_error_on_from_dict(self):
+        pass
+
+    @pytest.mark.invalidXML
+    @pytest.mark.xml
+    def test_error_on_dict_to_xml(self):
+        pass

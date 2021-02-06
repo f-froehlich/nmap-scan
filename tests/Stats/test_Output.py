@@ -13,9 +13,12 @@ class TestOutput(BaseXMLTest):
     def get_all_files(self):
         return ['testdata/Stats/Output-' + str(i) + '.xml' for i in range(1, 3)]
 
+    def get_all_invalid_files(self):
+        return ['testdata/Stats/Output-' + str(i) + '.xml' for i in range(3, 4)]
+
     @pytest.mark.parametrize(("filepath", "expected"), [
         ('testdata/Stats/Output-1.xml', 'interactive'),
-        ('testdata/Stats/Output-2.xml', 'bar'),
+        ('testdata/Stats/Output-2.xml', 'interactive'),
     ])
     def test_type(self, filepath, expected):
         xml = self.create_xml(filepath)
@@ -44,3 +47,13 @@ class TestOutput(BaseXMLTest):
         e2 = self.create_instance(xml2)
 
         assert expected == e1.equals(e2)
+
+    @pytest.mark.invalidXML
+    @pytest.mark.xml
+    def test_error_on_from_dict(self):
+        pass
+
+    @pytest.mark.invalidXML
+    @pytest.mark.xml
+    def test_error_on_dict_to_xml(self):
+        pass

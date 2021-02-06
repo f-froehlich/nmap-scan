@@ -29,12 +29,18 @@
 
 import logging
 
+from lxml import etree
+
 from nmap_scan.CompareHelper import compare_lists
+from nmap_scan.Exceptions.NmapDictParserException import NmapDictParserException
+from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
+from nmap_scan.Validator import validate
 
 
 class Service:
 
     def __init__(self, xml):
+        validate(xml)
         self.__xml = xml
         self.__name = None
         self.__conf = None
@@ -53,6 +59,81 @@ class Service:
         self.__servicefp = None
         self.__cpes = []
         self.__parse_xml()
+
+    def __iter__(self):
+        yield "name", self.__name
+        yield "conf", self.__conf
+        yield "method", self.__method
+        yield "version", self.__version
+        yield "product", self.__product
+        yield "extrainfo", self.__extrainfo
+        yield "tunnel", self.__tunnel
+        yield "proto", self.__proto
+        yield "rpcnum", self.__rpcnum
+        yield "lowver", self.__lowver
+        yield "highver", self.__highver
+        yield "hostname", self.__hostname
+        yield "ostype", self.__ostype
+        yield "devicetype", self.__devicetype
+        yield "servicefp", self.__servicefp
+        yield "cpes", self.__cpes
+
+    @staticmethod
+    def dict_to_xml(d, validate_xml=True):
+        xml = etree.Element('service')
+
+        if None != d.get('name', None):
+            xml.attrib['name'] = d['name']
+        if None != d.get('conf', None):
+            xml.attrib['conf'] = str(d['conf'])
+        if None != d.get('method', None):
+            xml.attrib['method'] = d['method']
+        if None != d.get('version', None):
+            xml.attrib['version'] = str(d['version'])
+        if None != d.get('product', None):
+            xml.attrib['product'] = d['product']
+        if None != d.get('extrainfo', None):
+            xml.attrib['extrainfo'] = d['extrainfo']
+        if None != d.get('tunnel', None):
+            xml.attrib['tunnel'] = d['tunnel']
+        if None != d.get('proto', None):
+            xml.attrib['proto'] = d['proto']
+        if None != d.get('rpcnum', None):
+            xml.attrib['rpcnum'] = str(d['rpcnum'])
+        if None != d.get('lowver', None):
+            xml.attrib['lowver'] = str(d['lowver'])
+        if None != d.get('highver', None):
+            xml.attrib['highver'] = str(d['highver'])
+        if None != d.get('hostname', None):
+            xml.attrib['hostname'] = d['hostname']
+        if None != d.get('ostype', None):
+            xml.attrib['ostype'] = d['ostype']
+        if None != d.get('devicetype', None):
+            xml.attrib['devicetype'] = d['devicetype']
+        if None != d.get('servicefp', None):
+            xml.attrib['servicefp'] = d['servicefp']
+
+        if None != d.get('cpes', None):
+            if None != d.get('cpes', None):
+                for cpe in d['cpes']:
+                    cpe_xml = etree.Element('cpe')
+                    cpe_xml.text = cpe
+                    xml.append(cpe_xml)
+
+        if validate_xml:
+            try:
+                validate(xml)
+            except NmapXMLParserException:
+                raise NmapDictParserException()
+
+        return xml
+
+    @staticmethod
+    def from_dict(d):
+        try:
+            return Service(Service.dict_to_xml(d, False))
+        except NmapXMLParserException:
+            raise NmapDictParserException()
 
     def equals(self, other):
         return isinstance(other, Service) \

@@ -31,13 +31,14 @@ import logging
 
 from nmap_scan.Exceptions.LogicException import LogicException
 from nmap_scan.Scripts.Script import Script
+from nmap_scan.Validator import validate
 
 
 class SSLEnumCiphers(Script):
 
     def __init__(self, xml):
-        Script.__init__(self, xml)
         self.__xml = xml
+        Script.__init__(self, xml)
         self.__protocols = {}
         self.__least_strength = None
         self.__parse_xml()
@@ -92,6 +93,7 @@ class SSLEnumCiphers(Script):
 class SSLEnumCiphersProtocol:
 
     def __init__(self, xml):
+        validate(xml)
         self.__xml = xml
         self.__ciphers = []
         self.__compressors = None
@@ -183,6 +185,7 @@ class SSLEnumCiphersProtocol:
 class SSLEnumCiphersCipher:
 
     def __init__(self, xml):
+        validate(xml)
         self.__xml = xml
         self.__strength = None
         self.__name = None

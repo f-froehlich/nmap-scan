@@ -14,6 +14,9 @@ class TestReverseIndex(BaseXMLTest):
     def get_all_files(self):
         return ['testdata/Scripts/ReverseIndex-' + str(i) + '.xml' for i in range(1, 3)]
 
+    def get_all_invalid_files(self):
+        return ['testdata/Scripts/InvalidScript-1.xml']
+
     @pytest.mark.parametrize("filepath", ['testdata/Scripts/ReverseIndex-' + str(i) + '.xml' for i in range(1, 3)])
     def test_id(self, filepath):
         xml = self.create_xml(filepath)

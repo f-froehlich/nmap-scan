@@ -29,10 +29,17 @@
 
 import logging
 
+from lxml import etree
+
+from nmap_scan.Exceptions.NmapDictParserException import NmapDictParserException
+from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
+from nmap_scan.Validator import validate
+
 
 class TaskProgress:
 
     def __init__(self, xml):
+        validate(xml)
         self.__xml = xml
         self.__task = None
         self.__time = None
@@ -40,6 +47,42 @@ class TaskProgress:
         self.__remaining = None
         self.__etc = None
         self.__parse_xml()
+
+    def __iter__(self):
+        yield "task", self.__task
+        yield "time", self.__time
+        yield "percent", self.__percent
+        yield "remaining", self.__remaining
+        yield "etc", self.__etc
+
+    @staticmethod
+    def dict_to_xml(d, validate_xml=True):
+        xml = etree.Element('taskprogress')
+        if None != d.get('task', None):
+            xml.attrib['task'] = d.get('task', None)
+        if None != d.get('time', None):
+            xml.attrib['time'] = str(d.get('time', None))
+        if None != d.get('percent', None):
+            xml.attrib['percent'] = str(d.get('percent', None))
+        if None != d.get('remaining', None):
+            xml.attrib['remaining'] = d.get('remaining', None)
+        if None != d.get('etc', None):
+            xml.attrib['etc'] = d.get('etc', None)
+
+        if validate_xml:
+            try:
+                validate(xml)
+            except NmapXMLParserException:
+                raise NmapDictParserException()
+
+        return xml
+
+    @staticmethod
+    def from_dict(d):
+        try:
+            return TaskProgress(TaskProgress.dict_to_xml(d, False))
+        except NmapXMLParserException:
+            raise NmapDictParserException()
 
     def equals(self, other):
         return isinstance(other, TaskProgress) \
@@ -72,7 +115,7 @@ class TaskProgress:
         attr = self.__xml.attrib
         self.__task = attr['task']
         self.__time = int(attr['time'])
-        self.__percent = int(attr['percent'])
+        self.__percent = float(attr['percent'])
         self.__remaining = attr['remaining']
         self.__etc = attr['etc']
 

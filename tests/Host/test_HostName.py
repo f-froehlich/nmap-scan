@@ -13,6 +13,9 @@ class TestHostName(BaseXMLTest):
     def get_all_files(self):
         return ['testdata/Host/HostName-' + str(i) + '.xml' for i in range(1, 3)]
 
+    def get_all_invalid_files(self):
+        return ['testdata/Host/HostName-4.xml']
+
     @pytest.mark.parametrize(("filepath", "expected"), [
         ('testdata/Host/HostName-1.xml', 'name'),
         ('testdata/Host/HostName-2.xml', None),
@@ -44,3 +47,13 @@ class TestHostName(BaseXMLTest):
         e2 = self.create_instance(xml2)
 
         assert expected == e1.equals(e2)
+
+    @pytest.mark.invalidXML
+    @pytest.mark.xml
+    def test_error_on_from_dict(self):
+        pass
+
+    @pytest.mark.invalidXML
+    @pytest.mark.xml
+    def test_error_on_dict_to_xml(self):
+        pass

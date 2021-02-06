@@ -29,19 +29,60 @@
 
 import logging
 
+from lxml import etree
+
 from nmap_scan.CompareHelper import compare_lists_equal
+from nmap_scan.Exceptions.NmapDictParserException import NmapDictParserException
+from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
 from nmap_scan.OS.OSClass import OSClass
+from nmap_scan.Validator import validate
 
 
 class OSMatch:
 
     def __init__(self, xml):
+        validate(xml)
         self.__xml = xml
         self.__os_classes = []
         self.__name = None
         self.__accuracy = None
         self.__line = None
         self.__parse_xml()
+
+    def __iter__(self):
+        yield "name", self.__name
+        yield "accuracy", self.__accuracy
+        yield "line", self.__line
+        yield "osclass", [dict(e) for e in self.__os_classes]
+
+    @staticmethod
+    def dict_to_xml(d, validate_xml=True):
+        xml = etree.Element('osmatch')
+        if None != d.get('accuracy', None):
+            xml.attrib['accuracy'] = str(d.get('accuracy', None))
+        if None != d.get('name', None):
+            xml.attrib['name'] = d.get('name', None)
+        if None != d.get('line', None):
+            xml.attrib['line'] = str(d.get('line', None))
+
+        if None != d.get('osclass', None):
+            for osclass_dict in d['osclass']:
+                xml.append(OSClass.dict_to_xml(osclass_dict, validate_xml))
+
+        if validate_xml:
+            try:
+                validate(xml)
+            except NmapXMLParserException:
+                raise NmapDictParserException()
+
+        return xml
+
+    @staticmethod
+    def from_dict(d):
+        try:
+            return OSMatch(OSMatch.dict_to_xml(d, False))
+        except NmapXMLParserException:
+            raise NmapDictParserException()
 
     def equals(self, other):
         return isinstance(other, OSMatch) \

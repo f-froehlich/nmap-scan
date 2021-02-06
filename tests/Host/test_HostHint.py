@@ -17,6 +17,9 @@ class TestHostHint(BaseXMLTest):
     def get_all_files(self):
         return ['testdata/Host/HostHint-' + str(i) + '.xml' for i in range(1, 3)]
 
+    def get_all_invalid_files(self):
+        return ['testdata/Host/HostHint-3.xml']
+
     @pytest.mark.parametrize(("filepath", "expected"), [
         ('testdata/Host/HostHint-1.xml', ['testdata/Host/HostAddress-1.xml']),
         ('testdata/Host/HostHint-2.xml', ['testdata/Host/HostAddress-1.xml']),

@@ -29,15 +29,52 @@
 
 import logging
 
+from lxml import etree
+
+from nmap_scan.Exceptions.NmapDictParserException import NmapDictParserException
+from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
+from nmap_scan.Validator import validate
+
 
 class Time:
 
     def __init__(self, xml):
+        validate(xml)
         self.__xml = xml
         self.__srtt = None
         self.__rttvar = None
         self.__to = None
         self.__parse_xml()
+
+    def __iter__(self):
+        yield "srtt", self.__srtt
+        yield "rttvar", self.__rttvar
+        yield "to", self.__to
+
+    @staticmethod
+    def dict_to_xml(d, validate_xml=True):
+        xml = etree.Element('times')
+        if None != d.get('srtt', None):
+            xml.attrib['srtt'] = d.get('srtt', None)
+        if None != d.get('rttvar', None):
+            xml.attrib['rttvar'] = d.get('rttvar', None)
+        if None != d.get('to', None):
+            xml.attrib['to'] = d.get('to', None)
+
+        if validate_xml:
+            try:
+                validate(xml)
+            except NmapXMLParserException:
+                raise NmapDictParserException()
+
+        return xml
+
+    @staticmethod
+    def from_dict(d):
+        try:
+            return Time(Time.dict_to_xml(d, False))
+        except NmapXMLParserException:
+            raise NmapDictParserException()
 
     def equals(self, other):
         return isinstance(other, Time) \

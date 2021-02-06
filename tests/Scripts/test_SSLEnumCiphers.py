@@ -14,6 +14,9 @@ class TestSSLEnumCiphers(BaseXMLTest):
     def get_all_files(self):
         return ['testdata/Scripts/SSLEnumCiphers/Script-1.xml']
 
+    def get_all_invalid_files(self):
+        return ['testdata/Scripts/InvalidScript-1.xml']
+
     @pytest.mark.parametrize(("filepath", "expected"), [('testdata/Scripts/SSLEnumCiphers/Script-1.xml', 'D')])
     def test_get_least_strength(self, filepath, expected):
         xml = self.create_xml(filepath)

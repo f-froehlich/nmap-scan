@@ -36,8 +36,8 @@ from nmap_scan.Scripts.Script import Script
 class SSH2EnumAlgos(Script):
 
     def __init__(self, xml):
-        Script.__init__(self, xml)
         self.__xml = xml
+        Script.__init__(self, xml)
         self.__kex_algorithms = []
         self.__server_host_key_algorithms = []
         self.__encryption_algorithms = []

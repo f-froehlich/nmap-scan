@@ -1,5 +1,5 @@
 <service
         name="name"
-        conf="conf"
+        conf="10"
 >
 </service>

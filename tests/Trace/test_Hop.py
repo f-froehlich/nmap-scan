@@ -1,5 +1,6 @@
 import pytest
 
+from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
 from nmap_scan.Trace.Hop import Hop
 from tests.BaseXMLTest import BaseXMLTest
 
@@ -13,6 +14,9 @@ class TestHop(BaseXMLTest):
 
     def get_all_files(self):
         return ['testdata/Trace/Hop-' + str(i) + '.xml' for i in range(1, 3)]
+
+    def get_all_invalid_files(self):
+        return ['testdata/Trace/Hop-' + str(i) + '.xml' for i in range(3, 4)]
 
     @pytest.mark.parametrize(("filepath", "expected"), [
         ('testdata/Trace/Hop-1.xml', 'ttl'),
@@ -68,7 +72,6 @@ class TestHop(BaseXMLTest):
     @pytest.mark.xml
     @pytest.mark.parametrize("filepath", ['testdata/Trace/Hop-3.xml'])
     def test_key_error_on_missing_id(self, filepath):
-        with pytest.raises(KeyError) as excinfo:
+        with pytest.raises(NmapXMLParserException) as excinfo:
             xml = self.create_xml(filepath)
             e = self.create_instance(xml)
-        assert "ttl" in str(excinfo.value)

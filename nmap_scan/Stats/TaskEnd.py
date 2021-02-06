@@ -29,17 +29,55 @@
 
 import logging
 
+from lxml import etree
+
+from nmap_scan.Exceptions.NmapDictParserException import NmapDictParserException
+from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
+from nmap_scan.Validator import validate
+
 
 class TaskEnd:
 
     def __init__(self, xml):
+        validate(xml)
         self.__xml = xml
         self.__task = None
         self.__time = None
         self.__extra_info = None
         self.__parse_xml()
 
+    def __iter__(self):
+        yield "task", self.__task
+        yield "time", self.__time
+        yield "extrainfo", self.__extra_info
+
+    @staticmethod
+    def dict_to_xml(d, validate_xml=True):
+        xml = etree.Element('taskend')
+        if None != d.get('task', None):
+            xml.attrib['task'] = d.get('task', None)
+        if None != d.get('extrainfo', None):
+            xml.attrib['extrainfo'] = d.get('extrainfo', None)
+        if None != d.get('time', None):
+            xml.attrib['time'] = str(d.get('time', None))
+
+        if validate_xml:
+            try:
+                validate(xml)
+            except NmapXMLParserException:
+                raise NmapDictParserException()
+
+        return xml
+
+    @staticmethod
+    def from_dict(d):
+        try:
+            return TaskEnd(TaskEnd.dict_to_xml(d, False))
+        except NmapXMLParserException:
+            raise NmapDictParserException()
+
     def equals(self, other):
+
         return isinstance(other, TaskEnd) \
                and self.__task == other.get_task() \
                and self.__time == other.get_time() \

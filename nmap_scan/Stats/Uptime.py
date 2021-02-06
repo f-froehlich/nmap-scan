@@ -29,14 +29,48 @@
 
 import logging
 
+from lxml import etree
+
+from nmap_scan.Exceptions.NmapDictParserException import NmapDictParserException
+from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
+from nmap_scan.Validator import validate
+
 
 class Uptime:
 
     def __init__(self, xml):
+        validate(xml)
         self.__xml = xml
         self.__seconds = None
         self.__last_boot = None
         self.__parse_xml()
+
+    def __iter__(self):
+        yield "seconds", self.__seconds
+        yield "lastboot", self.__last_boot
+
+    @staticmethod
+    def dict_to_xml(d, validate_xml=True):
+        xml = etree.Element('uptime')
+        if None != d.get('lastboot', None):
+            xml.attrib['lastboot'] = d.get('lastboot', None)
+        if None != d.get('seconds', None):
+            xml.attrib['seconds'] = str(d.get('seconds', None))
+
+        if validate_xml:
+            try:
+                validate(xml)
+            except NmapXMLParserException:
+                raise NmapDictParserException()
+
+        return xml
+
+    @staticmethod
+    def from_dict(d):
+        try:
+            return Uptime(Uptime.dict_to_xml(d, False))
+        except NmapXMLParserException:
+            raise NmapDictParserException()
 
     def get_xml(self):
         return self.__xml

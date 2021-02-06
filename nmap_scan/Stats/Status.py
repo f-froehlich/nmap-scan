@@ -28,15 +28,52 @@
 
 import logging
 
+from lxml import etree
+
+from nmap_scan.Exceptions.NmapDictParserException import NmapDictParserException
+from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
+from nmap_scan.Validator import validate
+
 
 class Status:
 
     def __init__(self, xml):
+        validate(xml)
         self.__xml = xml
         self.__state = None
         self.__reason = None
         self.__reason_ttl = None
         self.__parse_xml()
+
+    def __iter__(self):
+        yield "state", self.__state
+        yield "reason", self.__reason
+        yield "reason_ttl", self.__reason_ttl
+
+    @staticmethod
+    def dict_to_xml(d, validate_xml=True):
+        xml = etree.Element('status')
+        if None != d.get('state', None):
+            xml.attrib['state'] = d.get('state', None)
+        if None != d.get('reason', None):
+            xml.attrib['reason'] = d.get('reason', None)
+        if None != d.get('reason_ttl', None):
+            xml.attrib['reason_ttl'] = str(d.get('reason_ttl', None))
+
+        if validate_xml:
+            try:
+                validate(xml)
+            except NmapXMLParserException:
+                raise NmapDictParserException()
+
+        return xml
+
+    @staticmethod
+    def from_dict(d):
+        try:
+            return Status(Status.dict_to_xml(d, False))
+        except NmapXMLParserException:
+            raise NmapDictParserException()
 
     def equals(self, other):
         return isinstance(other, Status) \

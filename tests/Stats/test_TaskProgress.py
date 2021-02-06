@@ -1,5 +1,6 @@
 import pytest
 
+from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
 from nmap_scan.Stats.TaskProgress import TaskProgress
 from tests.BaseXMLTest import BaseXMLTest
 
@@ -13,6 +14,9 @@ class TestTaskProgress(BaseXMLTest):
 
     def get_all_files(self):
         return ['testdata/Stats/TaskProgress-' + str(i) + '.xml' for i in range(1, 3)]
+
+    def get_all_invalid_files(self):
+        return ['testdata/Stats/TaskProgress-' + str(i) + '.xml' for i in range(3, 8)]
 
     @pytest.mark.parametrize(("filepath", "expected"), [
         ('testdata/Stats/TaskProgress-1.xml', 'task1'),
@@ -63,46 +67,41 @@ class TestTaskProgress(BaseXMLTest):
     @pytest.mark.xml
     @pytest.mark.parametrize("filepath", ['testdata/Stats/TaskProgress-3.xml'])
     def test_error_on_missing_etc(self, filepath):
-        with pytest.raises(KeyError) as excinfo:
+        with pytest.raises(NmapXMLParserException) as excinfo:
             xml = self.create_xml(filepath)
             e = self.create_instance(xml)
-        assert "etc" in str(excinfo.value)
 
     @pytest.mark.invalidXML
     @pytest.mark.xml
     @pytest.mark.parametrize("filepath", ['testdata/Stats/TaskProgress-4.xml'])
     def test_error_on_missing_remaining(self, filepath):
-        with pytest.raises(KeyError) as excinfo:
+        with pytest.raises(NmapXMLParserException) as excinfo:
             xml = self.create_xml(filepath)
             e = self.create_instance(xml)
-        assert "remaining" in str(excinfo.value)
 
     @pytest.mark.invalidXML
     @pytest.mark.xml
     @pytest.mark.parametrize("filepath", ['testdata/Stats/TaskProgress-5.xml'])
     def test_error_on_missing_percent(self, filepath):
-        with pytest.raises(KeyError) as excinfo:
+        with pytest.raises(NmapXMLParserException) as excinfo:
             xml = self.create_xml(filepath)
             e = self.create_instance(xml)
-        assert "percent" in str(excinfo.value)
 
     @pytest.mark.invalidXML
     @pytest.mark.xml
     @pytest.mark.parametrize("filepath", ['testdata/Stats/TaskProgress-6.xml'])
     def test_error_on_missing_time(self, filepath):
-        with pytest.raises(KeyError) as excinfo:
+        with pytest.raises(NmapXMLParserException) as excinfo:
             xml = self.create_xml(filepath)
             e = self.create_instance(xml)
-        assert "time" in str(excinfo.value)
 
     @pytest.mark.invalidXML
     @pytest.mark.xml
     @pytest.mark.parametrize("filepath", ['testdata/Stats/TaskProgress-7.xml'])
     def test_error_on_missing_task(self, filepath):
-        with pytest.raises(KeyError) as excinfo:
+        with pytest.raises(NmapXMLParserException) as excinfo:
             xml = self.create_xml(filepath)
             e = self.create_instance(xml)
-        assert "task" in str(excinfo.value)
 
     @pytest.mark.parametrize(("filepath1", "filepath2", "expected"), [
         ('testdata/Stats/TaskProgress-1.xml', 'testdata/Stats/TaskProgress-2.xml', False),

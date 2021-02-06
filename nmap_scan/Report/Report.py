@@ -30,20 +30,19 @@ import json
 import logging
 import os
 import shutil
-import xml.etree as ET
 from pathlib import Path
-from threading import Thread
 from xml.etree.ElementTree import ElementTree
 
 import requests
-import xmltodict
 from lxml import etree
 
 from nmap_scan.CompareHelper import compare_lists_equal, compare_script_maps
+from nmap_scan.Exceptions.NmapDictParserException import NmapDictParserException
 from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
 from nmap_scan.Exceptions.ReportCombineException import ReportCombineException
 from nmap_scan.Host.Host import Host
 from nmap_scan.Host.HostHint import HostHint
+from nmap_scan.Scripts.Script import Script
 from nmap_scan.Scripts.ScriptParser import parse
 from nmap_scan.Stats.Output import Output
 from nmap_scan.Stats.RunStats import RunStats
@@ -52,6 +51,7 @@ from nmap_scan.Stats.Target import Target
 from nmap_scan.Stats.TaskBegin import TaskBegin
 from nmap_scan.Stats.TaskEnd import TaskEnd
 from nmap_scan.Stats.TaskProgress import TaskProgress
+from nmap_scan.Validator import validate
 
 
 class Report:
@@ -85,6 +85,134 @@ class Report:
         self.__is_combined = False
 
         self.__parse_xml()
+
+    def __iter__(self):
+        yield "scanner", self.__scanner
+        yield "version", self.__version
+        yield "xmloutputversion", self.__xmloutputversion
+        yield "profile_name", self.__profile_name
+        yield "args", self.__scanner_args
+        yield "start", self.__start
+        yield "startstr", self.__startstr
+        yield "verbose", self.__verbose_level
+        yield "debugging", self.__debugging_level
+        yield "runstats", dict(self.__run_stats)
+        yield "scaninfo", [dict(e) for e in self.__scaninfos]
+        yield "targets", [dict(e) for e in self.__targets]
+        yield "taskbegin", [dict(e) for e in self.__task_begins]
+        yield "taskprogress", [dict(e) for e in self.__task_progresses]
+        yield "taskend", [dict(e) for e in self.__task_ends]
+        yield "hosts", [dict(e) for e in self.__hosts]
+        yield "hosthints", [dict(e) for e in self.__host_hints]
+        yield "outputs", [dict(e) for e in self.__outputs]
+
+        prescripts = []
+        for id in self.__pre_scripts:
+            script = self.__pre_scripts[id]
+            if isinstance(script, Script):
+                prescripts.append(dict(script))
+            elif isinstance(script, list):
+                for s in script:
+                    prescripts.append(dict(s))
+
+        yield "prescripts", prescripts
+
+        postscripts = []
+        for id in self.__post_scripts:
+            script = self.__post_scripts[id]
+            if isinstance(script, Script):
+                postscripts.append(dict(script))
+            elif isinstance(script, list):
+                for s in script:
+                    postscripts.append(dict(s))
+
+        yield "postscripts", postscripts
+
+    @staticmethod
+    def dict_to_xml(d, validate_xml=True):
+        xml = etree.Element('nmaprun')
+
+        if None != d.get('scanner', None):
+            xml.attrib['scanner'] = d.get('scanner', None)
+        if None != d.get('version', None):
+            xml.attrib['version'] = d.get('version', None)
+        if None != d.get('xmloutputversion', None):
+            xml.attrib['xmloutputversion'] = d.get('xmloutputversion', None)
+        if None != d.get('profile_name', None):
+            xml.attrib['profile_name'] = d.get('profile_name', None)
+        if None != d.get('args', None):
+            xml.attrib['args'] = d.get('args', None)
+        if None != d.get('start', None):
+            xml.attrib['start'] = str(d.get('start', None))
+        if None != d.get('startstr', None):
+            xml.attrib['startstr'] = d.get('startstr', None)
+
+        if None != d.get('scaninfo', None):
+            for status_dict in d['scaninfo']:
+                xml.append(ScanInfo.dict_to_xml(status_dict, validate_xml))
+
+        if None != d.get('verbose', None):
+            verbose_xml = etree.Element('verbose')
+            verbose_xml.attrib['level'] = str(d['verbose'])
+            xml.append(verbose_xml)
+
+        if None != d.get('debugging', None):
+            debugging_xml = etree.Element('debugging')
+            debugging_xml.attrib['level'] = str(d['debugging'])
+            xml.append(debugging_xml)
+
+        if None != d.get('targets', None):
+            for e_dict in d['targets']:
+                xml.append(Target.dict_to_xml(e_dict, validate_xml))
+        if None != d.get('taskbegin', None):
+            for e_dict in d['taskbegin']:
+                xml.append(TaskBegin.dict_to_xml(e_dict, validate_xml))
+        if None != d.get('taskprogress', None):
+            for e_dict in d['taskprogress']:
+                xml.append(TaskProgress.dict_to_xml(e_dict, validate_xml))
+        if None != d.get('taskend', None):
+            for e_dict in d['taskend']:
+                xml.append(TaskEnd.dict_to_xml(e_dict, validate_xml))
+
+        if None != d.get('hosthints', None):
+            for e_dict in d['hosthints']:
+                xml.append(HostHint.dict_to_xml(e_dict, validate_xml))
+
+        if None != d.get('prescripts', None):
+            for script_dict in d['prescripts']:
+                script_xml = etree.Element('prescript')
+                script_xml.append(Script.dict_to_xml(script_dict, validate_xml))
+                xml.append(script_xml)
+        if None != d.get('postscripts', None):
+            for script_dict in d['postscripts']:
+                script_xml = etree.Element('postscript')
+                script_xml.append(Script.dict_to_xml(script_dict, validate_xml))
+                xml.append(script_xml)
+
+        if None != d.get('hosts', None):
+            for e_dict in d['hosts']:
+                xml.append(Host.dict_to_xml(e_dict, validate_xml))
+        if None != d.get('outputs', None):
+            for e_dict in d['outputs']:
+                xml.append(Output.dict_to_xml(e_dict, validate_xml))
+
+        if None != d.get('runstats', None):
+            xml.append(RunStats.dict_to_xml(d['runstats'], validate_xml))
+
+        if validate_xml:
+            try:
+                validate(xml)
+            except NmapXMLParserException:
+                raise NmapDictParserException()
+
+        return xml
+
+    @staticmethod
+    def from_dict(d):
+        try:
+            return Report(Report.dict_to_xml(d, False))
+        except NmapXMLParserException:
+            raise NmapDictParserException()
 
     def equals(self, other):
         return isinstance(other, Report) \
@@ -399,16 +527,8 @@ class Report:
         self.__xmloutputversion = nmaprun.get('xmloutputversion', None)
         self.__profile_name = nmaprun.get('profile_name', None)
 
-        hosts_xml = self.get_xml().findall('host')
-        hosts_xml_len = len(hosts_xml)
-        self.__hosts = [None] * hosts_xml_len
-        threads = [None] * hosts_xml_len
-        thread_id = 0
-        for host_xml in hosts_xml:
-            logging.debug('Start thread with id "{id}"'.format(id=thread_id))
-            threads[thread_id] = Thread(target=self.__parse_host_xml, args=(host_xml, thread_id))
-            threads[thread_id].start()
-            thread_id += 1
+        for host_xml in self.get_xml().findall('host'):
+            self.__hosts.append(Host(host_xml))
 
         verbose_xml = self.get_xml().find('verbose')
         if None != verbose_xml:
@@ -466,13 +586,6 @@ class Report:
                 else:
                     self.__post_scripts[script.get_id()] = [existing_script, script]
 
-        for thread in threads:
-            thread.join()
-
-    def __parse_host_xml(self, host_xml, thread_id):
-        self.__hosts[thread_id] = Host(host_xml)
-        logging.debug('Thread with id "{id}" ended'.format(id=thread_id))
-
     def save(self, filepath):
         shutil.rmtree(filepath, ignore_errors=True)
         Path(os.path.dirname(os.path.realpath(filepath))).mkdir(parents=True, exist_ok=True)
@@ -498,25 +611,30 @@ class Report:
     def save_json(self, filepath):
         logging.info('Convert Report to JSON')
 
-        shutil.rmtree(filepath, ignore_errors=True)
-        Path(os.path.dirname(os.path.realpath(filepath))).mkdir(parents=True, exist_ok=True)
+        # dir_path = os.path.dirname(os.path.realpath(__file__))
+        # xsl = etree.parse(dir_path + '/../nmap2json.xsl')
+        #
+        # transform = etree.XSLT(xsl)
+        # xhtml = transform(self.__xml)
+        #
+        # shutil.rmtree(filepath, ignore_errors=True)
+        # Path(os.path.dirname(os.path.realpath(filepath))).mkdir(parents=True, exist_ok=True)
+        # with open(filepath, "w", encoding='utf-8') as file:
+        #     file.write(str(xhtml))
 
-        json_object = xmltodict.parse(etree.tostring(self.__xml))
+        # shutil.rmtree(filepath, ignore_errors=True)
+        # Path(os.path.dirname(os.path.realpath(filepath))).mkdir(parents=True, exist_ok=True)
+
+        # json_object = xmltodict.parse(etree.tostring(self.__xml))
         with open(filepath, "w", encoding='utf-8') as file:
-            file.write(json.dumps(json_object))
-
-    @staticmethod
-    def _parse_json_file(filepath):
-        with open(filepath, "r", encoding='utf-8') as json_file:
-            data = json.load(json_file)
-
-        new_xml = xmltodict.unparse(data, encoding='utf-8')
-        parser = etree.XMLParser()
-        return ET.ElementTree.fromstring(new_xml, parser)
+            file.write(json.dumps(dict(self)))
 
     @staticmethod
     def from_json_file(filepath):
-        return Report(Report._parse_json_file(filepath))
+        with open(filepath, "r", encoding='utf-8') as json_file:
+            data = json.load(json_file)
+
+        return Report(Report.dict_to_xml(data))
 
     @staticmethod
     def from_file(filepath):
@@ -601,7 +719,9 @@ class Report:
             for script_xml in prescript_xml.findall('script'):
                 logging.debug('Add prescript "{prescript}"'.format(prescript=script_xml.attrib['id']))
                 prescipts_xml.append(script_xml)
-        combined_xml.append(prescipts_xml)
+
+        if 0 != len(prescipts_xml.findall('script')):
+            combined_xml.append(prescipts_xml)
 
         other_hosts_xml = new_report.get_xml().findall('host')
         for own_host_xml in self.__xml.findall('host'):
@@ -656,7 +776,8 @@ class Report:
             for script_xml in postscript_xml.findall('script'):
                 logging.debug('Add postscript "{postscript}"'.format(postscript=script_xml.attrib['id']))
                 postscipts_xml.append(script_xml)
-        combined_xml.append(postscipts_xml)
+        if 0 != len(postscipts_xml.findall('script')):
+            combined_xml.append(postscipts_xml)
 
         host_counter = {'up': 0, 'down': 0, 'total': 0}
         for host_xml in combined_xml.findall('host'):

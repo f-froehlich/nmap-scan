@@ -29,14 +29,48 @@
 
 import logging
 
+from lxml import etree
+
+from nmap_scan.Exceptions.NmapDictParserException import NmapDictParserException
+from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
+from nmap_scan.Validator import validate
+
 
 class Output:
 
     def __init__(self, xml):
+        validate(xml)
         self.__xml = xml
         self.__data = None
         self.__type = None
         self.__parse_xml()
+
+    def __iter__(self):
+        yield "type", self.__type
+        yield "data", self.__data
+
+    @staticmethod
+    def dict_to_xml(d, validate_xml=True):
+        xml = etree.Element('output')
+        if None != d.get('type', None):
+            xml.attrib['type'] = d.get('type', None)
+        if None != d.get('data', None):
+            xml.text = d['data']
+
+        if validate_xml:
+            try:
+                validate(xml)
+            except NmapXMLParserException:
+                raise NmapDictParserException()
+
+        return xml
+
+    @staticmethod
+    def from_dict(d):
+        try:
+            return Output(Output.dict_to_xml(d, False))
+        except NmapXMLParserException:
+            raise NmapDictParserException()
 
     def equals(self, other):
         return isinstance(other, Output) \

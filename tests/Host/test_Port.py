@@ -15,6 +15,9 @@ class TestPort(BaseXMLTest):
     def get_all_files(self):
         return ['testdata/Host/Port-' + str(i) + '.xml' for i in range(1, 3)]
 
+    def get_all_invalid_files(self):
+        return ['testdata/Host/Port-13.xml']
+
     @pytest.mark.parametrize(("filepath", "expected"), [
         ('testdata/Host/Port-1.xml', 22),
         ('testdata/Host/Port-2.xml', 22),

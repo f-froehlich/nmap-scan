@@ -13,6 +13,9 @@ class TestKey(BaseXMLTest):
     def get_all_files(self):
         return ['testdata/Scripts/SSH/Key-' + str(i) + '.xml' for i in range(1, 3)]
 
+    def get_all_invalid_files(self):
+        return ['testdata/Scripts/InvalidScript-1.xml']
+
     @pytest.mark.parametrize(("filepath", "expected"), [
         ('testdata/Scripts/SSH/Key-1.xml', 'key'),
         ('testdata/Scripts/SSH/Key-2.xml', 'key'),

@@ -36,8 +36,8 @@ from nmap_scan.Scripts.Script import Script
 class ReverseIndex(Script):
 
     def __init__(self, xml):
-        Script.__init__(self, xml)
         self.__xml = xml
+        Script.__init__(self, xml)
         self.__port_ip_map = {}
         self.__parse_xml()
 

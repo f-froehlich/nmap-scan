@@ -1,5 +1,6 @@
 import pytest
 
+from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
 from nmap_scan.Stats.Uptime import Uptime
 from tests.BaseXMLTest import BaseXMLTest
 
@@ -12,6 +13,9 @@ class TestUptime(BaseXMLTest):
 
     def get_all_files(self):
         return ['testdata/Stats/Uptime-' + str(i) + '.xml' for i in range(1, 3)]
+
+    def get_all_invalid_files(self):
+        return ['testdata/Stats/Uptime-' + str(i) + '.xml' for i in range(3, 4)]
 
     @pytest.mark.parametrize(("filepath", "expected"), [
         ('testdata/Stats/Uptime-1.xml', 10),
@@ -35,10 +39,9 @@ class TestUptime(BaseXMLTest):
     @pytest.mark.xml
     @pytest.mark.parametrize("filepath", ['testdata/Stats/Uptime-3.xml'])
     def test_error_on_missing_seconds(self, filepath):
-        with pytest.raises(KeyError) as excinfo:
+        with pytest.raises(NmapXMLParserException) as excinfo:
             xml = self.create_xml(filepath)
             e = self.create_instance(xml)
-        assert "seconds" in str(excinfo.value)
 
     @pytest.mark.parametrize(("filepath1", "filepath2", "expected"), [
         ('testdata/Stats/Uptime-1.xml', 'testdata/Stats/Uptime-2.xml', False),

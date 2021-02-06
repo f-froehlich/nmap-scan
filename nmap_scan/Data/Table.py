@@ -29,18 +29,56 @@
 
 import logging
 
+from lxml import etree
+
 from nmap_scan.CompareHelper import compare_lists_equal
 from nmap_scan.Data.Element import Element
+from nmap_scan.Exceptions.NmapDictParserException import NmapDictParserException
+from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
+from nmap_scan.Validator import validate
 
 
 class Table:
 
     def __init__(self, xml):
+        validate(xml)
         self.__xml = xml
         self.__key = None
         self.__tables = []
         self.__elements = []
         self.__parse_xml()
+
+    def __iter__(self):
+        yield "key", self.__key
+        yield "tables", [dict(t) for t in self.__tables]
+        yield "elements", [dict(e) for e in self.__elements]
+
+    @staticmethod
+    def dict_to_xml(d, validate_xml=True):
+        xml = etree.Element('table')
+        if None != d.get('key', None):
+            xml.attrib['key'] = d.get('key', None)
+        if None != d.get('tables', None):
+            for table_dict in d['tables']:
+                xml.append(Table.dict_to_xml(table_dict, validate_xml))
+        if None != d.get('elements', None):
+            for element_dict in d['elements']:
+                xml.append(Element.dict_to_xml(element_dict, validate_xml))
+
+        if validate_xml:
+            try:
+                validate(xml)
+            except NmapXMLParserException:
+                raise NmapDictParserException()
+
+        return xml
+
+    @staticmethod
+    def from_dict(d):
+        try:
+            return Table(Table.dict_to_xml(d, False))
+        except NmapXMLParserException:
+            raise NmapDictParserException()
 
     def equals(self, other):
         return isinstance(other, Table) \

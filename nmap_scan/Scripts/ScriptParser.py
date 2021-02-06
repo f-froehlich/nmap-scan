@@ -37,7 +37,7 @@ from nmap_scan.Scripts.UnknownScript import UnknownScript
 
 
 def parse(script_xml):
-    script_id = script_xml.attrib['id']
+    script_id = script_xml.attrib.get('id', None)
     logging.info('Parsing script with id "{id}"'.format(id=script_id))
 
     if 'ssl-enum-ciphers' == script_id:

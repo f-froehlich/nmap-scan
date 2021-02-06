@@ -29,14 +29,48 @@
 
 import logging
 
+from lxml import etree
+
+from nmap_scan.Exceptions.NmapDictParserException import NmapDictParserException
+from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
+from nmap_scan.Validator import validate
+
 
 class IPIDSequence:
 
     def __init__(self, xml):
+        validate(xml)
         self.__xml = xml
         self.__class = None
         self.__values = None
         self.__parse_xml()
+
+    def __iter__(self):
+        yield "class", self.__class
+        yield "values", self.__values
+
+    @staticmethod
+    def dict_to_xml(d, validate_xml=True):
+        xml = etree.Element('ipidsequence')
+        if None != d.get('class', None):
+            xml.attrib['class'] = d.get('class', None)
+        if None != d.get('values', None):
+            xml.attrib['values'] = d.get('values', None)
+
+        if validate_xml:
+            try:
+                validate(xml)
+            except NmapXMLParserException:
+                raise NmapDictParserException()
+
+        return xml
+
+    @staticmethod
+    def from_dict(d):
+        try:
+            return IPIDSequence(IPIDSequence.dict_to_xml(d, False))
+        except NmapXMLParserException:
+            raise NmapDictParserException()
 
     def equals(self, other):
         return isinstance(other, IPIDSequence) \

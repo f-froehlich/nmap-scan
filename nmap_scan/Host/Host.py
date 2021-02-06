@@ -29,24 +29,32 @@
 
 import logging
 
+from lxml import etree
+
 from nmap_scan.CompareHelper import compare_lists_equal, compare_lists, compare_script_maps
+from nmap_scan.Exceptions.NmapDictParserException import NmapDictParserException
+from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
 from nmap_scan.Host.HostAddress import HostAddress
 from nmap_scan.Host.HostName import HostName
 from nmap_scan.Host.Port import Port
 from nmap_scan.OS.OS import OS
+from nmap_scan.Scripts.Script import Script
 from nmap_scan.Scripts.ScriptParser import parse
 from nmap_scan.Sequence.IPIDSequence import IPIDSequence
 from nmap_scan.Sequence.TCPSequence import TCPSequence
 from nmap_scan.Sequence.TCPTSSequence import TCPTSSequence
+from nmap_scan.Stats.ExtraPort import ExtraPort
 from nmap_scan.Stats.Status import Status
 from nmap_scan.Stats.Time import Time
 from nmap_scan.Stats.Uptime import Uptime
 from nmap_scan.Trace.Trace import Trace
+from nmap_scan.Validator import validate
 
 
 class Host:
 
     def __init__(self, xml):
+        validate(xml)
         self.__xml = xml
         self.__start_time = None
         self.__end_time = None
@@ -64,12 +72,129 @@ class Host:
         self.__tcptssequences = []
         self.__ipidsequences = []
         self.__ports = []
+        self.__extraports = []
         self.__open_ports = None
         self.__closed_ports = None
         self.__filtered_ports = None
         self.__unfiltered_ports = None
         self.__hostnames = []
         self.__parse_xml()
+
+    def __iter__(self):
+        yield "starttime", self.__start_time
+        yield "endtime", self.__end_time
+        yield "comment", self.__comment
+        yield "distances", self.__distances
+        yield "smurfs", self.__smurfs
+        yield "status", dict(self.__status)
+        yield "addresses", [dict(e) for e in self.__addresses]
+        yield "os", [dict(e) for e in self.__os]
+        yield "uptime", [dict(e) for e in self.__uptimes]
+        yield "times", [dict(e) for e in self.__times]
+        yield "traces", [dict(e) for e in self.__traces]
+        yield "tcpsequence", [dict(e) for e in self.__tcpsequences]
+        yield "tcptssequence", [dict(e) for e in self.__tcptssequences]
+        yield "ipidsequence", [dict(e) for e in self.__ipidsequences]
+        yield "ports", [dict(e) for e in self.__ports]
+        yield "extraports", [dict(e) for e in self.__extraports]
+        yield "hostnames", [dict(e) for e in self.__hostnames]
+
+        hostscripts = []
+        for id in self.__hostscripts:
+            script = self.__hostscripts[id]
+            if isinstance(script, Script):
+                hostscripts.append(dict(script))
+            elif isinstance(script, list):
+                for s in script:
+                    hostscripts.append(dict(s))
+
+        yield "hostscripts", hostscripts
+
+    @staticmethod
+    def dict_to_xml(d, validate_xml=True):
+        xml = etree.Element('host')
+        ports_xml = etree.Element('ports')
+        if None != d.get('starttime', None):
+            xml.attrib['starttime'] = str(d.get('starttime', None))
+        if None != d.get('endtime', None):
+            xml.attrib['endtime'] = str(d.get('endtime', None))
+        if None != d.get('comment', None):
+            xml.attrib['comment'] = d.get('comment', None)
+
+        if None != d.get('status', None):
+            xml.append(Status.dict_to_xml(d['status'], validate_xml))
+
+        if None != d.get('addresses', None):
+            for c in d['addresses']:
+                xml.append(HostAddress.dict_to_xml(c, validate_xml))
+        if None != d.get('os', None):
+            for c in d['os']:
+                xml.append(OS.dict_to_xml(c, validate_xml))
+        if None != d.get('uptime', None):
+            for c in d['uptime']:
+                xml.append(Uptime.dict_to_xml(c, validate_xml))
+
+        if None != d.get('traces', None):
+            for c in d['traces']:
+                xml.append(Trace.dict_to_xml(c, validate_xml))
+        if None != d.get('tcpsequence', None):
+            for c in d['tcpsequence']:
+                xml.append(TCPSequence.dict_to_xml(c, validate_xml))
+        if None != d.get('tcptssequence', None):
+            for c in d['tcptssequence']:
+                xml.append(TCPTSSequence.dict_to_xml(c, validate_xml))
+        if None != d.get('ipidsequence', None):
+            for c in d['ipidsequence']:
+                xml.append(IPIDSequence.dict_to_xml(c, validate_xml))
+        if None != d.get('distances', None):
+            for distance_dict in d['distances']:
+                distance_xml = etree.Element('distance')
+                distance_xml.attrib['value'] = str(distance_dict)
+                xml.append(distance_xml)
+
+        if None != d.get('extraports', None):
+            for c in d['extraports']:
+                ports_xml.append(ExtraPort.dict_to_xml(c, validate_xml))
+        if None != d.get('ports', None):
+            for c in d['ports']:
+                ports_xml.append(Port.dict_to_xml(c, validate_xml))
+        xml.append(ports_xml)
+        if None != d.get('hostnames', None):
+            hostnames_xml = etree.Element('hostnames')
+            for hostname_dict in d['hostnames']:
+                hostnames_xml.append(HostName.dict_to_xml(hostname_dict, validate_xml))
+            xml.append(hostnames_xml)
+
+        if None != d.get('hostscripts', None):
+            for script_dict in d['hostscripts']:
+                hostscript_xml = etree.Element('hostscript')
+                hostscript_xml.append(Script.dict_to_xml(script_dict, validate_xml))
+                xml.append(hostscript_xml)
+
+        if None != d.get('smurfs', None):
+            for smurf in d['smurfs']:
+                smurf_xml = etree.Element('smurf')
+                smurf_xml.attrib['responses'] = smurf
+                xml.append(smurf_xml)
+
+        if None != d.get('times', None):
+            for time_xml in d['times']:
+                xml.append(Time.dict_to_xml(time_xml, validate_xml))
+
+        if validate_xml:
+            try:
+                validate(xml)
+            except NmapXMLParserException:
+                raise NmapDictParserException()
+
+        return xml
+
+    @staticmethod
+    def from_dict(d):
+        try:
+            return Host(Host.dict_to_xml(d, False))
+        except NmapXMLParserException:
+            raise NmapDictParserException()
 
     def equals(self, other):
         return isinstance(other, Host) \
@@ -82,6 +207,7 @@ class Host:
                and compare_lists_equal(self.__uptimes, other.get_uptimes()) \
                and compare_lists_equal(self.__hostnames, other.get_hostnames()) \
                and compare_lists_equal(self.__ports, other.get_ports()) \
+               and compare_lists_equal(self.__extraports, other.get_extraports()) \
                and compare_lists_equal(self.__traces, other.get_traces()) \
                and compare_lists_equal(self.__ipidsequences, other.get_ipid_sequences()) \
                and compare_lists_equal(self.__tcpsequences, other.get_tcp_sequences()) \
@@ -135,6 +261,9 @@ class Host:
 
     def get_ports(self):
         return self.__ports
+
+    def get_extraports(self):
+        return self.__extraports
 
     def get_smurfs(self):
         return self.__smurfs
@@ -344,6 +473,8 @@ class Host:
         if ports_xml != None:
             for port_xml in ports_xml.findall('port'):
                 self.__ports.append(Port(port_xml))
+            for extraports_xml in ports_xml.findall('extraports'):
+                self.__extraports.append(ExtraPort(extraports_xml))
 
         for hostscript_xml in self.__xml.findall('hostscript'):
             for script_xml in hostscript_xml.findall('script'):

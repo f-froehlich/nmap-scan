@@ -25,20 +25,58 @@
 #
 #  Checkout this project on github <https://github.com/f-froehlich/nmap-scan>
 #  and also my other projects <https://github.com/f-froehlich>
-
-
 import logging
+
+from lxml import etree
+
+from nmap_scan.Exceptions.NmapDictParserException import NmapDictParserException
+from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
+from nmap_scan.Validator import validate
 
 
 class Hop:
 
     def __init__(self, xml):
+        validate(xml)
         self.__xml = xml
         self.__ttl = None
         self.__rtt = None
         self.__ip = None
         self.__host = None
         self.__parse_xml()
+
+    def __iter__(self):
+        yield "ip", self.__ip
+        yield "ttl", self.__ttl
+        yield "rtt", self.__rtt
+        yield "host", self.__host
+
+    @staticmethod
+    def dict_to_xml(d, validate_xml=True):
+        xml = etree.Element('hop')
+        if None != d.get('ip', None):
+            xml.attrib['ipaddr'] = d.get('ip', None)
+        if None != d.get('ttl', None):
+            xml.attrib['ttl'] = str(d.get('ttl', None))
+        if None != d.get('rtt', None):
+            xml.attrib['rtt'] = d.get('rtt', None)
+        if None != d.get('host', None):
+            xml.attrib['host'] = d.get('host', None)
+
+        if validate_xml:
+            try:
+                validate(xml)
+            except NmapXMLParserException:
+                raise NmapDictParserException()
+
+        return xml
+
+    @staticmethod
+    def from_dict(d):
+        try:
+            return Hop(Hop.dict_to_xml(d, False))
+        except NmapXMLParserException:
+            raise NmapDictParserException()
 
     def get_xml(self):
         return self.__xml
