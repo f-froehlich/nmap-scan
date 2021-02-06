@@ -45,6 +45,12 @@ class Status:
         self.__reason_ttl = None
         self.__parse_xml()
 
+    def __eq__(self, other):
+        return self.equals(other)
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
     def __iter__(self):
         yield "state", self.__state
         yield "reason", self.__reason

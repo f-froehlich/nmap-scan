@@ -45,6 +45,12 @@ class Uptime:
         self.__last_boot = None
         self.__parse_xml()
 
+    def __eq__(self, other):
+        return self.equals(other)
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
     def __iter__(self):
         yield "seconds", self.__seconds
         yield "lastboot", self.__last_boot

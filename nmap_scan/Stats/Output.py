@@ -45,6 +45,12 @@ class Output:
         self.__type = None
         self.__parse_xml()
 
+    def __eq__(self, other):
+        return self.equals(other)
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
     def __iter__(self):
         yield "type", self.__type
         yield "data", self.__data

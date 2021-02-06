@@ -62,6 +62,13 @@ class TestOS(BaseXMLTest):
 
         assert expected == e1.equals(e2)
 
+        if expected:
+            assert e1 == e2
+            assert not e1 != e2
+        else:
+            assert not e1 == e2
+            assert e1 != e2
+
     def test_equals_wrong_instance(self):
         xml1 = self.create_xml('testdata/OS/OS-1.xml')
         e1 = self.create_instance(xml1)

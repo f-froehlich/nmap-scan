@@ -48,6 +48,12 @@ class Trace:
         self.__port = None
         self.__parse_xml()
 
+    def __eq__(self, other):
+        return self.equals(other)
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
     def __iter__(self):
         yield "hops", [dict(h) for h in self.__hops]
         yield "proto", self.__proto

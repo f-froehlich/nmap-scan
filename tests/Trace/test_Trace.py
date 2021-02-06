@@ -95,6 +95,13 @@ class TestTrace(BaseXMLTest):
 
         assert expected == e1.equals(e2)
 
+        if expected:
+            assert e1 == e2
+            assert not e1 != e2
+        else:
+            assert not e1 == e2
+            assert e1 != e2
+
     @pytest.mark.invalidXML
     @pytest.mark.xml
     def test_error_on_from_dict(self):

@@ -102,6 +102,12 @@ class SSLEnumCiphersProtocol:
         self.__protocol_version = None
         self.__parse_xml()
 
+    def __eq__(self, other):
+        return self.equals(other)
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
     def get_xml(self):
         return self.__xml
 
@@ -191,6 +197,12 @@ class SSLEnumCiphersCipher:
         self.__name = None
         self.__key_info = None
         self.__parse_xml()
+
+    def __eq__(self, other):
+        return self.equals(other)
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     def get_xml(self):
         return self.__xml

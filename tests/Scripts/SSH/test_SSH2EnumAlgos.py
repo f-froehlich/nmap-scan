@@ -98,3 +98,10 @@ class TestSSH2EnumAlgos(BaseXMLTest):
         e2 = self.create_instance(xml2)
 
         assert expected == e1.equals(e2)
+
+        if expected:
+            assert e1 == e2
+            assert not e1 != e2
+        else:
+            assert not e1 == e2
+            assert e1 != e2

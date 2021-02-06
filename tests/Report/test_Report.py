@@ -379,6 +379,13 @@ class TestReport(BaseXMLTest):
 
         assert expected == e1.equals(e2)
 
+        if expected:
+            assert e1 == e2
+            assert not e1 != e2
+        else:
+            assert not e1 == e2
+            assert e1 != e2
+
     @pytest.mark.parametrize(("filepath1", "filepath2", "expected"), [
         ('testdata/Report/Report-1.xml', 'testdata/Report/Report-2.xml', 'testdata/Report/Report-3.xml'),
 

@@ -50,6 +50,12 @@ class HostHint:
         self.__hostnames = []
         self.__parse_xml()
 
+    def __eq__(self, other):
+        return self.equals(other)
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
     def __iter__(self):
         yield "statuses", [dict(e) for e in self.__statuses]
         yield "addresses", [dict(e) for e in self.__addresses]

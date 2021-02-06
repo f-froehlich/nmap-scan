@@ -49,6 +49,12 @@ class OS:
         self.__os_fingerprints = []
         self.__parse_xml()
 
+    def __eq__(self, other):
+        return self.equals(other)
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
     def __iter__(self):
         yield "portused", [dict(e) for e in self.__used_ports]
         yield "osmatch", [dict(e) for e in self.__os_matches]

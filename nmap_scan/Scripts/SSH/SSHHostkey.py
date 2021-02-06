@@ -72,6 +72,12 @@ class Key:
         self.__fingerprint = None
         self.__parse_xml()
 
+    def __eq__(self, other):
+        return self.equals(other)
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
     def equals(self, other):
         return isinstance(other, Key) \
                and self.__bits == other.get_bits() \
