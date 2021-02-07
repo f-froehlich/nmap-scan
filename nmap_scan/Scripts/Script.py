@@ -59,8 +59,10 @@ class Script:
     def __iter__(self):
         yield "id", self.__id
         yield "output", self.__output
-        yield "tables", [dict(t) for t in self.__tables]
-        yield "elements", [dict(e) for e in self.__elements]
+        if 0 != len(self.__tables):
+            yield "tables", [dict(t) for t in self.__tables]
+        if 0 != len(self.__elements):
+            yield "elements", [dict(e) for e in self.__elements]
 
     @staticmethod
     def dict_to_xml(d, validate_xml=True):

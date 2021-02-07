@@ -57,10 +57,12 @@ class OSClass:
         return not self.__eq__(other)
 
     def __iter__(self):
-        yield "type", self.__type
+        if None != self.__type:
+            yield "type", self.__type
         yield "vendor", self.__vendor
         yield "family", self.__family
-        yield "generation", self.__generation
+        if None != self.__generation:
+            yield "generation", self.__generation
         yield "accuracy", self.__accuracy
         yield "cpes", self.__cpes
 

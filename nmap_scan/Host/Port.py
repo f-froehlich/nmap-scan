@@ -63,9 +63,12 @@ class Port:
     def __iter__(self):
         yield "protocol", self.__protocol
         yield "port", self.__port
-        yield "state", dict(self.__state)
-        yield "owner", self.__owner
-        yield "service", dict(self.__service)
+        if None != self.__state:
+            yield "state", dict(self.__state)
+        if None != self.__owner:
+            yield "owner", self.__owner
+        if None != self.__service:
+            yield "service", dict(self.__service)
 
         scripts = []
         for id in self.__scripts:

@@ -53,8 +53,10 @@ class Target:
         return not self.__eq__(other)
 
     def __iter__(self):
-        yield "status", self.__status
-        yield "reason", self.__reason
+        if None != self.__status:
+            yield "status", self.__status
+        if None != self.__reason:
+            yield "reason", self.__reason
         yield "specification", self.__specification
 
     @staticmethod

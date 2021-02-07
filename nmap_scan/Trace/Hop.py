@@ -52,10 +52,14 @@ class Hop:
         return not self.__eq__(other)
 
     def __iter__(self):
-        yield "ip", self.__ip
-        yield "ttl", self.__ttl
-        yield "rtt", self.__rtt
-        yield "host", self.__host
+        if None != self.__ip:
+            yield "ip", self.__ip
+        if None != self.__ttl:
+            yield "ttl", self.__ttl
+        if None != self.__rtt:
+            yield "rtt", self.__rtt
+        if None != self.__host:
+            yield "host", self.__host
 
     @staticmethod
     def dict_to_xml(d, validate_xml=True):

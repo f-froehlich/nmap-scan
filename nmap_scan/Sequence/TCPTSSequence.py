@@ -53,7 +53,8 @@ class TCPTSSequence:
 
     def __iter__(self):
         yield "class", self.__class
-        yield "values", self.__values
+        if None != self.__values:
+            yield "values", self.__values
 
     @staticmethod
     def dict_to_xml(d, validate_xml=True):

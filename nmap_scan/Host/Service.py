@@ -70,18 +70,30 @@ class Service:
         yield "name", self.__name
         yield "conf", self.__conf
         yield "method", self.__method
-        yield "version", self.__version
-        yield "product", self.__product
-        yield "extrainfo", self.__extrainfo
-        yield "tunnel", self.__tunnel
-        yield "proto", self.__proto
-        yield "rpcnum", self.__rpcnum
-        yield "lowver", self.__lowver
-        yield "highver", self.__highver
-        yield "hostname", self.__hostname
-        yield "ostype", self.__ostype
-        yield "devicetype", self.__devicetype
-        yield "servicefp", self.__servicefp
+        if None != self.__version:
+            yield "version", self.__version
+        if None != self.__product:
+            yield "product", self.__product
+        if None != self.__extrainfo:
+            yield "extrainfo", self.__extrainfo
+        if None != self.__tunnel:
+            yield "tunnel", self.__tunnel
+        if None != self.__proto:
+            yield "proto", self.__proto
+        if None != self.__rpcnum:
+            yield "rpcnum", self.__rpcnum
+        if None != self.__lowver:
+            yield "lowver", self.__lowver
+        if None != self.__highver:
+            yield "highver", self.__highver
+        if None != self.__hostname:
+            yield "hostname", self.__hostname
+        if None != self.__ostype:
+            yield "ostype", self.__ostype
+        if None != self.__devicetype:
+            yield "devicetype", self.__devicetype
+        if None != self.__servicefp:
+            yield "servicefp", self.__servicefp
         yield "cpes", self.__cpes
 
     @staticmethod

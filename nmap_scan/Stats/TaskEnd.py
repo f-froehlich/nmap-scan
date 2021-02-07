@@ -55,7 +55,8 @@ class TaskEnd:
     def __iter__(self):
         yield "task", self.__task
         yield "time", self.__time
-        yield "extrainfo", self.__extra_info
+        if None != self.__extra_info:
+            yield "extrainfo", self.__extra_info
 
     @staticmethod
     def dict_to_xml(d, validate_xml=True):

@@ -56,8 +56,10 @@ class ExtraReason:
     def __iter__(self):
         yield "reason", self.__reason
         yield "count", self.__count
-        yield "proto", self.__proto
-        yield "ports", self.__ports
+        if None != self.__proto:
+            yield "proto", self.__proto
+        if None != self.__ports:
+            yield "ports", self.__ports
 
     @staticmethod
     def dict_to_xml(d, validate_xml=True):

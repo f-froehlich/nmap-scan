@@ -87,9 +87,12 @@ class Host:
         return not self.__eq__(other)
 
     def __iter__(self):
-        yield "starttime", self.__start_time
-        yield "endtime", self.__end_time
-        yield "comment", self.__comment
+        if None != self.__start_time:
+            yield "starttime", self.__start_time
+        if None != self.__end_time:
+            yield "endtime", self.__end_time
+        if None != self.__comment:
+            yield "comment", self.__comment
         yield "distances", self.__distances
         yield "smurfs", self.__smurfs
         yield "status", dict(self.__status)

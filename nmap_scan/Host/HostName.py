@@ -43,7 +43,7 @@ class HostName:
         self.__xml = xml
         self.__name = None
         self.__type = None
-        self.__parse_xml()  #
+        self.__parse_xml()
 
     def __eq__(self, other):
         return self.equals(other)
@@ -52,8 +52,10 @@ class HostName:
         return not self.__eq__(other)
 
     def __iter__(self):
-        yield "name", self.__name
-        yield "type", self.__type
+        if None != self.__name:
+            yield "name", self.__name
+        if None != self.__type:
+            yield "type", self.__type
 
     @staticmethod
     def dict_to_xml(d, validate_xml=True):

@@ -54,7 +54,8 @@ class HostAddress:
 
     def __iter__(self):
         yield "addr", self.__addr
-        yield "vendor", self.__vendor
+        if None != self.__vendor:
+            yield "vendor", self.__vendor
         yield "type", self.__type
 
     @staticmethod

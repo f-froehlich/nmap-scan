@@ -52,8 +52,10 @@ class Element:
         return not self.__eq__(other)
 
     def __iter__(self):
-        yield "data", self.__data
-        yield "key", self.__key
+        if None != self.__data:
+            yield "data", self.__data
+        if None != self.__key:
+            yield "key", self.__key
 
     @staticmethod
     def dict_to_xml(d, validate_xml=True):

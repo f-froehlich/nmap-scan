@@ -52,7 +52,8 @@ class Output:
         return not self.__eq__(other)
 
     def __iter__(self):
-        yield "type", self.__type
+        if None != self.__type:
+            yield "type", self.__type
         yield "data", self.__data
 
     @staticmethod

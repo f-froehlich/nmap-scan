@@ -53,8 +53,9 @@ class State(Status):
     def __iter__(self):
         yield "state", self.get_state()
         yield "reason", self.get_reason()
-        yield "reason_ttl", self.get_reason_ttl()
-        yield "reason_ip", self.__reason_ip
+        yield "reasonttl", self.get_reason_ttl()
+        if None != self.__reason_ip:
+            yield "reasonip", self.__reason_ip
 
     @staticmethod
     def dict_to_xml(d, validate_xml=True):
@@ -63,10 +64,10 @@ class State(Status):
             xml.attrib['state'] = d.get('state', None)
         if None != d.get('reason', None):
             xml.attrib['reason'] = d.get('reason', None)
-        if None != d.get('reason_ttl', None):
-            xml.attrib['reason_ttl'] = str(d.get('reason_ttl', None))
-        if None != d.get('reason_ip', None):
-            xml.attrib['reason_ip'] = d.get('reason_ip', None)
+        if None != d.get('reasonttl', None):
+            xml.attrib['reason_ttl'] = str(d.get('reasonttl', None))
+        if None != d.get('reasonip', None):
+            xml.attrib['reason_ip'] = d.get('reasonip', None)
 
         if validate_xml:
             try:

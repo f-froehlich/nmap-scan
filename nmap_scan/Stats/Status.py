@@ -54,7 +54,7 @@ class Status:
     def __iter__(self):
         yield "state", self.__state
         yield "reason", self.__reason
-        yield "reason_ttl", self.__reason_ttl
+        yield "reasonttl", self.__reason_ttl
 
     @staticmethod
     def dict_to_xml(d, validate_xml=True):
@@ -63,8 +63,8 @@ class Status:
             xml.attrib['state'] = d.get('state', None)
         if None != d.get('reason', None):
             xml.attrib['reason'] = d.get('reason', None)
-        if None != d.get('reason_ttl', None):
-            xml.attrib['reason_ttl'] = str(d.get('reason_ttl', None))
+        if None != d.get('reasonttl', None):
+            xml.attrib['reason_ttl'] = str(d.get('reasonttl', None))
 
         if validate_xml:
             try:

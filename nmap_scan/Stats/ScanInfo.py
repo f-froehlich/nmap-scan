@@ -57,8 +57,9 @@ class ScanInfo:
     def __iter__(self):
         yield "type", self.__type
         yield "protocol", self.__protocol
-        yield "scan_flags", self.__scan_flags
-        yield "num_services", self.__num_services
+        if None != self.__scan_flags:
+            yield "scanflags", self.__scan_flags
+        yield "numservices", self.__num_services
         yield "services", self.__services
 
     @staticmethod
@@ -68,10 +69,10 @@ class ScanInfo:
             xml.attrib['type'] = d.get('type', None)
         if None != d.get('protocol', None):
             xml.attrib['protocol'] = d.get('protocol', None)
-        if None != d.get('scan_flags', None):
-            xml.attrib['scanflags'] = d.get('scan_flags', None)
-        if None != d.get('num_services', None):
-            xml.attrib['numservices'] = str(d.get('num_services', None))
+        if None != d.get('scanflags', None):
+            xml.attrib['scanflags'] = d.get('scanflags', None)
+        if None != d.get('numservices', None):
+            xml.attrib['numservices'] = str(d.get('numservices', None))
         if None != d.get('services', None):
             xml.attrib['services'] = d.get('services', None)
 

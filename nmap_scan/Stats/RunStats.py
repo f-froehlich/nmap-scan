@@ -60,14 +60,22 @@ class RunStats:
 
     def __iter__(self):
         yield "time", self.__time
-        yield "time_str", self.__time_str
-        yield "summary", self.__summary
-        yield "elapsed", self.__elapsed
-        yield "exit", self.__exit
-        yield "errormsg", self.__errormsg
-        yield "up", self.__up
-        yield "down", self.__down
-        yield "total", self.__total
+        if None != self.__time_str:
+            yield "timestr", self.__time_str
+        if None != self.__summary:
+            yield "summary", self.__summary
+        if None != self.__elapsed:
+            yield "elapsed", self.__elapsed
+        if None != self.__exit:
+            yield "exit", self.__exit
+        if None != self.__errormsg:
+            yield "errormsg", self.__errormsg
+        if None != self.__up:
+            yield "up", self.__up
+        if None != self.__down:
+            yield "down", self.__down
+        if None != self.__total:
+            yield "total", self.__total
 
     @staticmethod
     def dict_to_xml(d, validate_xml=True):
@@ -76,8 +84,8 @@ class RunStats:
         xml_hosts = etree.Element('hosts')
         if None != d.get('time', None):
             xml_finished.attrib['time'] = str(d.get('time', None))
-        if None != d.get('time_str', None):
-            xml_finished.attrib['timestr'] = d.get('time_str', None)
+        if None != d.get('timestr', None):
+            xml_finished.attrib['timestr'] = d.get('timestr', None)
         if None != d.get('elapsed', None):
             xml_finished.attrib['elapsed'] = str(d.get('elapsed', None))
         if None != d.get('summary', None):

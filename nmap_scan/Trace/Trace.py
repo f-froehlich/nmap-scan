@@ -56,8 +56,10 @@ class Trace:
 
     def __iter__(self):
         yield "hops", [dict(h) for h in self.__hops]
-        yield "proto", self.__proto
-        yield "port", self.__port
+        if None != self.__proto:
+            yield "proto", self.__proto
+        if None != self.__port:
+            yield "port", self.__port
 
     @staticmethod
     def dict_to_xml(d, validate_xml=True):

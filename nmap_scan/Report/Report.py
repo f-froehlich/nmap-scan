@@ -95,13 +95,19 @@ class Report:
     def __iter__(self):
         yield "scanner", self.__scanner
         yield "version", self.__version
-        yield "xmloutputversion", self.__xmloutputversion
-        yield "profile_name", self.__profile_name
+        if None != self.__xmloutputversion:
+            yield "xmloutputversion", self.__xmloutputversion
+        if None != self.__profile_name:
+            yield "profile_name", self.__profile_name
         yield "args", self.__scanner_args
-        yield "start", self.__start
-        yield "startstr", self.__startstr
-        yield "verbose", self.__verbose_level
-        yield "debugging", self.__debugging_level
+        if None != self.__start:
+            yield "start", self.__start
+        if None != self.__startstr:
+            yield "startstr", self.__startstr
+        if None != self.__verbose_level:
+            yield "verbose", self.__verbose_level
+        if None != self.__debugging_level:
+            yield "debugging", self.__debugging_level
         yield "runstats", dict(self.__run_stats)
         yield "scaninfo", [dict(e) for e in self.__scaninfos]
         yield "targets", [dict(e) for e in self.__targets]

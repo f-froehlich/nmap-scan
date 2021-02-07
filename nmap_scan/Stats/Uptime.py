@@ -53,7 +53,8 @@ class Uptime:
 
     def __iter__(self):
         yield "seconds", self.__seconds
-        yield "lastboot", self.__last_boot
+        if None != self.__last_boot:
+            yield "lastboot", self.__last_boot
 
     @staticmethod
     def dict_to_xml(d, validate_xml=True):
