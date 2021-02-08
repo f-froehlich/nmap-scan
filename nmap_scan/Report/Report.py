@@ -540,7 +540,7 @@ class Report:
         self.__profile_name = nmaprun.get('profile_name', None)
 
         for host_xml in self.get_xml().findall('host'):
-            self.__hosts.append(Host(host_xml))
+            self.__hosts.append(Host(host_xml, False))
 
         verbose_xml = self.get_xml().find('verbose')
         if None != verbose_xml:
@@ -553,32 +553,32 @@ class Report:
 
         run_stats_xml = self.get_xml().find('runstats')
         if None != run_stats_xml:
-            self.__run_stats = RunStats(run_stats_xml)
+            self.__run_stats = RunStats(run_stats_xml, False)
 
         for scaninfo_xml in self.get_xml().findall('scaninfo'):
-            self.__scaninfos.append(ScanInfo(scaninfo_xml))
+            self.__scaninfos.append(ScanInfo(scaninfo_xml, False))
 
         for target_xml in self.__xml.findall('target'):
-            self.__targets.append(Target(target_xml))
+            self.__targets.append(Target(target_xml, False))
 
         for output_xml in self.__xml.findall('output'):
-            self.__outputs.append(Output(output_xml))
+            self.__outputs.append(Output(output_xml, False))
 
         for task_progress_xml in self.__xml.findall('taskprogress'):
-            self.__task_progresses.append(TaskProgress(task_progress_xml))
+            self.__task_progresses.append(TaskProgress(task_progress_xml, False))
 
         for task_begin_xml in self.__xml.findall('taskbegin'):
-            self.__task_begins.append(TaskBegin(task_begin_xml))
+            self.__task_begins.append(TaskBegin(task_begin_xml, False))
 
         for task_end_xml in self.__xml.findall('taskend'):
-            self.__task_ends.append(TaskEnd(task_end_xml))
+            self.__task_ends.append(TaskEnd(task_end_xml, False))
 
         for hosthint_xml in self.__xml.findall('hosthint'):
-            self.__host_hints.append(HostHint(hosthint_xml))
+            self.__host_hints.append(HostHint(hosthint_xml, False))
 
         for prescript_xml in self.__xml.findall('prescript'):
             for script_xml in prescript_xml.findall('script'):
-                script = parse(script_xml)
+                script = parse(script_xml, False)
                 existing_script = self.__pre_scripts.get(script.get_id(), None)
                 if None == existing_script:
                     self.__pre_scripts[script.get_id()] = script
@@ -589,7 +589,7 @@ class Report:
 
         for postscript_xml in self.__xml.findall('postscript'):
             for script_xml in postscript_xml.findall('script'):
-                script = parse(script_xml)
+                script = parse(script_xml, False)
                 existing_script = self.__post_scripts.get(script.get_id(), None)
                 if None == existing_script:
                     self.__post_scripts[script.get_id()] = script
@@ -657,15 +657,7 @@ class Report:
         return Report(xml)
 
     def validate(self, xml):
-        logging.info('Validating XML against nmap DTD')
-        dir_path = os.path.dirname(os.path.realpath(__file__))
-        dtd = etree.DTD(open(dir_path + '/../nmap.dtd'))
-
-        if not dtd.validate(xml):
-            logging.info('Scan report is not valid')
-            for e in dtd.error_log.filter_from_errors():
-                logging.error(e)
-            raise NmapXMLParserException('Scan report is not valid. Please update to the last version of nmap')
+        validate(xml)
 
         try:
             if not self.__is_combined:

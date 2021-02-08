@@ -40,8 +40,9 @@ from nmap_scan.Validator import validate
 
 class Table:
 
-    def __init__(self, xml):
-        validate(xml)
+    def __init__(self, xml, validate_xml=True):
+        if validate_xml:
+            validate(xml)
         self.__xml = xml
         self.__key = None
         self.__tables = []
@@ -115,7 +116,7 @@ class Table:
         logging.debug('Key: "{key}"'.format(key=self.__key))
 
         for table_xml in self.__xml.findall('table'):
-            self.__tables.append(Table(table_xml))
+            self.__tables.append(Table(table_xml, False))
 
         for element_xml in self.__xml.findall('elem'):
-            self.__elements.append(Element(element_xml))
+            self.__elements.append(Element(element_xml, False))

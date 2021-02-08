@@ -40,8 +40,9 @@ from nmap_scan.Validator import validate
 
 class OSMatch:
 
-    def __init__(self, xml):
-        validate(xml)
+    def __init__(self, xml, validate_xml=True):
+        if validate_xml:
+            validate(xml)
         self.__xml = xml
         self.__os_classes = []
         self.__name = None
@@ -125,4 +126,4 @@ class OSMatch:
         logging.debug('Line: "{line}"'.format(line=self.__line))
 
         for xml in self.__xml.findall('osclass'):
-            self.__os_classes.append(OSClass(xml))
+            self.__os_classes.append(OSClass(xml, False))

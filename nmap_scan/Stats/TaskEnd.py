@@ -38,8 +38,9 @@ from nmap_scan.Validator import validate
 
 class TaskEnd:
 
-    def __init__(self, xml):
-        validate(xml)
+    def __init__(self, xml, validate_xml=True):
+        if validate_xml:
+            validate(xml)
         self.__xml = xml
         self.__task = None
         self.__time = None

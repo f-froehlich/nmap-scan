@@ -41,8 +41,9 @@ from nmap_scan.Validator import validate
 
 class Script:
 
-    def __init__(self, xml):
-        validate(xml)
+    def __init__(self, xml, validate_xml=True):
+        if validate_xml:
+            validate(xml)
         self.__xml = xml
         self.__id = None
         self.__output = None
@@ -126,9 +127,9 @@ class Script:
 
         for xml in self.get_xml():
             if 'table' == xml.tag:
-                self.__tables.append(Table(xml))
+                self.__tables.append(Table(xml, False))
             elif 'elem' == xml.tag:
-                self.__elements.append(Element(xml))
+                self.__elements.append(Element(xml, False))
 
         logging.debug('ID: "{name}"'.format(name=self.__id))
         logging.debug('Output: "{output}"'.format(output=self.__output))

@@ -36,19 +36,19 @@ from nmap_scan.Scripts.SSLEnumCiphers import SSLEnumCiphers
 from nmap_scan.Scripts.UnknownScript import UnknownScript
 
 
-def parse(script_xml):
+def parse(script_xml, validate_xml=True):
     script_id = script_xml.attrib.get('id', None)
     logging.info('Parsing script with id "{id}"'.format(id=script_id))
 
     if 'ssl-enum-ciphers' == script_id:
-        return SSLEnumCiphers(script_xml)
+        return SSLEnumCiphers(script_xml, validate_xml)
     elif 'ssh2-enum-algos' == script_id:
-        return SSH2EnumAlgos(script_xml)
+        return SSH2EnumAlgos(script_xml, validate_xml)
     elif 'ssh-hostkey' == script_id:
-        return SSHHostkey(script_xml)
+        return SSHHostkey(script_xml, validate_xml)
     elif 'reverse-index' == script_id:
-        return ReverseIndex(script_xml)
+        return ReverseIndex(script_xml, validate_xml)
 
     logging.debug(
         'No specific script class for script with id "{id}" exists. Using UnknownScript.'.format(id=script_id))
-    return UnknownScript(script_xml)
+    return UnknownScript(script_xml, validate_xml)

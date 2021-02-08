@@ -39,8 +39,9 @@ from nmap_scan.Validator import validate
 
 class OSClass:
 
-    def __init__(self, xml):
-        validate(xml)
+    def __init__(self, xml, validate_xml=True):
+        if validate_xml:
+            validate(xml)
         self.__xml = xml
         self.__type = None
         self.__vendor = None

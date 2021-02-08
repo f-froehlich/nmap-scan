@@ -36,9 +36,9 @@ from nmap_scan.Validator import validate
 
 class SSLEnumCiphers(Script):
 
-    def __init__(self, xml):
+    def __init__(self, xml, validate_xml=True):
         self.__xml = xml
-        Script.__init__(self, xml)
+        Script.__init__(self, xml, validate_xml)
         self.__protocols = {}
         self.__least_strength = None
         self.__parse_xml()
@@ -82,7 +82,7 @@ class SSLEnumCiphers(Script):
 
         xml_tables = self.__xml.findall('table')
         for xml_table in xml_tables:
-            self.__protocols[xml_table.attrib['key'].lower()] = SSLEnumCiphersProtocol(xml_table)
+            self.__protocols[xml_table.attrib['key'].lower()] = SSLEnumCiphersProtocol(xml_table, False)
 
         for xml_elements in self.__xml.findall('elem'):
             if 'least strength' == xml_elements.attrib['key']:
@@ -92,8 +92,9 @@ class SSLEnumCiphers(Script):
 
 class SSLEnumCiphersProtocol:
 
-    def __init__(self, xml):
-        validate(xml)
+    def __init__(self, xml, validate_xml=True):
+        if validate_xml:
+            validate(xml)
         self.__xml = xml
         self.__ciphers = []
         self.__compressors = None
@@ -165,7 +166,7 @@ class SSLEnumCiphersProtocol:
         for xml_table in self.__xml.findall('table'):
             if 'ciphers' == xml_table.get('key', None):
                 for cipher_table in xml_table.findall('table'):
-                    self.__ciphers.append(SSLEnumCiphersCipher(cipher_table))
+                    self.__ciphers.append(SSLEnumCiphersCipher(cipher_table, False))
 
             elif 'compressors' == xml_table.get('key', None):
                 for compressor_table in xml_table.findall('elem'):
@@ -190,8 +191,9 @@ class SSLEnumCiphersProtocol:
 
 class SSLEnumCiphersCipher:
 
-    def __init__(self, xml):
-        validate(xml)
+    def __init__(self, xml, validate_xml=True):
+        if validate_xml:
+            validate(xml)
         self.__xml = xml
         self.__strength = None
         self.__name = None

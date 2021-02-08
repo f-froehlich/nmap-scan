@@ -53,8 +53,9 @@ from nmap_scan.Validator import validate
 
 class Host:
 
-    def __init__(self, xml):
-        validate(xml)
+    def __init__(self, xml, validate_xml=True):
+        if validate_xml:
+            validate(xml)
         self.__xml = xml
         self.__start_time = None
         self.__end_time = None
@@ -471,23 +472,23 @@ class Host:
         self.__status = Status(self.__xml.find('status'))
 
         for addresses_xml in self.__xml.findall('address'):
-            self.__addresses.append(HostAddress(addresses_xml))
+            self.__addresses.append(HostAddress(addresses_xml, False))
 
         hostnames_xml = self.__xml.find('hostnames')
         if hostnames_xml != None:
             for hostname_xml in hostnames_xml.findall('hostname'):
-                self.__hostnames.append(HostName(hostname_xml))
+                self.__hostnames.append(HostName(hostname_xml, False))
 
         ports_xml = self.__xml.find('ports')
         if ports_xml != None:
             for port_xml in ports_xml.findall('port'):
-                self.__ports.append(Port(port_xml))
+                self.__ports.append(Port(port_xml, False))
             for extraports_xml in ports_xml.findall('extraports'):
-                self.__extraports.append(ExtraPort(extraports_xml))
+                self.__extraports.append(ExtraPort(extraports_xml, False))
 
         for hostscript_xml in self.__xml.findall('hostscript'):
             for script_xml in hostscript_xml.findall('script'):
-                script = parse(script_xml)
+                script = parse(script_xml, False)
                 existing_script = self.__hostscripts.get(script.get_id(), None)
                 if None == existing_script:
                     self.__hostscripts[script.get_id()] = script
@@ -497,16 +498,16 @@ class Host:
                     self.__hostscripts[script.get_id()] = [existing_script, script]
 
         for time_xml in self.__xml.findall('times'):
-            self.__times.append(Time(time_xml))
+            self.__times.append(Time(time_xml, False))
         for trace_xml in self.__xml.findall('trace'):
-            self.__traces.append(Trace(trace_xml))
+            self.__traces.append(Trace(trace_xml, False))
         for uptime_xml in self.__xml.findall('uptime'):
-            self.__uptimes.append(Uptime(uptime_xml))
+            self.__uptimes.append(Uptime(uptime_xml, False))
         for ipidsequence_xml in self.__xml.findall('ipidsequence'):
-            self.__ipidsequences.append(IPIDSequence(ipidsequence_xml))
-        for tcpsequence_xml in self.__xml.findall('tcpsequence'):
+            self.__ipidsequences.append(IPIDSequence(ipidsequence_xml, False))
+        for tcpsequence_xml in self.__xml.findall('tcpsequence', False):
             self.__tcpsequences.append(TCPSequence(tcpsequence_xml))
         for tcptssequence_xml in self.__xml.findall('tcptssequence'):
-            self.__tcptssequences.append(TCPTSSequence(tcptssequence_xml))
+            self.__tcptssequences.append(TCPTSSequence(tcptssequence_xml, False))
         for os_xml in self.__xml.findall('os'):
-            self.__os.append(OS(os_xml))
+            self.__os.append(OS(os_xml, False))

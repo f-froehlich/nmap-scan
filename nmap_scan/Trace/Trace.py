@@ -40,8 +40,9 @@ from nmap_scan.Validator import validate
 
 class Trace:
 
-    def __init__(self, xml):
-        validate(xml)
+    def __init__(self, xml, validate_xml=True):
+        if validate_xml:
+            validate(xml)
         self.__xml = xml
         self.__hops = []
         self.__proto = None
@@ -115,4 +116,4 @@ class Trace:
         logging.debug('Proto: "{proto}"'.format(proto=self.__proto))
 
         for xml in self.__xml.findall('hop'):
-            self.__hops.append(Hop(xml))
+            self.__hops.append(Hop(xml, False))

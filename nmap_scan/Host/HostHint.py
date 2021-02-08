@@ -42,8 +42,9 @@ from nmap_scan.Validator import validate
 
 class HostHint:
 
-    def __init__(self, xml):
-        validate(xml)
+    def __init__(self, xml, validate_xml=True):
+        if validate_xml:
+            validate(xml)
         self.__xml = xml
         self.__statuses = []
         self.__addresses = []
@@ -113,12 +114,12 @@ class HostHint:
         logging.info('Parsing HostHint')
 
         for xml in self.__xml.findall('status'):
-            self.__statuses.append(Status(xml))
+            self.__statuses.append(Status(xml, False))
 
         for xml in self.__xml.findall('address'):
-            self.__addresses.append(HostAddress(xml))
+            self.__addresses.append(HostAddress(xml, False))
 
         hostnames_xml = self.__xml.find('hostnames')
         if hostnames_xml != None:
             for hostname_xml in hostnames_xml.findall('hostname'):
-                self.__hostnames.append(HostName(hostname_xml))
+                self.__hostnames.append(HostName(hostname_xml, False))

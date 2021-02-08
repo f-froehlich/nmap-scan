@@ -40,8 +40,9 @@ from nmap_scan.Validator import validate
 
 class ExtraPort:
 
-    def __init__(self, xml):
-        validate(xml)
+    def __init__(self, xml, validate_xml=True):
+        if validate_xml:
+            validate(xml)
         self.__xml = xml
         self.__state = None
         self.__count = None
@@ -114,4 +115,4 @@ class ExtraPort:
         logging.debug('Count: "{count}"'.format(count=self.__count))
 
         for reasons_xml in self.__xml.findall('extrareasons'):
-            self.__reasons.append(ExtraReason(reasons_xml))
+            self.__reasons.append(ExtraReason(reasons_xml, False))

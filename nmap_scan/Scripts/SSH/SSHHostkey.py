@@ -36,11 +36,17 @@ from nmap_scan.Validator import validate
 
 class SSHHostkey(Script):
 
-    def __init__(self, xml):
+    def __init__(self, xml, validate_xml=True):
         self.__xml = xml
-        Script.__init__(self, xml)
+        Script.__init__(self, xml, validate_xml)
         self.__keys = []
         self.__parse_xml()
+
+    def __eq__(self, other):
+        return self.equals(other)
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     def equals(self, other):
         return isinstance(other, SSHHostkey) \
@@ -58,13 +64,14 @@ class SSHHostkey(Script):
 
         xml_tables = self.__xml.findall('table')
         for xml_table in xml_tables:
-            self.__keys.append(Key(xml_table))
+            self.__keys.append(Key(xml_table, False))
 
 
 class Key:
 
-    def __init__(self, xml):
-        validate(xml)
+    def __init__(self, xml, validate_xml=True):
+        if validate_xml:
+            validate(xml)
         self.__xml = xml
         self.__bits = None
         self.__key = None

@@ -38,9 +38,10 @@ from nmap_scan.Validator import validate
 
 class State(Status):
 
-    def __init__(self, xml):
-        validate(xml)
-        Status.__init__(self, xml)
+    def __init__(self, xml, validate_xml=True):
+        if validate_xml:
+            validate(xml)
+        Status.__init__(self, xml, validate_xml)
         self.__reason_ip = None
         self.__parse_xml()
 

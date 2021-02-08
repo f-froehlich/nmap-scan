@@ -43,8 +43,9 @@ from nmap_scan.Validator import validate
 
 class Port:
 
-    def __init__(self, xml):
-        validate(xml)
+    def __init__(self, xml, validate_xml=True):
+        if validate_xml:
+            validate(xml)
         self.__xml = xml
         self.__protocol = None
         self.__port = None
@@ -194,15 +195,15 @@ class Port:
         logging.debug('Port: "{port}"'.format(port=self.__port))
         logging.debug('Protocol: "{protocol}"'.format(protocol=self.__protocol))
         logging.debug('Owner: "{owner}"'.format(owner=self.__owner))
-        self.__state = State(self.__xml.find('state'))
-        self.__service = Service(self.__xml.find('service'))
+        self.__state = State(self.__xml.find('state'), False)
+        self.__service = Service(self.__xml.find('service'), False)
 
         owner = self.__xml.find('owner')
         if None != owner:
             self.__owner = owner.attrib['name']
 
         for script_xml in self.__xml.findall('script'):
-            script = parse(script_xml)
+            script = parse(script_xml, False)
             existing_script = self.__scripts.get(script.get_id(), None)
             if None == existing_script:
                 self.__scripts[script.get_id()] = script

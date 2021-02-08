@@ -41,8 +41,9 @@ from nmap_scan.Validator import validate
 
 class OS:
 
-    def __init__(self, xml):
-        validate(xml)
+    def __init__(self, xml, validate_xml=True):
+        if validate_xml:
+            validate(xml)
         self.__xml = xml
         self.__used_ports = []
         self.__os_matches = []
@@ -115,10 +116,10 @@ class OS:
         logging.info('Parsing OS')
 
         for portused_xml in self.__xml.findall('portused'):
-            self.__used_ports.append(OSUsedPort(portused_xml))
+            self.__used_ports.append(OSUsedPort(portused_xml, False))
 
         for osmatch_xml in self.__xml.findall('osmatch'):
-            self.__os_matches.append(OSMatch(osmatch_xml))
+            self.__os_matches.append(OSMatch(osmatch_xml, False))
 
         for osfingerprint_xml in self.__xml.findall('osfingerprint'):
             fingerprint = osfingerprint_xml.attrib['fingerprint']
