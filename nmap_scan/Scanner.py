@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8
 
+import concurrent.futures
 #  nmap-scan
 #
 #  Nmap wrapper for python
@@ -25,7 +26,6 @@
 #
 #  Checkout this project on github <https://github.com/f-froehlich/nmap-scan>
 #  and also my other projects <https://github.com/f-froehlich>
-
 import logging
 import subprocess
 import threading
@@ -66,7 +66,9 @@ class Scanner(NmapScanMethods):
         self.__threads = {}
         self.__has_error = {}
         self.__which_nmap_lock = threading.Lock()
+        self.__threads_lock = threading.Lock()
         self.__nmap_path = None
+        self.__thread_pool = concurrent.futures.ThreadPoolExecutor(max_workers=15)  # currently 15 different scans
 
     def get_nmap_args(self):
         return self.__nmap_args
@@ -208,9 +210,7 @@ class Scanner(NmapScanMethods):
     def __parse_xml(self, stdout):
 
         parser = etree.XMLParser()
-        xml = ElementTree.fromstring(stdout, parser)
-
-        return xml
+        return ElementTree.fromstring(stdout, parser)
 
     def get_report(self, scan_method):
         if None != self.__reports.get(scan_method, None):
@@ -233,21 +233,27 @@ class Scanner(NmapScanMethods):
 
     def scan_background(self, scan_method, callback_method=None):
 
+        self.__threads_lock.acquire()
         if None != self.__threads.get(scan_method, None):
+            self.__threads_lock.release()
             return self.__threads.get(scan_method)
 
         logging.info('Starting thread')
-        thread = threading.Thread(target=self.__run, args=(scan_method, callback_method,))
-        self.__threads[scan_method] = thread
-        thread.start()
-        return thread
+        self.__threads[scan_method] = self.__thread_pool.submit(
+            self.__run,
+            method=scan_method,
+            callback_method=callback_method
+        )
+        self.__threads_lock.release()
+
+        return self.__threads[scan_method]
 
     def wait(self, method):
 
         thread = self.__threads.get(method, None)
         if None != thread:
             logging.info('Waiting for scan "{method}" to finish'.format(method=self.get_name_of_method(method)))
-            thread.join()
+            thread.result()
             return self.get_report(method)
 
         logging.info('No scan for "{method}" initialised'.format(method=self.get_name_of_method(method)))

@@ -38,18 +38,24 @@ from nmap_scan.Scanner import Scanner
 
 class MultiScanner:
 
-    def __init__(self, configurations):
+    def __init__(self, configurations, max_threads=32):
         for configuration in configurations:
             if not isinstance(configuration, MultiScannerConfiguration):
                 raise NmapConfigurationException()
         self.__configurations = configurations
-        self.__threads = {i: None for i in range(0, len(configurations))}
-        self.__finished = {i: False for i in range(0, len(configurations))}
+        self.__main_threads = []
+        self.__threads = []
+        self.__started = False
+        self.__finished = False
         self.__reports = []
         self.__errors = []
-        self.__lock = threading.Lock()
+        self.__main_thread_lock = threading.Lock()
+        self.__thread_lock = threading.Lock()
+        self.__report_lock = threading.Lock()
         self.__error_lock = threading.Lock()
         self.__nmap_path = None
+        self.__thread_pool = None
+        self.__max_threads = max_threads
 
     def set_nmap_path(self, path):
         logging.info('Set nmap path to "{path}", I hop you know what you are doing!'.format(path=path))
@@ -71,12 +77,12 @@ class MultiScanner:
         return report
 
     def is_finished(self):
-        return all(self.__finished)
+        return self.__finished
 
     def __add_report(self, report):
-        self.__lock.acquire()
+        self.__report_lock.acquire()
         self.__reports.append(report)
-        self.__lock.release()
+        self.__report_lock.release()
 
     def __prepare_real_scan(self, report, thread_id, nmap_path):
         logging.info('Prepare real scan for thread {thread}'.format(thread=thread_id))
@@ -84,8 +90,6 @@ class MultiScanner:
         configuration = self.__configurations[thread_id]
         configured_args = configuration.get_nmap_args()
 
-        thread_pool = concurrent.futures.ThreadPoolExecutor(max_workers=configuration.get_max_parallel_scans())
-        futures = []
         for host in report.get_hosts():
             for address in host.get_addresses():
                 if address.is_ip():
@@ -94,23 +98,22 @@ class MultiScanner:
 
                     args = configured_args.clone()
                     args.set_hosts([address.get_addr()])
-                    futures.append(thread_pool.submit(
-                        self.__init_scan,
-                        args=args,
-                        address=address.get_addr(),
-                        thread_id=thread_id,
-                        configuration=configuration,
-                        nmap_path=nmap_path
-                    ))
+                    for scan_method in configuration.get_scan_methods():
+                        self.__thread_lock.acquire()
+                        self.__threads.append(self.__thread_pool.submit(
+                            self.__init_scan,
+                            args=args,
+                            address=address.get_addr(),
+                            thread_id=thread_id,
+                            configuration=configuration,
+                            nmap_path=nmap_path,
+                            scan_method=scan_method
+                        ))
+                        self.__thread_lock.release()
                     if not configuration.get_use_all_ips():
                         break
 
-        for future in futures:
-            future.result()
-
-        self.__finished[thread_id] = True
-
-    def __init_scan(self, args, address, thread_id, configuration, nmap_path):
+    def __init_scan(self, args, address, thread_id, configuration, nmap_path, scan_method):
         scanner = Scanner(args)
         scanner.set_nmap_path(nmap_path)
 
@@ -121,7 +124,7 @@ class MultiScanner:
                 configuration.get_callback_method()(ip, r, s)
 
         try:
-            report = scanner.scan(configuration.get_scan_method(), cm)
+            report = scanner.scan(scan_method, cm)
             self.__add_report(report)
         except Exception as e:
             self.__add_error(configuration, address, e)
@@ -140,16 +143,38 @@ class MultiScanner:
 
     def scan_background(self):
         logging.info('Execute multi scan')
+        self.__main_thread_lock.acquire()
+        if self.__started:
+            self.__main_thread_lock.release()
+            return
+        self.__started = True
+        self.__thread_pool = concurrent.futures.ThreadPoolExecutor(max_workers=self.__max_threads)
+        self.__main_thread_lock.release()
+
         thread_id = 0
         for configuration in self.__configurations:
-            self.__scan(configuration, thread_id)
+            self.__main_thread_lock.acquire()
+            self.__main_threads.append(self.__thread_pool.submit(
+                self.__scan,
+                configuration=configuration,
+                thread_id=thread_id
+            ))
+            self.__main_thread_lock.release()
             thread_id += 1
 
     def wait(self):
-        for thread_id in self.__threads:
-            thread = self.__threads[thread_id]
-            if None != thread:
-                thread.join()
+
+        if self.__finished:
+            return
+
+        for main_thread in self.__main_threads:
+            main_thread.result()
+
+        for thread in self.__threads:
+            thread.result()
+
+        self.__finished = True
+        self.__thread_pool.shutdown()
 
     def __scan(self, configuration, thread_id):
         args = configuration.get_nmap_args()
@@ -158,14 +183,11 @@ class MultiScanner:
         ping_args = NmapArgs(
             hosts=args.get_hosts(),
             pn=args.get_pn(),
-            min_parallelism=configuration.get_max_parallel_scans()
+            min_parallelism=args.get_min_parallelism()
         )
 
         logging.info('Starting thread {thread}'.format(thread=thread_id))
-
-        thread = threading.Thread(target=self.__run, args=(ping_args, thread_id,))
-        self.__threads[thread_id] = thread
-        thread.start()
+        self.__run(ping_args, thread_id)
 
     def __add_error(self, configuration, address, exception):
         self.__error_lock.acquire()
