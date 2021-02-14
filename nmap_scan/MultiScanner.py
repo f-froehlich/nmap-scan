@@ -38,7 +38,7 @@ from nmap_scan.Scanner import Scanner
 
 class MultiScanner:
 
-    def __init__(self, configurations, max_threads=32):
+    def __init__(self, configurations, max_threads=32, max_ping_threads=2):
         for configuration in configurations:
             if not isinstance(configuration, MultiScannerConfiguration):
                 raise NmapConfigurationException()
@@ -53,9 +53,12 @@ class MultiScanner:
         self.__thread_lock = threading.Lock()
         self.__report_lock = threading.Lock()
         self.__error_lock = threading.Lock()
+        self.__wait_lock = threading.Lock()
         self.__nmap_path = None
         self.__thread_pool = None
+        self.__ping_thread_pool = None
         self.__max_threads = max_threads
+        self.__max_ping_threads = max_ping_threads
 
     def set_nmap_path(self, path):
         logging.info('Set nmap path to "{path}", I hop you know what you are doing!'.format(path=path))
@@ -149,12 +152,13 @@ class MultiScanner:
             return
         self.__started = True
         self.__thread_pool = concurrent.futures.ThreadPoolExecutor(max_workers=self.__max_threads)
+        self.__ping_thread_pool = concurrent.futures.ThreadPoolExecutor(max_workers=self.__max_ping_threads)
         self.__main_thread_lock.release()
 
         thread_id = 0
         for configuration in self.__configurations:
             self.__main_thread_lock.acquire()
-            self.__main_threads.append(self.__thread_pool.submit(
+            self.__main_threads.append(self.__ping_thread_pool.submit(
                 self.__scan,
                 configuration=configuration,
                 thread_id=thread_id
@@ -164,17 +168,20 @@ class MultiScanner:
 
     def wait(self):
 
-        if self.__finished:
-            return
+        with self.__wait_lock:
+            if self.__finished:
+                return
 
-        for main_thread in self.__main_threads:
-            main_thread.result()
+            for main_thread in self.__main_threads:
+                main_thread.result()
 
-        for thread in self.__threads:
-            thread.result()
+            self.__ping_thread_pool.shutdown()
 
-        self.__finished = True
-        self.__thread_pool.shutdown()
+            for thread in self.__threads:
+                thread.result()
+
+            self.__thread_pool.shutdown()
+            self.__finished = True
 
     def __scan(self, configuration, thread_id):
         args = configuration.get_nmap_args()

@@ -58,7 +58,8 @@ from nmap_scan.MultiScannerConfiguration import MultiScannerConfiguration
 from nmap_scan.NmapArgs import NmapArgs
 from nmap_scan.NmapScanMethods import NmapScanMethods
 
-args = NmapArgs(['192.168.0.10/24'])
+args = NmapArgs(['192.168.0.0/24'])
+args2 = NmapArgs(['192.168.1.0/24'])
 
 def callback_method(ip, report, scan_method):
     filename = {
@@ -71,8 +72,8 @@ def callback_method(ip, report, scan_method):
 
 
 configs = [
-    MultiScannerConfiguration(nmap_args=args, scan_method=NmapScanMethods.TCP, callback_method=callback_method),
-    MultiScannerConfiguration(nmap_args=args, scan_method=NmapScanMethods.UDP, callback_method=callback_method),
+    MultiScannerConfiguration(nmap_args=args, scan_methods=[NmapScanMethods.TCP, NmapScanMethods.UDP], callback_method=callback_method),
+    MultiScannerConfiguration(nmap_args=args2, scan_methods=[NmapScanMethods.TCP], callback_method=callback_method),
 ]
 scanner = MultiScanner(configs)
 scanner.scan_background()
