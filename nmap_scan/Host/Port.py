@@ -194,9 +194,11 @@ class Port:
         self.__port = int(attr['portid'])
         logging.debug('Port: "{port}"'.format(port=self.__port))
         logging.debug('Protocol: "{protocol}"'.format(protocol=self.__protocol))
-        logging.debug('Owner: "{owner}"'.format(owner=self.__owner))
         self.__state = State(self.__xml.find('state'), False)
-        self.__service = Service(self.__xml.find('service'), False)
+
+        service = self.__xml.find('service')
+        if None != service:
+            self.__service = Service(service, False)
 
         owner = self.__xml.find('owner')
         if None != owner:
