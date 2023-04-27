@@ -31,6 +31,7 @@ import logging
 import os
 import shutil
 from pathlib import Path
+from typing import Union, List, Mapping, Type, TypeVar, Callable, Dict
 from xml.etree.ElementTree import ElementTree
 
 import requests
@@ -42,6 +43,7 @@ from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
 from nmap_scan.Exceptions.ReportCombineException import ReportCombineException
 from nmap_scan.Host.Host import Host
 from nmap_scan.Host.HostHint import HostHint
+from nmap_scan.Host.Port import Port
 from nmap_scan.Scripts.Script import Script
 from nmap_scan.Scripts.ScriptParser import parse
 from nmap_scan.Stats.Output import Output
@@ -52,61 +54,64 @@ from nmap_scan.Stats.TaskBegin import TaskBegin
 from nmap_scan.Stats.TaskEnd import TaskEnd
 from nmap_scan.Stats.TaskProgress import TaskProgress
 from nmap_scan.Validator import validate
+from xml.etree.ElementTree import Element as XMLElement
+
+T = TypeVar('T', bound='Report')
 
 
 class Report:
 
-    def __init__(self, xml):
-        self.__xml = xml
-        self.__scanner = None
-        self.__scanner_args = None
-        self.__start = None
-        self.__startstr = None
-        self.__version = None
-        self.__profile_name = None
-        self.__xmloutputversion = None
-        self.__scaninfos = []
-        self.__targets = []
-        self.__outputs = []
-        self.__task_progresses = []
-        self.__task_begins = []
-        self.__task_ends = []
-        self.__pre_scripts = {}
-        self.__post_scripts = {}
-        self.__verbose_level = None
-        self.__debugging_level = None
-        self.__run_stats = None
-        self.__hosts = []
-        self.__host_hints = []
-        self.__hosts_up = None
-        self.__hosts_down = None
-        self.__hosts_unknown = None
-        self.__hosts_skipped = None
-        self.__is_combined = False
+    def __init__(self, xml: XMLElement):
+        self.__xml: XMLElement = xml
+        self.__scanner: Union[str, None] = None
+        self.__scanner_args: Union[str, None] = None
+        self.__start: Union[int, None] = None
+        self.__startstr: Union[str, None] = None
+        self.__version: Union[str, None] = None
+        self.__profile_name: Union[str, None] = None
+        self.__xmloutputversion: Union[str, None] = None
+        self.__scaninfos: List[ScanInfo] = []
+        self.__targets: List[Target] = []
+        self.__outputs: List[Output] = []
+        self.__task_progresses: List[TaskProgress] = []
+        self.__task_begins: List[TaskBegin] = []
+        self.__task_ends: List[TaskEnd] = []
+        self.__pre_scripts: Dict[str, Union[Script, List[Script]]] = {}
+        self.__post_scripts: Dict[str, Union[Script, List[Script]]] = {}
+        self.__verbose_level: Union[int, None] = None
+        self.__debugging_level: Union[int, None] = None
+        self.__run_stats: Union[RunStats, None] = None
+        self.__hosts: List[Host] = []
+        self.__host_hints: List[HostHint] = []
+        self.__hosts_up: Union[List[Host], None] = None
+        self.__hosts_down: Union[List[Host], None] = None
+        self.__hosts_unknown: Union[List[Host], None] = None
+        self.__hosts_skipped: Union[List[Host], None] = None
+        self.__is_combined: bool = False
 
         self.__parse_xml()
 
-    def __eq__(self, other):
+    def __eq__(self, other: T):
         return self.equals(other)
 
-    def __ne__(self, other):
+    def __ne__(self, other: T):
         return not self.__eq__(other)
 
     def __iter__(self):
         yield "scanner", self.__scanner
         yield "version", self.__version
-        if None != self.__xmloutputversion:
+        if None is not self.__xmloutputversion:
             yield "xmloutputversion", self.__xmloutputversion
-        if None != self.__profile_name:
+        if None is not self.__profile_name:
             yield "profile_name", self.__profile_name
         yield "args", self.__scanner_args
-        if None != self.__start:
+        if None is not self.__start:
             yield "start", self.__start
-        if None != self.__startstr:
+        if None is not self.__startstr:
             yield "startstr", self.__startstr
-        if None != self.__verbose_level:
+        if None is not self.__verbose_level:
             yield "verbose", self.__verbose_level
-        if None != self.__debugging_level:
+        if None is not self.__debugging_level:
             yield "debugging", self.__debugging_level
         yield "runstats", dict(self.__run_stats)
         yield "scaninfo", [dict(e) for e in self.__scaninfos]
@@ -141,74 +146,74 @@ class Report:
         yield "postscripts", postscripts
 
     @staticmethod
-    def dict_to_xml(d, validate_xml=True):
-        xml = etree.Element('nmaprun')
+    def dict_to_xml(d: Mapping[str, any], validate_xml: bool = True) -> XMLElement:
+        xml: XMLElement = etree.Element('nmaprun')
 
-        if None != d.get('scanner', None):
+        if None is not d.get('scanner', None):
             xml.attrib['scanner'] = d.get('scanner', None)
-        if None != d.get('version', None):
+        if None is not d.get('version', None):
             xml.attrib['version'] = d.get('version', None)
-        if None != d.get('xmloutputversion', None):
+        if None is not d.get('xmloutputversion', None):
             xml.attrib['xmloutputversion'] = d.get('xmloutputversion', None)
-        if None != d.get('profile_name', None):
+        if None is not d.get('profile_name', None):
             xml.attrib['profile_name'] = d.get('profile_name', None)
-        if None != d.get('args', None):
+        if None is not d.get('args', None):
             xml.attrib['args'] = d.get('args', None)
-        if None != d.get('start', None):
+        if None is not d.get('start', None):
             xml.attrib['start'] = str(d.get('start', None))
-        if None != d.get('startstr', None):
+        if None is not d.get('startstr', None):
             xml.attrib['startstr'] = d.get('startstr', None)
 
-        if None != d.get('scaninfo', None):
+        if None is not d.get('scaninfo', None):
             for status_dict in d['scaninfo']:
                 xml.append(ScanInfo.dict_to_xml(status_dict, validate_xml))
 
-        if None != d.get('verbose', None):
+        if None is not d.get('verbose', None):
             verbose_xml = etree.Element('verbose')
             verbose_xml.attrib['level'] = str(d['verbose'])
             xml.append(verbose_xml)
 
-        if None != d.get('debugging', None):
+        if None is not d.get('debugging', None):
             debugging_xml = etree.Element('debugging')
             debugging_xml.attrib['level'] = str(d['debugging'])
             xml.append(debugging_xml)
 
-        if None != d.get('targets', None):
+        if None is not d.get('targets', None):
             for e_dict in d['targets']:
                 xml.append(Target.dict_to_xml(e_dict, validate_xml))
-        if None != d.get('taskbegin', None):
+        if None is not d.get('taskbegin', None):
             for e_dict in d['taskbegin']:
                 xml.append(TaskBegin.dict_to_xml(e_dict, validate_xml))
-        if None != d.get('taskprogress', None):
+        if None is not d.get('taskprogress', None):
             for e_dict in d['taskprogress']:
                 xml.append(TaskProgress.dict_to_xml(e_dict, validate_xml))
-        if None != d.get('taskend', None):
+        if None is not d.get('taskend', None):
             for e_dict in d['taskend']:
                 xml.append(TaskEnd.dict_to_xml(e_dict, validate_xml))
 
-        if None != d.get('hosthints', None):
+        if None is not d.get('hosthints', None):
             for e_dict in d['hosthints']:
                 xml.append(HostHint.dict_to_xml(e_dict, validate_xml))
 
-        if None != d.get('prescripts', None):
+        if None is not d.get('prescripts', None):
             for script_dict in d['prescripts']:
                 script_xml = etree.Element('prescript')
                 script_xml.append(Script.dict_to_xml(script_dict, validate_xml))
                 xml.append(script_xml)
-        if None != d.get('postscripts', None):
+        if None is not d.get('postscripts', None):
             for script_dict in d['postscripts']:
                 script_xml = etree.Element('postscript')
                 script_xml.append(Script.dict_to_xml(script_dict, validate_xml))
                 xml.append(script_xml)
 
-        if None != d.get('hosts', None):
+        if None is not d.get('hosts', None):
             for e_dict in d['hosts']:
                 xml.append(Host.dict_to_xml(e_dict, validate_xml))
-        if None != d.get('outputs', None):
+        if None is not d.get('outputs', None):
             for e_dict in d['outputs']:
                 xml.append(Output.dict_to_xml(e_dict, validate_xml))
 
-        if None != d.get('runstats', None):
+        if None is not d.get('runstats', None):
             xml.append(RunStats.dict_to_xml(d['runstats'], validate_xml))
 
         if validate_xml:
@@ -220,289 +225,290 @@ class Report:
         return xml
 
     @staticmethod
-    def from_dict(d):
+    def from_dict(d: Mapping[str, any]) -> T:
         try:
             return Report(Report.dict_to_xml(d, False))
         except NmapXMLParserException:
             raise NmapDictParserException()
 
-    def equals(self, other):
+    def equals(self, other: T):
         return isinstance(other, Report) \
-               and self.__scanner == other.get_scanner() \
-               and self.__scanner_args == other.get_scanner_args() \
-               and self.__start == other.get_start() \
-               and self.__startstr == other.get_start_string() \
-               and self.__version == other.get_version() \
-               and self.__profile_name == other.get_profile_name() \
-               and self.__xmloutputversion == other.get_xml_output_version() \
-               and self.__verbose_level == other.get_verbose_level() \
-               and self.__debugging_level == other.get_debugging_level() \
-               and self.__run_stats.equals(other.get_run_stats()) \
-               and compare_lists_equal(self.__scaninfos, other.get_scaninfos()) \
-               and compare_lists_equal(self.__scaninfos, other.get_scaninfos()) \
-               and compare_lists_equal(self.__targets, other.get_targets()) \
-               and compare_lists_equal(self.__outputs, other.get_outputs()) \
-               and compare_lists_equal(self.__task_progresses, other.get_task_progresses()) \
-               and compare_lists_equal(self.__task_begins, other.get_task_begins()) \
-               and compare_lists_equal(self.__task_ends, other.get_task_ends()) \
-               and compare_lists_equal(self.__hosts, other.get_hosts()) \
-               and compare_lists_equal(self.__host_hints, other.get_host_hints()) \
-               and compare_script_maps(self.__pre_scripts, other.get_pre_scripts()) \
-               and compare_script_maps(self.__post_scripts, other.get_post_scripts())
+            and self.__scanner == other.get_scanner() \
+            and self.__scanner_args == other.get_scanner_args() \
+            and self.__start == other.get_start() \
+            and self.__startstr == other.get_start_string() \
+            and self.__version == other.get_version() \
+            and self.__profile_name == other.get_profile_name() \
+            and self.__xmloutputversion == other.get_xml_output_version() \
+            and self.__verbose_level == other.get_verbose_level() \
+            and self.__debugging_level == other.get_debugging_level() \
+            and self.__run_stats.equals(other.get_run_stats()) \
+            and compare_lists_equal(self.__scaninfos, other.get_scaninfos()) \
+            and compare_lists_equal(self.__scaninfos, other.get_scaninfos()) \
+            and compare_lists_equal(self.__targets, other.get_targets()) \
+            and compare_lists_equal(self.__outputs, other.get_outputs()) \
+            and compare_lists_equal(self.__task_progresses, other.get_task_progresses()) \
+            and compare_lists_equal(self.__task_begins, other.get_task_begins()) \
+            and compare_lists_equal(self.__task_ends, other.get_task_ends()) \
+            and compare_lists_equal(self.__hosts, other.get_hosts()) \
+            and compare_lists_equal(self.__host_hints, other.get_host_hints()) \
+            and compare_script_maps(self.__pre_scripts, other.get_pre_scripts()) \
+            and compare_script_maps(self.__post_scripts, other.get_post_scripts())
 
-    def get_xml(self):
+    def get_xml(self) -> XMLElement:
         return self.__xml
 
-    def is_combined(self):
+    def is_combined(self) -> bool:
         return self.__is_combined
 
-    def get_scanner(self):
+    def get_scanner(self) -> Union[str, None]:
         return self.__scanner
 
-    def get_scanner_args(self):
+    def get_scanner_args(self) -> Union[str, None]:
         return self.__scanner_args
 
-    def get_start(self):
+    def get_start(self) -> Union[int, None]:
         return self.__start
 
-    def get_start_string(self):
+    def get_start_string(self) -> Union[str, None]:
         return self.__startstr
 
-    def get_version(self):
+    def get_version(self) -> Union[str, None]:
         return self.__version
 
-    def get_xml_output_version(self):
+    def get_xml_output_version(self) -> Union[str, None]:
         return self.__xmloutputversion
 
-    def get_profile_name(self):
+    def get_profile_name(self) -> Union[str, None]:
         return self.__profile_name
 
-    def get_scaninfos(self):
+    def get_scaninfos(self) -> List[ScanInfo]:
         return self.__scaninfos
 
-    def get_verbose_level(self):
+    def get_verbose_level(self) -> Union[int, None]:
         return self.__verbose_level
 
-    def get_debugging_level(self):
+    def get_debugging_level(self) -> Union[int, None]:
         return self.__debugging_level
 
-    def get_targets(self):
+    def get_targets(self) -> List[Target]:
         return self.__targets
 
-    def get_outputs(self):
+    def get_outputs(self) -> List[Output]:
         return self.__outputs
 
-    def get_task_progresses(self):
+    def get_task_progresses(self) -> List[TaskProgress]:
         return self.__task_progresses
 
-    def get_task_begins(self):
+    def get_task_begins(self) -> List[TaskBegin]:
         return self.__task_begins
 
-    def get_task_ends(self):
+    def get_task_ends(self) -> List[TaskEnd]:
         return self.__task_ends
 
-    def get_run_stats(self):
+    def get_run_stats(self) -> Union[RunStats, None]:
         return self.__run_stats
 
-    def get_host_hints(self):
+    def get_host_hints(self) -> List[HostHint]:
         return self.__host_hints
 
-    def get_hosts(self):
+    def get_hosts(self) -> List[Host]:
         return self.__hosts
 
-    def get_hosts_up(self):
-        if None == self.__hosts_up:
+    def get_hosts_up(self) -> List[Host]:
+        if None is self.__hosts_up:
             self.__hosts_up = [h for h in self.__hosts if h.is_up()]
         return self.__hosts_up
 
-    def get_hosts_down(self):
-        if None == self.__hosts_down:
+    def get_hosts_down(self) -> List[Host]:
+        if None is self.__hosts_down:
             self.__hosts_down = [h for h in self.__hosts if h.is_down()]
         return self.__hosts_down
 
-    def get_hosts_unknown(self):
-        if None == self.__hosts_unknown:
+    def get_hosts_unknown(self) -> List[Host]:
+        if None is self.__hosts_unknown:
             self.__hosts_unknown = [h for h in self.__hosts if h.is_unknown()]
         return self.__hosts_unknown
 
-    def get_hosts_skipped(self):
-        if None == self.__hosts_skipped:
+    def get_hosts_skipped(self) -> List[Host]:
+        if None is self.__hosts_skipped:
             self.__hosts_skipped = [h for h in self.__hosts if h.is_skipped()]
         return self.__hosts_skipped
 
-    def get_pre_scripts(self):
+    def get_pre_scripts(self) -> Dict[str, Union[Script, List[Script]]]:
         return self.__pre_scripts
 
-    def has_pre_script(self, pre_script_id):
-        return None != self.__pre_scripts.get(pre_script_id, None)
+    def has_pre_script(self, pre_script_id) -> bool:
+        return None is not self.__pre_scripts.get(pre_script_id, None)
 
-    def get_pre_script(self, pre_script_id):
+    def get_pre_script(self, pre_script_id) -> Union[Dict[str, Union[List[Script], Script]], None]:
         return self.__pre_scripts.get(pre_script_id, None)
 
-    def get_post_scripts(self):
+    def get_post_scripts(self) -> Mapping[str, Union[Script, List[Script]]]:
         return self.__post_scripts
 
-    def has_post_script(self, post_script_id):
-        return None != self.__post_scripts.get(post_script_id, None)
+    def has_post_script(self, post_script_id) -> bool:
+        return None is not self.__post_scripts.get(post_script_id, None)
 
-    def get_post_script(self, post_script_id):
+    def get_post_script(self, post_script_id) -> Union[Dict[str, Union[List[Script], Script]], None]:
         return self.__post_scripts.get(post_script_id, None)
 
-    def get_host_with_port(self, port_id):
+    def get_host_with_port(self, port_id) -> List[Host]:
         return self.get_hosts_with_port([port_id])
 
-    def get_hosts_with_port(self, port_ids):
-        def callback(port):
+    def get_hosts_with_port(self, port_ids: List[int]) -> List[Host]:
+        def callback(port: Port):
             return True
 
         return self.__get_hosts_with_port(port_ids, self.__hosts, callback)
 
-    def get_hosts_up_with_port(self, port_ids):
-        def callback(port):
+    def get_hosts_up_with_port(self, port_ids: List[int]) -> List[Host]:
+        def callback(port: Port):
             return True
 
         return self.__get_hosts_with_port(port_ids, self.get_hosts_up(), callback)
 
-    def get_hosts_down_with_port(self, port_ids):
-        def callback(port):
+    def get_hosts_down_with_port(self, port_ids: List[int]) -> List[Host]:
+        def callback(port: Port):
             return True
 
         return self.__get_hosts_with_port(port_ids, self.get_hosts_down(), callback)
 
-    def get_hosts_unknown_with_port(self, port_ids):
-        def callback(port):
+    def get_hosts_unknown_with_port(self, port_ids: List[int]) -> List[Host]:
+        def callback(port: Port):
             return True
 
         return self.__get_hosts_with_port(port_ids, self.get_hosts_unknown(), callback)
 
-    def get_hosts_skipped_with_port(self, port_ids):
-        def callback(port):
+    def get_hosts_skipped_with_port(self, port_ids: List[int]) -> List[Host]:
+        def callback(port: Port):
             return True
 
         return self.__get_hosts_with_port(port_ids, self.get_hosts_skipped(), callback)
 
-    def get_hosts_with_port_open(self, port_ids):
-        def callback(port):
+    def get_hosts_with_port_open(self, port_ids: List[int]) -> List[Host]:
+        def callback(port: Port) -> bool:
             return port.is_open()
 
         return self.__get_hosts_with_port(port_ids, self.__hosts, callback)
 
-    def get_hosts_up_with_port_open(self, port_ids):
-        def callback(port):
+    def get_hosts_up_with_port_open(self, port_ids: List[int]) -> List[Host]:
+        def callback(port: Port) -> bool:
             return port.is_open()
 
         return self.__get_hosts_with_port(port_ids, self.get_hosts_up(), callback)
 
-    def get_hosts_down_with_port_open(self, port_ids):
-        def callback(port):
+    def get_hosts_down_with_port_open(self, port_ids: List[int]) -> List[Host]:
+        def callback(port: Port) -> bool:
             return port.is_open()
 
         return self.__get_hosts_with_port(port_ids, self.get_hosts_down(), callback)
 
-    def get_hosts_unknown_with_port_open(self, port_ids):
-        def callback(port):
+    def get_hosts_unknown_with_port_open(self, port_ids: List[int]) -> List[Host]:
+        def callback(port: Port) -> bool:
             return port.is_open()
 
         return self.__get_hosts_with_port(port_ids, self.get_hosts_unknown(), callback)
 
-    def get_hosts_skipped_with_port_open(self, port_ids):
-        def callback(port):
+    def get_hosts_skipped_with_port_open(self, port_ids: List[int]) -> List[Host]:
+        def callback(port: Port) -> bool:
             return port.is_open()
 
         return self.__get_hosts_with_port(port_ids, self.get_hosts_skipped(), callback)
 
-    def get_hosts_with_port_closed(self, port_ids):
-        def callback(port):
+    def get_hosts_with_port_closed(self, port_ids: List[int]) -> List[Host]:
+        def callback(port: Port) -> bool:
             return port.is_closed()
 
         return self.__get_hosts_with_port(port_ids, self.__hosts, callback)
 
-    def get_hosts_up_with_port_closed(self, port_ids):
-        def callback(port):
+    def get_hosts_up_with_port_close(self, port_ids: List[int]) -> List[Host]:
+        def callback(port: Port) -> bool:
             return port.is_closed()
 
         return self.__get_hosts_with_port(port_ids, self.get_hosts_up(), callback)
 
-    def get_hosts_down_with_port_closed(self, port_ids):
-        def callback(port):
+    def get_hosts_down_with_port_closed(self, port_ids: List[int]) -> List[Host]:
+        def callback(port: Port) -> bool:
             return port.is_closed()
 
         return self.__get_hosts_with_port(port_ids, self.get_hosts_down(), callback)
 
-    def get_hosts_unknown_with_port_closed(self, port_ids):
-        def callback(port):
+    def get_hosts_unknown_with_port_closed(self, port_ids: List[int]) -> List[Host]:
+        def callback(port: Port) -> bool:
             return port.is_closed()
 
         return self.__get_hosts_with_port(port_ids, self.get_hosts_unknown(), callback)
 
-    def get_hosts_skipped_with_port_closed(self, port_ids):
-        def callback(port):
+    def get_hosts_skipped_with_port_closed(self, port_ids: List[int]) -> List[Host]:
+        def callback(port: Port) -> bool:
             return port.is_closed()
 
         return self.__get_hosts_with_port(port_ids, self.get_hosts_skipped(), callback)
 
-    def get_hosts_with_port_filtered(self, port_ids):
-        def callback(port):
+    def get_hosts_with_port_filtered(self, port_ids: List[int]) -> List[Host]:
+        def callback(port: Port) -> bool:
             return port.is_filtered()
 
         return self.__get_hosts_with_port(port_ids, self.__hosts, callback)
 
-    def get_hosts_up_with_port_filtered(self, port_ids):
-        def callback(port):
+    def get_hosts_up_with_port_filtered(self, port_ids: List[int]) -> List[Host]:
+        def callback(port: Port) -> bool:
             return port.is_filtered()
 
         return self.__get_hosts_with_port(port_ids, self.get_hosts_up(), callback)
 
-    def get_hosts_down_with_port_filtered(self, port_ids):
-        def callback(port):
+    def get_hosts_down_with_port_filtered(self, port_ids: List[int]) -> List[Host]:
+        def callback(port: Port) -> bool:
             return port.is_filtered()
 
         return self.__get_hosts_with_port(port_ids, self.get_hosts_down(), callback)
 
-    def get_hosts_unknown_with_port_filtered(self, port_ids):
-        def callback(port):
+    def get_hosts_unknown_with_port_filtered(self, port_ids: List[int]) -> List[Host]:
+        def callback(port: Port) -> bool:
             return port.is_filtered()
 
         return self.__get_hosts_with_port(port_ids, self.get_hosts_unknown(), callback)
 
-    def get_hosts_skipped_with_port_filtered(self, port_ids):
-        def callback(port):
+    def get_hosts_skipped_with_port_filtered(self, port_ids: List[int]) -> List[Host]:
+        def callback(port: Port) -> bool:
             return port.is_filtered()
 
         return self.__get_hosts_with_port(port_ids, self.get_hosts_skipped(), callback)
 
-    def get_hosts_with_port_unfiltered(self, port_ids):
-        def callback(port):
+    def get_hosts_with_port_unfiltered(self, port_ids: List[int]) -> List[Host]:
+        def callback(port: Port) -> bool:
             return port.is_unfiltered()
 
         return self.__get_hosts_with_port(port_ids, self.__hosts, callback)
 
-    def get_hosts_up_with_port_unfiltered(self, port_ids):
-        def callback(port):
+    def get_hosts_up_with_port_unfiltered(self, port_ids: List[int]) -> List[Host]:
+        def callback(port: Port) -> bool:
             return port.is_unfiltered()
 
         return self.__get_hosts_with_port(port_ids, self.get_hosts_up(), callback)
 
-    def get_hosts_down_with_port_unfiltered(self, port_ids):
-        def callback(port):
+    def get_hosts_down_with_port_unfiltered(self, port_ids: List[int]) -> List[Host]:
+        def callback(port: Port) -> bool:
             return port.is_unfiltered()
 
         return self.__get_hosts_with_port(port_ids, self.get_hosts_down(), callback)
 
-    def get_hosts_unknown_with_port_unfiltered(self, port_ids):
-        def callback(port):
+    def get_hosts_unknown_with_port_unfiltered(self, port_ids: List[int]) -> List[Host]:
+        def callback(port: Port) -> bool:
             return port.is_unfiltered()
 
         return self.__get_hosts_with_port(port_ids, self.get_hosts_unknown(), callback)
 
-    def get_hosts_skipped_with_port_unfiltered(self, port_ids):
-        def callback(port):
+    def get_hosts_skipped_with_port_unfiltered(self, port_ids: List[int]) -> List[Host]:
+        def callback(port: Port) -> bool:
             return port.is_unfiltered()
 
         return self.__get_hosts_with_port(port_ids, self.get_hosts_skipped(), callback)
 
-    def __get_hosts_with_port(self, port_ids, search_hosts, callback):
-        hosts = []
+    def __get_hosts_with_port(self, port_ids: List[int], search_hosts: List[Host], callback: Callable[[Port], bool]) -> \
+            List[Host]:
+        hosts: List[Host] = []
         for host in search_hosts:
             if host in hosts:
                 continue
@@ -514,8 +520,8 @@ class Report:
 
         return hosts
 
-    def get_hosts_with_script(self, script_id):
-        hosts = []
+    def get_hosts_with_script(self, script_id: str) -> List[Host]:
+        hosts: List[Host] = []
         for host in self.__hosts:
             if host in hosts:
                 continue
@@ -524,7 +530,7 @@ class Report:
                 if port.has_script(script_id):
                     host_ports.append(port)
             if 0 != len(host_ports):
-                hosts.append({'host': host, 'ports': host_ports})
+                hosts.append(host)
 
         return hosts
 
@@ -533,7 +539,7 @@ class Report:
         nmaprun = self.get_xml().attrib
         self.__scanner = nmaprun['scanner']
         self.__scanner_args = nmaprun.get('args', None)
-        self.__start = int(nmaprun['start']) if None != nmaprun.get('start', None) else None
+        self.__start = int(nmaprun['start']) if None is not nmaprun.get('start', None) else None
         self.__startstr = nmaprun.get('startstr', None)
         self.__version = nmaprun['version']
         self.__xmloutputversion = nmaprun.get('xmloutputversion', None)
@@ -543,16 +549,17 @@ class Report:
             self.__hosts.append(Host(host_xml, False))
 
         verbose_xml = self.get_xml().find('verbose')
-        if None != verbose_xml:
-            self.__verbose_level = int(verbose_xml.attrib['level']) if None != verbose_xml.attrib.get('level') else None
+        if None is not verbose_xml:
+            self.__verbose_level = int(verbose_xml.attrib['level']) if None is not verbose_xml.attrib.get(
+                'level') else None
 
         debugging_xml = self.get_xml().find('debugging')
-        if None != debugging_xml:
-            self.__debugging_level = int(debugging_xml.attrib['level']) if None != debugging_xml.attrib.get(
+        if None is not debugging_xml:
+            self.__debugging_level = int(debugging_xml.attrib['level']) if None is not debugging_xml.attrib.get(
                 'level') else None
 
         run_stats_xml = self.get_xml().find('runstats')
-        if None != run_stats_xml:
+        if None is not run_stats_xml:
             self.__run_stats = RunStats(run_stats_xml, False)
 
         for scaninfo_xml in self.get_xml().findall('scaninfo'):
@@ -580,7 +587,7 @@ class Report:
             for script_xml in prescript_xml.findall('script'):
                 script = parse(script_xml, False)
                 existing_script = self.__pre_scripts.get(script.get_id(), None)
-                if None == existing_script:
+                if None is existing_script:
                     self.__pre_scripts[script.get_id()] = script
                 elif isinstance(existing_script, list):
                     self.__pre_scripts[script.get_id()].append(script)
@@ -591,23 +598,23 @@ class Report:
             for script_xml in postscript_xml.findall('script'):
                 script = parse(script_xml, False)
                 existing_script = self.__post_scripts.get(script.get_id(), None)
-                if None == existing_script:
+                if None is existing_script:
                     self.__post_scripts[script.get_id()] = script
                 elif isinstance(existing_script, list):
                     self.__post_scripts[script.get_id()].append(script)
                 else:
                     self.__post_scripts[script.get_id()] = [existing_script, script]
 
-    def save(self, filepath):
+    def save(self, filepath: str):
         shutil.rmtree(filepath, ignore_errors=True)
         Path(os.path.dirname(os.path.realpath(filepath))).mkdir(parents=True, exist_ok=True)
         et = ElementTree(element=self.get_xml())
         et.write(filepath, encoding='utf-8')
 
-    def save_html(self, filepath, xsl_file=None):
+    def save_html(self, filepath: str, xsl_file: Union[str, None] = None):
         logging.info('Convert Report to HTML')
 
-        if None == xsl_file:
+        if None is xsl_file:
             dir_path = os.path.dirname(os.path.realpath(__file__))
             xsl_file = dir_path + '/../nmap.xsl'
 
@@ -620,43 +627,27 @@ class Report:
         Path(os.path.dirname(os.path.realpath(filepath))).mkdir(parents=True, exist_ok=True)
         xhtml.write(filepath, pretty_print=True, encoding='utf-8')
 
-    def save_json(self, filepath):
+    def save_json(self, filepath: str):
         logging.info('Convert Report to JSON')
-
-        # dir_path = os.path.dirname(os.path.realpath(__file__))
-        # xsl = etree.parse(dir_path + '/../nmap2json.xsl')
-        #
-        # transform = etree.XSLT(xsl)
-        # xhtml = transform(self.__xml)
-        #
-        # shutil.rmtree(filepath, ignore_errors=True)
-        # Path(os.path.dirname(os.path.realpath(filepath))).mkdir(parents=True, exist_ok=True)
-        # with open(filepath, "w", encoding='utf-8') as file:
-        #     file.write(str(xhtml))
-
-        # shutil.rmtree(filepath, ignore_errors=True)
-        # Path(os.path.dirname(os.path.realpath(filepath))).mkdir(parents=True, exist_ok=True)
-
-        # json_object = xmltodict.parse(etree.tostring(self.__xml))
         with open(filepath, "w", encoding='utf-8') as file:
             file.write(json.dumps(dict(self)))
 
     @staticmethod
-    def from_json_file(filepath):
+    def from_json_file(filepath: str) -> T:
         with open(filepath, "r", encoding='utf-8') as json_file:
             data = json.load(json_file)
 
         return Report(Report.dict_to_xml(data))
 
     @staticmethod
-    def from_file(filepath):
+    def from_file(filepath: str) -> T:
         parser = etree.XMLParser()
         et = ElementTree()
         xml = et.parse(source=filepath, parser=parser)
 
         return Report(xml)
 
-    def validate(self, xml):
+    def validate(self, xml: XMLElement) -> bool:
         validate(xml)
 
         try:
@@ -695,7 +686,7 @@ class Report:
         self.__hosts_unknown = None
         self.__hosts_skipped = None
 
-    def combine(self, new_report):
+    def combine(self, new_report: T):
         logging.info('Combine reports')
         if not isinstance(new_report, Report):
             raise ReportCombineException('Can only combine a report with another!')
@@ -824,7 +815,7 @@ class Report:
         self.__parse_xml()
 
     @staticmethod
-    def __get_ips(host_xml):
+    def __get_ips(host_xml: XMLElement) -> List[str]:
         ips = []
         for address in host_xml.findall('address'):
             if address.attrib['addrtype'] in ['ipv4', 'ipv6']:
@@ -832,7 +823,7 @@ class Report:
         logging.debug('Found ips "{ips}" for host'.format(ips=', '.join(ips)))
         return ips
 
-    def __combine_hosts(self, host1_xml, host2_xml, new_report):
+    def __combine_hosts(self, host1_xml: XMLElement, host2_xml: XMLElement, new_report: T) -> XMLElement:
         logging.debug('Combine hosts')
         new_host_xml = etree.Element('host', {'starttime': '0', 'endtime': '0', 'comment': 'Combined'})
         new_host_xml.append(etree.Element('status', {'state': 'unknown', 'reason': 'combined', 'reason_ttl': '0'}))
@@ -856,7 +847,7 @@ class Report:
         for hostnames_xml in host1_xml.findall('hostnames') + host2_xml.findall('hostnames'):
             for hostname in hostnames_xml.findall('hostname'):
                 map = {'name': hostname.attrib.get('name', None), 'type': hostname.attrib.get('type', None)}
-                if None == map['name']:
+                if None is map['name']:
                     continue
                 if map not in hostnames:
                     hostnames.append(map)
@@ -864,7 +855,7 @@ class Report:
         for hostname in hostnames:
             logging.debug('Add Hostname "{name}" of type "{type}"'.format(name=hostname['name'],
                                                                           type=hostname['type']))
-            if None == hostname['type']:
+            if None is hostname['type']:
                 hostnames_xml.append(etree.Element('hostname', {'name': hostname['name']}))
             else:
                 hostnames_xml.append(etree.Element('hostname',
@@ -892,7 +883,7 @@ class Report:
         return new_host_xml
 
     @staticmethod
-    def __combine_ports(host1_xml, host2_xml):
+    def __combine_ports(host1_xml: XMLElement, host2_xml: XMLElement) -> XMLElement:
         logging.info('combine ports')
         ports_xml = etree.Element('ports')
 
@@ -924,17 +915,17 @@ class Report:
                     })
                     new_port.append(host1_port.find('state'))
 
-                    if None != host1_port.find('owner'):
+                    if None is not host1_port.find('owner'):
                         logging.debug('Add owner of port 1')
                         new_port.append(host1_port.find('owner'))
-                    elif None != host2_port.find('owner'):
+                    elif None is not host2_port.find('owner'):
                         logging.debug('Add owner of port 2')
                         new_port.append(host2_port.find('owner'))
 
-                    if None != host1_port.find('service'):
+                    if None is not host1_port.find('service'):
                         logging.debug('Add service of port 1')
                         new_port.append(host1_port.find('service'))
-                    elif None != host2_port.find('service'):
+                    elif None is not host2_port.find('service'):
                         logging.debug('Add service of port 2')
                         new_port.append(host2_port.find('service'))
 

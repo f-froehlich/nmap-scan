@@ -121,7 +121,7 @@ class MultiScanner:
         scanner.set_nmap_path(nmap_path)
 
         def cm(r, s, ip=address, tid=thread_id):
-            if None != configuration.get_callback_method():
+            if None is not  configuration.get_callback_method():
                 logging.info('Call callback method for "{ip}" in thread {thread}'
                              .format(ip=ip, thread=tid))
                 configuration.get_callback_method()(ip, r, s)

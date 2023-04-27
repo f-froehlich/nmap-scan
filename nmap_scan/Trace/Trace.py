@@ -37,40 +37,45 @@ from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
 from nmap_scan.Trace.Hop import Hop
 from nmap_scan.Validator import validate
 
+from xml.etree.ElementTree import Element as XMLElement
+from typing import TypeVar, Dict, Union, List
+
+T = TypeVar('T', bound='Trace')
+
 
 class Trace:
 
-    def __init__(self, xml, validate_xml=True):
+    def __init__(self, xml: XMLElement, validate_xml: bool = True):
         if validate_xml:
             validate(xml)
-        self.__xml = xml
-        self.__hops = []
-        self.__proto = None
-        self.__port = None
+        self.__xml: XMLElement = xml
+        self.__hops: List[Hop] = []
+        self.__proto: Union[str, None] = None
+        self.__port: Union[int, None] = None
         self.__parse_xml()
 
-    def __eq__(self, other):
+    def __eq__(self, other: T) -> bool:
         return self.equals(other)
 
-    def __ne__(self, other):
+    def __ne__(self, other: T) -> bool:
         return not self.__eq__(other)
 
     def __iter__(self):
         yield "hops", [dict(h) for h in self.__hops]
-        if None != self.__proto:
+        if None is not self.__proto:
             yield "proto", self.__proto
-        if None != self.__port:
+        if None is not self.__port:
             yield "port", self.__port
 
     @staticmethod
-    def dict_to_xml(d, validate_xml=True):
+    def dict_to_xml(d: Dict[str, any], validate_xml: bool = True) -> T:
         xml = etree.Element('trace')
-        if None != d.get('port', None):
+        if None is not d.get('port', None):
             xml.attrib['port'] = str(d.get('port', None))
-        if None != d.get('proto', None):
+        if None is not d.get('proto', None):
             xml.attrib['proto'] = d.get('proto', None)
 
-        if None != d.get('hops', None):
+        if None is not d.get('hops', None):
             for hop_dict in d['hops']:
                 xml.append(Hop.dict_to_xml(hop_dict))
 
@@ -82,34 +87,34 @@ class Trace:
         return xml
 
     @staticmethod
-    def from_dict(d):
+    def from_dict(d: Dict[str, any]) -> T:
         try:
             return Trace(Trace.dict_to_xml(d, False))
         except NmapXMLParserException:
             raise NmapDictParserException()
 
-    def get_xml(self):
+    def get_xml(self) -> XMLElement:
         return self.__xml
 
-    def get_hops(self):
+    def get_hops(self) -> List[Hop]:
         return self.__hops
 
-    def get_proto(self):
+    def get_proto(self) -> Union[str, None]:
         return self.__proto
 
-    def get_port(self):
+    def get_port(self) -> Union[int, None]:
         return self.__port
 
-    def equals(self, other):
+    def equals(self, other: T) -> bool:
         return isinstance(other, Trace) \
-               and self.__proto == other.get_proto() \
-               and self.__port == other.get_port() \
-               and compare_lists_equal(self.__hops, other.get_hops())
+            and self.__proto == other.get_proto() \
+            and self.__port == other.get_port() \
+            and compare_lists_equal(self.__hops, other.get_hops())
 
     def __parse_xml(self):
         logging.info('Parsing Trace')
         attr = self.__xml.attrib
-        self.__port = int(attr['port']) if None != attr.get('port', None) else None
+        self.__port = int(attr['port']) if None is not attr.get('port', None) else None
         self.__proto = attr.get('proto', None)
 
         logging.debug('Port: "{port}"'.format(port=self.__port))

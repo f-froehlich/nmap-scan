@@ -70,6 +70,9 @@ install_requires = [
     'lxml>=4.5',
     'requests>=2.22',
     'xmltodict>=0.12'
+    # 'pytest',
+    # 'pytest-cov',
+    # 'pytest-snapshot',
 ]
 
 if __name__ == '__main__':

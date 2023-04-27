@@ -37,23 +37,27 @@ from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
 from nmap_scan.OS.OSMatch import OSMatch
 from nmap_scan.OS.OSUsedPort import OSUsedPort
 from nmap_scan.Validator import validate
+from xml.etree.ElementTree import Element as XMLElement
+from typing import TypeVar, Dict, Union, List
+
+T = TypeVar('T', bound='OS')
 
 
 class OS:
 
-    def __init__(self, xml, validate_xml=True):
+    def __init__(self, xml: XMLElement, validate_xml: bool = True):
         if validate_xml:
             validate(xml)
-        self.__xml = xml
-        self.__used_ports = []
-        self.__os_matches = []
-        self.__os_fingerprints = []
+        self.__xml: XMLElement = xml
+        self.__used_ports: List[OSUsedPort] = []
+        self.__os_matches: List[OSMatch] = []
+        self.__os_fingerprints: List[str] = []
         self.__parse_xml()
 
-    def __eq__(self, other):
+    def __eq__(self, other: T) -> bool:
         return self.equals(other)
 
-    def __ne__(self, other):
+    def __ne__(self, other: T) -> bool:
         return not self.__eq__(other)
 
     def __iter__(self):
@@ -62,17 +66,17 @@ class OS:
         yield "osfingerprint", self.__os_fingerprints
 
     @staticmethod
-    def dict_to_xml(d, validate_xml=True):
+    def dict_to_xml(d: Dict[str, any], validate_xml: bool = True) -> T:
         xml = etree.Element('os')
 
-        if None != d.get('portused', None):
+        if None is not d.get('portused', None):
             for portused_dict in d['portused']:
                 xml.append(OSUsedPort.dict_to_xml(portused_dict, validate_xml))
-        if None != d.get('osmatch', None):
+        if None is not d.get('osmatch', None):
             for osmatch_dict in d['osmatch']:
                 xml.append(OSMatch.dict_to_xml(osmatch_dict, validate_xml))
 
-        if None != d.get('osfingerprint', None):
+        if None is not d.get('osfingerprint', None):
             for osfingerprint in d['osfingerprint']:
                 cpe_xml = etree.Element('osfingerprint')
                 cpe_xml.attrib['fingerprint'] = osfingerprint
@@ -87,28 +91,28 @@ class OS:
         return xml
 
     @staticmethod
-    def from_dict(d):
+    def from_dict(d: Dict[str, any]) -> T:
         try:
             return OS(OS.dict_to_xml(d, False))
         except NmapXMLParserException:
             raise NmapDictParserException()
 
-    def equals(self, other):
+    def equals(self, other: T) -> bool:
         return isinstance(other, OS) \
-               and compare_lists_equal(self.__used_ports, other.get_used_ports()) \
-               and compare_lists_equal(self.__os_matches, other.get_os_matches()) \
-               and compare_lists(self.__os_fingerprints, other.get_os_fingerprints())
+            and compare_lists_equal(self.__used_ports, other.get_used_ports()) \
+            and compare_lists_equal(self.__os_matches, other.get_os_matches()) \
+            and compare_lists(self.__os_fingerprints, other.get_os_fingerprints())
 
-    def get_xml(self):
+    def get_xml(self) -> XMLElement:
         return self.__xml
 
-    def get_used_ports(self):
+    def get_used_ports(self) -> List[OSUsedPort]:
         return self.__used_ports
 
-    def get_os_matches(self):
+    def get_os_matches(self) -> List[OSMatch]:
         return self.__os_matches
 
-    def get_os_fingerprints(self):
+    def get_os_fingerprints(self) -> List[str]:
         return self.__os_fingerprints
 
     def __parse_xml(self):

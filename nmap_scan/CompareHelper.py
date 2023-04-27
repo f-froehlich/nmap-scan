@@ -32,7 +32,7 @@ def compare_script_maps(m1, m2):
         own_script = m1[own_script_key]
         other_script = m2.get(own_script_key, None)
 
-        if None == other_script \
+        if None is  other_script \
                 or (isinstance(own_script, list) and not isinstance(other_script, list)) \
                 or (not isinstance(own_script, list) and isinstance(other_script, list)):
             return False

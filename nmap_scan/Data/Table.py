@@ -36,27 +36,31 @@ from nmap_scan.Data.Element import Element
 from nmap_scan.Exceptions.NmapDictParserException import NmapDictParserException
 from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
 from nmap_scan.Validator import validate
+from xml.etree.ElementTree import Element as XMLElement
+from typing import TypeVar, Dict, Union, List
+
+T = TypeVar('T', bound='Table')
 
 
 class Table:
 
-    def __init__(self, xml, validate_xml=True):
+    def __init__(self, xml: XMLElement, validate_xml: bool = True):
         if validate_xml:
             validate(xml)
-        self.__xml = xml
+        self.__xml : XMLElement = xml
         self.__key = None
-        self.__tables = []
-        self.__elements = []
+        self.__tables: List[T] = []
+        self.__elements: List[Element] = []
         self.__parse_xml()
 
-    def __eq__(self, other):
+    def __eq__(self, other: T) -> bool:
         return self.equals(other)
 
-    def __ne__(self, other):
+    def __ne__(self, other: T) -> bool:
         return not self.__eq__(other)
 
     def __iter__(self):
-        if None != self.__key:
+        if None is not self.__key:
             yield "key", self.__key
         if 0 != len(self.__tables):
             yield "tables", [dict(t) for t in self.__tables]
@@ -64,14 +68,14 @@ class Table:
             yield "elements", [dict(e) for e in self.__elements]
 
     @staticmethod
-    def dict_to_xml(d, validate_xml=True):
+    def dict_to_xml(d: Dict[str, any], validate_xml: bool = True) -> T:
         xml = etree.Element('table')
-        if None != d.get('key', None):
+        if None is not d.get('key', None):
             xml.attrib['key'] = d.get('key', None)
-        if None != d.get('tables', None):
+        if None is not d.get('tables', None):
             for table_dict in d['tables']:
                 xml.append(Table.dict_to_xml(table_dict, validate_xml))
-        if None != d.get('elements', None):
+        if None is not d.get('elements', None):
             for element_dict in d['elements']:
                 xml.append(Element.dict_to_xml(element_dict, validate_xml))
 
@@ -84,28 +88,28 @@ class Table:
         return xml
 
     @staticmethod
-    def from_dict(d):
+    def from_dict(d: Dict[str, any]) -> T:
         try:
             return Table(Table.dict_to_xml(d, False))
         except NmapXMLParserException:
             raise NmapDictParserException()
 
-    def equals(self, other):
+    def equals(self, other: T) -> bool:
         return isinstance(other, Table) \
-               and self.__key == other.get_key() \
-               and compare_lists_equal(self.__tables, other.get_tables()) \
-               and compare_lists_equal(self.__elements, other.get_elements())
+            and self.__key == other.get_key() \
+            and compare_lists_equal(self.__tables, other.get_tables()) \
+            and compare_lists_equal(self.__elements, other.get_elements())
 
-    def get_xml(self):
+    def get_xml(self) -> XMLElement:
         return self.__xml
 
-    def get_elements(self):
+    def get_elements(self) -> List[Element]:
         return self.__elements
 
-    def get_tables(self):
+    def get_tables(self) -> List[T]:
         return self.__tables
 
-    def get_key(self):
+    def get_key(self) -> Union[str, None]:
         return self.__key
 
     def __parse_xml(self):

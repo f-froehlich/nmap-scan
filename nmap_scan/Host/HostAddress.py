@@ -34,40 +34,44 @@ from lxml import etree
 from nmap_scan.Exceptions.NmapDictParserException import NmapDictParserException
 from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
 from nmap_scan.Validator import validate
+from xml.etree.ElementTree import Element as XMLElement
+from typing import TypeVar, Dict, Union
+
+T = TypeVar('T', bound='HostAddress')
 
 
 class HostAddress:
 
-    def __init__(self, xml, validate_xml=True):
+    def __init__(self, xml: XMLElement, validate_xml: bool = True):
         if validate_xml:
             validate(xml)
-        self.__xml = xml
-        self.__addr = None
-        self.__vendor = None
-        self.__type = None
+        self.__xml: XMLElement = xml
+        self.__addr: Union[str, None] = None
+        self.__vendor: Union[str, None] = None
+        self.__type: Union[str, None] = None
         self.__parse_xml()
 
-    def __eq__(self, other):
+    def __eq__(self, other: T) -> bool:
         return self.equals(other)
 
-    def __ne__(self, other):
+    def __ne__(self, other: T) -> bool:
         return not self.__eq__(other)
 
     def __iter__(self):
         yield "addr", self.__addr
-        if None != self.__vendor:
+        if None is not self.__vendor:
             yield "vendor", self.__vendor
         yield "type", self.__type
 
     @staticmethod
-    def dict_to_xml(d, validate_xml=True):
+    def dict_to_xml(d: Dict[str, any], validate_xml: bool = True) -> T:
         xml = etree.Element('address')
 
-        if None != d.get('addr', None):
+        if None is not d.get('addr', None):
             xml.attrib['addr'] = d.get('addr', None)
-        if None != d.get('vendor', None):
+        if None is not d.get('vendor', None):
             xml.attrib['vendor'] = d.get('vendor', None)
-        if None != d.get('type', None):
+        if None is not d.get('type', None):
             xml.attrib['addrtype'] = d.get('type', None)
 
         if validate_xml:
@@ -79,40 +83,40 @@ class HostAddress:
         return xml
 
     @staticmethod
-    def from_dict(d):
+    def from_dict(d: Dict[str, any]) -> T:
         try:
             return HostAddress(HostAddress.dict_to_xml(d, False))
         except NmapXMLParserException:
             raise NmapDictParserException()
 
-    def equals(self, other):
+    def equals(self, other: T) -> bool:
         return isinstance(other, HostAddress) \
-               and self.__addr == other.get_addr() \
-               and self.__vendor == other.get_vendor() \
-               and self.__type == other.get_type()
+            and self.__addr == other.get_addr() \
+            and self.__vendor == other.get_vendor() \
+            and self.__type == other.get_type()
 
-    def get_xml(self):
+    def get_xml(self) -> XMLElement:
         return self.__xml
 
-    def get_addr(self):
+    def get_addr(self) -> str:
         return self.__addr
 
-    def get_type(self):
+    def get_type(self) -> str:
         return self.__type
 
-    def get_vendor(self):
+    def get_vendor(self) -> Union[str, None]:
         return self.__vendor
 
-    def is_ipv4(self):
+    def is_ipv4(self) -> bool:
         return 'ipv4' == self.__type
 
-    def is_ipv6(self):
+    def is_ipv6(self) -> bool:
         return 'ipv6' == self.__type
 
     def is_ip(self):
         return self.is_ipv4() or self.is_ipv6()
 
-    def is_mac(self):
+    def is_mac(self) -> bool:
         return 'mac' == self.__type
 
     def __parse_xml(self):

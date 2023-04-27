@@ -37,22 +37,27 @@ from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
 from nmap_scan.Stats.ExtraReason import ExtraReason
 from nmap_scan.Validator import validate
 
+from xml.etree.ElementTree import Element as XMLElement
+from typing import TypeVar, Dict, Union, List
+
+T = TypeVar('T', bound='ExtraPort')
+
 
 class ExtraPort:
 
-    def __init__(self, xml, validate_xml=True):
+    def __init__(self, xml: XMLElement, validate_xml: bool = True):
         if validate_xml:
             validate(xml)
-        self.__xml = xml
-        self.__state = None
-        self.__count = None
-        self.__reasons = []
+        self.__xml: XMLElement = xml
+        self.__state: Union[str, None] = None
+        self.__count: Union[int, None] = None
+        self.__reasons: List[ExtraReason] = []
         self.__parse_xml()
 
-    def __eq__(self, other):
+    def __eq__(self, other: T) -> bool:
         return self.equals(other)
 
-    def __ne__(self, other):
+    def __ne__(self, other: T) -> bool:
         return not self.__eq__(other)
 
     def __iter__(self):
@@ -61,14 +66,14 @@ class ExtraPort:
         yield "reasons", [dict(r) for r in self.__reasons]
 
     @staticmethod
-    def dict_to_xml(d, validate_xml=True):
+    def dict_to_xml(d: Dict[str, any], validate_xml: bool = True) -> T:
         xml = etree.Element('extraports')
-        if None != d.get('state', None):
+        if None is not d.get('state', None):
             xml.attrib['state'] = d.get('state', None)
-        if None != d.get('count', None):
+        if None is not d.get('count', None):
             xml.attrib['count'] = str(d.get('count', None))
 
-        if None != d.get('reasons', None):
+        if None is not d.get('reasons', None):
             for hop_dict in d['reasons']:
                 xml.append(ExtraReason.dict_to_xml(hop_dict))
 
@@ -81,28 +86,28 @@ class ExtraPort:
         return xml
 
     @staticmethod
-    def from_dict(d):
+    def from_dict(d: Dict[str, any]) -> T:
         try:
             return ExtraPort(ExtraPort.dict_to_xml(d, False))
         except NmapXMLParserException:
             raise NmapDictParserException()
 
-    def equals(self, other):
+    def equals(self, other: T) -> bool:
         return isinstance(other, ExtraPort) \
-               and self.__state == other.get_state() \
-               and self.__count == other.get_count() \
-               and compare_lists_equal(self.__reasons, other.get_reasons())
+            and self.__state == other.get_state() \
+            and self.__count == other.get_count() \
+            and compare_lists_equal(self.__reasons, other.get_reasons())
 
-    def get_xml(self):
+    def get_xml(self) -> XMLElement:
         return self.__xml
 
-    def get_count(self):
+    def get_count(self) -> int:
         return self.__count
 
-    def get_state(self):
+    def get_state(self) -> Union[str, None]:
         return self.__state
 
-    def get_reasons(self):
+    def get_reasons(self) -> List[ExtraReason]:
         return self.__reasons
 
     def __parse_xml(self):

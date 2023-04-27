@@ -34,22 +34,27 @@ from nmap_scan.Exceptions.NmapDictParserException import NmapDictParserException
 from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
 from nmap_scan.Validator import validate
 
+from xml.etree.ElementTree import Element as XMLElement
+from typing import TypeVar, Dict, Union
+
+T = TypeVar('T', bound='Status')
+
 
 class Status:
 
-    def __init__(self, xml, validate_xml=True):
+    def __init__(self, xml: XMLElement, validate_xml: bool = True):
         if validate_xml:
             validate(xml)
-        self.__xml = xml
-        self.__state = None
-        self.__reason = None
-        self.__reason_ttl = None
+        self.__xml: XMLElement = xml
+        self.__state: Union[str, None] = None
+        self.__reason: Union[str, None] = None
+        self.__reason_ttl: Union[str, None] = None
         self.__parse_xml()
 
-    def __eq__(self, other):
+    def __eq__(self, other: T) -> bool:
         return self.equals(other)
 
-    def __ne__(self, other):
+    def __ne__(self, other: T) -> bool:
         return not self.__eq__(other)
 
     def __iter__(self):
@@ -58,13 +63,13 @@ class Status:
         yield "reasonttl", self.__reason_ttl
 
     @staticmethod
-    def dict_to_xml(d, validate_xml=True):
+    def dict_to_xml(d: Dict[str, any], validate_xml: bool = True) -> T:
         xml = etree.Element('status')
-        if None != d.get('state', None):
+        if None is not d.get('state', None):
             xml.attrib['state'] = d.get('state', None)
-        if None != d.get('reason', None):
+        if None is not d.get('reason', None):
             xml.attrib['reason'] = d.get('reason', None)
-        if None != d.get('reasonttl', None):
+        if None is not d.get('reasonttl', None):
             xml.attrib['reason_ttl'] = str(d.get('reasonttl', None))
 
         if validate_xml:
@@ -76,28 +81,28 @@ class Status:
         return xml
 
     @staticmethod
-    def from_dict(d):
+    def from_dict(d: Dict[str, any]) -> T:
         try:
             return Status(Status.dict_to_xml(d, False))
         except NmapXMLParserException:
             raise NmapDictParserException()
 
-    def equals(self, other):
+    def equals(self, other: T) -> bool:
         return isinstance(other, Status) \
-               and self.__state == other.get_state() \
-               and self.__reason == other.get_reason() \
-               and self.__reason_ttl == other.get_reason_ttl()
+            and self.__state == other.get_state() \
+            and self.__reason == other.get_reason() \
+            and self.__reason_ttl == other.get_reason_ttl()
 
-    def get_xml(self):
+    def get_xml(self) -> XMLElement:
         return self.__xml
 
-    def get_state(self):
+    def get_state(self) -> str:
         return self.__state
 
-    def get_reason(self):
+    def get_reason(self) -> str:
         return self.__reason
 
-    def get_reason_ttl(self):
+    def get_reason_ttl(self) -> str:
         return self.__reason_ttl
 
     def __parse_xml(self):

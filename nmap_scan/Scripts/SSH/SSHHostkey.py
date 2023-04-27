@@ -32,28 +32,31 @@ import logging
 from nmap_scan.CompareHelper import compare_lists_equal
 from nmap_scan.Scripts.Script import Script
 from nmap_scan.Validator import validate
+from xml.etree.ElementTree import Element as XMLElement
+from typing import TypeVar, Dict, Union
 
+T = TypeVar('T', bound='SSHHostkey')
 
 class SSHHostkey(Script):
 
-    def __init__(self, xml, validate_xml=True):
-        self.__xml = xml
+    def __init__(self, xml: XMLElement, validate_xml:bool=True):
+        self.__xml : XMLElement = xml
         Script.__init__(self, xml, validate_xml)
         self.__keys = []
         self.__parse_xml()
 
-    def __eq__(self, other):
+    def __eq__(self, other: T) -> bool:
         return self.equals(other)
 
-    def __ne__(self, other):
+    def __ne__(self, other: T) -> bool:
         return not self.__eq__(other)
 
-    def equals(self, other):
+    def equals(self, other: T) -> bool:
         return isinstance(other, SSHHostkey) \
                and Script.equals(self, other) \
                and compare_lists_equal(self.__keys, other.get_keys())
 
-    def get_xml(self):
+    def get_xml(self) -> XMLElement:
         return self.__xml
 
     def get_keys(self):
@@ -69,36 +72,36 @@ class SSHHostkey(Script):
 
 class Key:
 
-    def __init__(self, xml, validate_xml=True):
+    def __init__(self, xml: XMLElement, validate_xml:bool=True):
         if validate_xml:
             validate(xml)
-        self.__xml = xml
+        self.__xml : XMLElement = xml
         self.__bits = None
         self.__key = None
         self.__type = None
         self.__fingerprint = None
         self.__parse_xml()
 
-    def __eq__(self, other):
+    def __eq__(self, other: T) -> bool:
         return self.equals(other)
 
-    def __ne__(self, other):
+    def __ne__(self, other: T) -> bool:
         return not self.__eq__(other)
 
-    def equals(self, other):
+    def equals(self, other: T) -> bool:
         return isinstance(other, Key) \
                and self.__bits == other.get_bits() \
                and self.__key == other.get_key() \
                and self.__type == other.get_type() \
                and self.__fingerprint == other.get_fingerprint()
 
-    def get_xml(self):
+    def get_xml(self) -> XMLElement:
         return self.__xml
 
     def get_bits(self):
         return self.__bits
 
-    def get_key(self):
+    def get_key(self) -> Union[str, None]:
         return self.__key
 
     def get_fingerprint(self):

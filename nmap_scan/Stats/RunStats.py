@@ -35,72 +35,77 @@ from nmap_scan.Exceptions.NmapDictParserException import NmapDictParserException
 from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
 from nmap_scan.Validator import validate
 
+from xml.etree.ElementTree import Element as XMLElement
+from typing import TypeVar, Dict, Union
+
+T = TypeVar('T', bound='RunStats')
+
 
 class RunStats:
 
-    def __init__(self, xml, validate_xml=True):
+    def __init__(self, xml: XMLElement, validate_xml: bool = True):
         if validate_xml:
             validate(xml)
-        self.__xml = xml
-        self.__time = None
-        self.__time_str = None
-        self.__summary = None
-        self.__elapsed = None
-        self.__exit = None
-        self.__errormsg = None
-        self.__up = None
-        self.__down = None
-        self.__total = None
+        self.__xml: XMLElement = xml
+        self.__time: Union[int, None] = None
+        self.__time_str: Union[str, None] = None
+        self.__summary: Union[str, None] = None
+        self.__elapsed: Union[int, None] = None
+        self.__exit: Union[str, None] = None
+        self.__errormsg: Union[str, None] = None
+        self.__up: Union[int, None] = None
+        self.__down: Union[int, None] = None
+        self.__total: Union[int, None] = None
         self.__parse_xml()
 
-    def __eq__(self, other):
+    def __eq__(self, other: T) -> bool:
         return self.equals(other)
 
-    def __ne__(self, other):
+    def __ne__(self, other: T) -> bool:
         return not self.__eq__(other)
 
     def __iter__(self):
         yield "time", self.__time
-        if None != self.__time_str:
+        if None is not self.__time_str:
             yield "timestr", self.__time_str
-        if None != self.__summary:
+        if None is not self.__summary:
             yield "summary", self.__summary
-        if None != self.__elapsed:
+        if None is not self.__elapsed:
             yield "elapsed", self.__elapsed
-        if None != self.__exit:
+        if None is not self.__exit:
             yield "exit", self.__exit
-        if None != self.__errormsg:
+        if None is not self.__errormsg:
             yield "errormsg", self.__errormsg
-        if None != self.__up:
+        if None is not self.__up:
             yield "up", self.__up
-        if None != self.__down:
+        if None is not self.__down:
             yield "down", self.__down
-        if None != self.__total:
+        if None is not self.__total:
             yield "total", self.__total
 
     @staticmethod
-    def dict_to_xml(d, validate_xml=True):
+    def dict_to_xml(d: Dict[str, any], validate_xml: bool = True) -> T:
         xml = etree.Element('runstats')
         xml_finished = etree.Element('finished')
         xml_hosts = etree.Element('hosts')
-        if None != d.get('time', None):
+        if None is not d.get('time', None):
             xml_finished.attrib['time'] = str(d.get('time', None))
-        if None != d.get('timestr', None):
+        if None is not d.get('timestr', None):
             xml_finished.attrib['timestr'] = d.get('timestr', None)
-        if None != d.get('elapsed', None):
+        if None is not d.get('elapsed', None):
             xml_finished.attrib['elapsed'] = str(d.get('elapsed', None))
-        if None != d.get('summary', None):
+        if None is not d.get('summary', None):
             xml_finished.attrib['summary'] = d.get('summary', None)
-        if None != d.get('exit', None):
+        if None is not d.get('exit', None):
             xml_finished.attrib['exit'] = d.get('exit', None)
-        if None != d.get('errormsg', None):
+        if None is not d.get('errormsg', None):
             xml_finished.attrib['errormsg'] = d.get('errormsg', None)
 
-        if None != d.get('total', None):
+        if None is not d.get('total', None):
             xml_hosts.attrib['total'] = str(d.get('total', None))
-        if None != d.get('down', None):
+        if None is not d.get('down', None):
             xml_hosts.attrib['down'] = str(d.get('down', None))
-        if None != d.get('up', None):
+        if None is not d.get('up', None):
             xml_hosts.attrib['up'] = str(d.get('up', None))
 
         xml.append(xml_finished)
@@ -115,58 +120,58 @@ class RunStats:
         return xml
 
     @staticmethod
-    def from_dict(d):
+    def from_dict(d: Dict[str, any]) -> T:
         try:
             return RunStats(RunStats.dict_to_xml(d, False))
         except NmapXMLParserException:
             raise NmapDictParserException()
 
-    def equals(self, other):
+    def equals(self, other: T) -> bool:
         return isinstance(other, RunStats) \
-               and self.__time == other.get_time() \
-               and self.__time_str == other.get_time_string() \
-               and self.__summary == other.get_summary() \
-               and self.__elapsed == other.get_elapsed() \
-               and self.__exit == other.get_exit() \
-               and self.__errormsg == other.get_errormsg() \
-               and self.__up == other.get_up() \
-               and self.__down == other.get_down() \
-               and self.__total == other.get_total()
+            and self.__time == other.get_time() \
+            and self.__time_str == other.get_time_string() \
+            and self.__summary == other.get_summary() \
+            and self.__elapsed == other.get_elapsed() \
+            and self.__exit == other.get_exit() \
+            and self.__errormsg == other.get_errormsg() \
+            and self.__up == other.get_up() \
+            and self.__down == other.get_down() \
+            and self.__total == other.get_total()
 
-    def get_xml(self):
+    def get_xml(self) -> XMLElement:
         return self.__xml
 
-    def get_time(self):
+    def get_time(self) -> int:
         return self.__time
 
-    def get_time_string(self):
+    def get_time_string(self) -> Union[str, None]:
         return self.__time_str
 
-    def get_summary(self):
+    def get_summary(self) -> Union[str, None]:
         return self.__summary
 
-    def get_elapsed(self):
+    def get_elapsed(self) -> Union[int, None]:
         return self.__elapsed
 
-    def get_exit(self):
+    def get_exit(self) -> Union[str, None]:
         return self.__exit
 
-    def is_success(self):
+    def is_success(self) -> bool:
         return 'success' == self.__exit
 
-    def is_error(self):
+    def is_error(self) -> bool:
         return 'error' == self.__exit
 
-    def get_errormsg(self):
+    def get_errormsg(self) -> Union[str, None]:
         return self.__errormsg
 
-    def get_up(self):
+    def get_up(self) -> int:
         return self.__up
 
-    def get_down(self):
+    def get_down(self) -> int:
         return self.__down
 
-    def get_total(self):
+    def get_total(self) -> int:
         return self.__total
 
     def __parse_xml(self):
@@ -175,13 +180,13 @@ class RunStats:
         attr_hosts = self.__xml.find('hosts').attrib
         self.__time = int(attr_finished['time'])
         self.__time_str = attr_finished.get('timestr', None)
-        self.__elapsed = float(attr_finished['elapsed']) if None != attr_finished.get('elapsed', None) else None
+        self.__elapsed = float(attr_finished['elapsed']) if None is not attr_finished.get('elapsed', None) else None
         self.__summary = attr_finished.get('summary', None)
         self.__exit = attr_finished.get('exit', None)
         self.__errormsg = attr_finished.get('errormsg', None)
-        self.__up = int(attr_hosts['up']) if None != attr_hosts.get('up', None) else None
-        self.__down = int(attr_hosts['down']) if None != attr_hosts.get('down', None) else None
-        self.__total = int(attr_hosts['total']) if None != attr_hosts.get('total', None) else None
+        self.__up = int(attr_hosts['up']) if None is not attr_hosts.get('up', None) else None
+        self.__down = int(attr_hosts['down']) if None is not attr_hosts.get('down', None) else None
+        self.__total = int(attr_hosts['total']) if None is not attr_hosts.get('total', None) else None
 
         logging.debug('Time: "{time}"'.format(time=self.__time))
         logging.debug('Time string: "{time_str}"'.format(time_str=self.__time_str))

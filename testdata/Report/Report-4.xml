@@ -75,7 +75,7 @@
             <script id="unknownId" output="scriptOutput"></script>
             <script id="unknownId" output="scriptOutput"></script>
         </hostscript>
-        <smurf responses="smurf"/>
+        <smurf responses="10"/>
         <distance value="5"/>
         <distance value="19"/>
         <trace proto="tcp" port="10">

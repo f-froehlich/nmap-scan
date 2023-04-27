@@ -35,43 +35,48 @@ from nmap_scan.Exceptions.NmapDictParserException import NmapDictParserException
 from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
 from nmap_scan.Validator import validate
 
+from xml.etree.ElementTree import Element as XMLElement
+from typing import TypeVar, Dict, Union
+
+T = TypeVar('T', bound='ExtraReason')
+
 
 class ExtraReason:
 
-    def __init__(self, xml, validate_xml=True):
+    def __init__(self, xml: XMLElement, validate_xml: bool = True):
         if validate_xml:
             validate(xml)
-        self.__xml = xml
-        self.__reason = None
-        self.__count = None
-        self.__proto = None
-        self.__ports = None
+        self.__xml: XMLElement = xml
+        self.__reason: Union[str, None] = None
+        self.__count: Union[int, None] = None
+        self.__proto: Union[str, None] = None
+        self.__ports: Union[str, None] = None
         self.__parse_xml()
 
-    def __eq__(self, other):
+    def __eq__(self, other: T) -> bool:
         return self.equals(other)
 
-    def __ne__(self, other):
+    def __ne__(self, other: T) -> bool:
         return not self.__eq__(other)
 
     def __iter__(self):
         yield "reason", self.__reason
         yield "count", self.__count
-        if None != self.__proto:
+        if None is not self.__proto:
             yield "proto", self.__proto
-        if None != self.__ports:
+        if None is not self.__ports:
             yield "ports", self.__ports
 
     @staticmethod
-    def dict_to_xml(d, validate_xml=True):
+    def dict_to_xml(d: Dict[str, any], validate_xml: bool = True) -> T:
         xml = etree.Element('extrareasons')
-        if None != d.get('reason', None):
+        if None is not d.get('reason', None):
             xml.attrib['reason'] = d.get('reason', None)
-        if None != d.get('count', None):
+        if None is not d.get('count', None):
             xml.attrib['count'] = d.get('count', None)
-        if None != d.get('proto', None):
+        if None is not d.get('proto', None):
             xml.attrib['proto'] = d.get('proto', None)
-        if None != d.get('ports', None):
+        if None is not d.get('ports', None):
             xml.attrib['ports'] = d.get('ports', None)
 
         if validate_xml:
@@ -83,32 +88,32 @@ class ExtraReason:
         return xml
 
     @staticmethod
-    def from_dict(d):
+    def from_dict(d: Dict[str, any]) -> T:
         try:
             return ExtraReason(ExtraReason.dict_to_xml(d, False))
         except NmapXMLParserException:
             raise NmapDictParserException()
 
-    def equals(self, other):
+    def equals(self, other: T) -> bool:
         return isinstance(other, ExtraReason) \
-               and self.__reason == other.get_reason() \
-               and self.__count == other.get_count() \
-               and self.__proto == other.get_proto() \
-               and self.__ports == other.get_ports()
+            and self.__reason == other.get_reason() \
+            and self.__count == other.get_count() \
+            and self.__proto == other.get_proto() \
+            and self.__ports == other.get_ports()
 
-    def get_xml(self):
+    def get_xml(self) -> XMLElement:
         return self.__xml
 
-    def get_count(self):
+    def get_count(self) -> int:
         return self.__count
 
-    def get_reason(self):
+    def get_reason(self) -> str:
         return self.__reason
 
-    def get_ports(self):
+    def get_ports(self) -> Union[str, None]:
         return self.__ports
 
-    def get_proto(self):
+    def get_proto(self) -> Union[str, None]:
         return self.__proto
 
     def __parse_xml(self):

@@ -35,22 +35,27 @@ from nmap_scan.Exceptions.NmapDictParserException import NmapDictParserException
 from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
 from nmap_scan.Validator import validate
 
+from xml.etree.ElementTree import Element as XMLElement
+from typing import TypeVar, Dict, Union
+
+T = TypeVar('T', bound='OSUsedPort')
+
 
 class OSUsedPort:
 
-    def __init__(self, xml, validate_xml=True):
+    def __init__(self, xml: XMLElement, validate_xml: bool = True):
         if validate_xml:
             validate(xml)
-        self.__xml = xml
-        self.__state = None
-        self.__proto = None
-        self.__port = None
+        self.__xml: XMLElement = xml
+        self.__state: Union[str, None] = None
+        self.__proto: Union[str, None] = None
+        self.__port: Union[int, None] = None
         self.__parse_xml()
 
-    def __eq__(self, other):
+    def __eq__(self, other: T) -> bool:
         return self.equals(other)
 
-    def __ne__(self, other):
+    def __ne__(self, other: T) -> bool:
         return not self.__eq__(other)
 
     def __iter__(self):
@@ -59,13 +64,13 @@ class OSUsedPort:
         yield "port", self.__port
 
     @staticmethod
-    def dict_to_xml(d, validate_xml=True):
+    def dict_to_xml(d: Dict[str, any], validate_xml: bool = True) -> T:
         xml = etree.Element('portused')
-        if None != d.get('state', None):
+        if None is not d.get('state', None):
             xml.attrib['state'] = d.get('state', None)
-        if None != d.get('proto', None):
+        if None is not d.get('proto', None):
             xml.attrib['proto'] = d.get('proto', None)
-        if None != d.get('port', None):
+        if None is not d.get('port', None):
             xml.attrib['portid'] = str(d.get('port', None))
 
         if validate_xml:
@@ -77,28 +82,28 @@ class OSUsedPort:
         return xml
 
     @staticmethod
-    def from_dict(d):
+    def from_dict(d: Dict[str, any]) -> T:
         try:
             return OSUsedPort(OSUsedPort.dict_to_xml(d, False))
         except NmapXMLParserException:
             raise NmapDictParserException()
 
-    def equals(self, other):
+    def equals(self, other: T) -> bool:
         return isinstance(other, OSUsedPort) \
-               and self.__state == other.get_state() \
-               and self.__proto == other.get_proto() \
-               and self.__port == other.get_port()
+            and self.__state == other.get_state() \
+            and self.__proto == other.get_proto() \
+            and self.__port == other.get_port()
 
-    def get_xml(self):
+    def get_xml(self) -> XMLElement:
         return self.__xml
 
-    def get_port(self):
+    def get_port(self) -> int:
         return self.__port
 
-    def get_proto(self):
+    def get_proto(self) -> str:
         return self.__proto
 
-    def get_state(self):
+    def get_state(self) -> str:
         return self.__state
 
     def __parse_xml(self):

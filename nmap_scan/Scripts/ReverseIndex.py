@@ -32,16 +32,21 @@ import logging
 from nmap_scan.CompareHelper import compare_lists
 from nmap_scan.Scripts.Script import Script
 
+from xml.etree.ElementTree import Element as XMLElement
+from typing import TypeVar, Dict, Union
+
+T = TypeVar('T', bound='ReverseIndex')
+
 
 class ReverseIndex(Script):
 
-    def __init__(self, xml, validate_xml=True):
-        self.__xml = xml
+    def __init__(self, xml: XMLElement, validate_xml: bool = True):
+        self.__xml: XMLElement = xml
         Script.__init__(self, xml, validate_xml)
         self.__port_ip_map = {}
         self.__parse_xml()
 
-    def equals(self, other):
+    def equals(self, other: T) -> bool:
         status = isinstance(other, ReverseIndex) \
                  and Script.equals(self, other) \
                  and len(self.__port_ip_map) == len(other.get_port_ip_map())
@@ -54,7 +59,7 @@ class ReverseIndex(Script):
 
         return status
 
-    def get_xml(self):
+    def get_xml(self) -> XMLElement:
         return self.__xml
 
     def get_port_ip_map(self):

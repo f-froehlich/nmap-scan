@@ -33,17 +33,20 @@ from nmap_scan.Exceptions.LogicException import LogicException
 from nmap_scan.Scripts.Script import Script
 from nmap_scan.Validator import validate
 
+from xml.etree.ElementTree import Element as XMLElement
+from typing import TypeVar, Dict, Union
 
+T = TypeVar('T', bound='SSLEnumCiphers')
 class SSLEnumCiphers(Script):
 
-    def __init__(self, xml, validate_xml=True):
-        self.__xml = xml
+    def __init__(self, xml: XMLElement, validate_xml:bool=True):
+        self.__xml : XMLElement = xml
         Script.__init__(self, xml, validate_xml)
         self.__protocols = {}
         self.__least_strength = None
         self.__parse_xml()
 
-    def equals(self, other):
+    def equals(self, other: T) -> bool:
         status = isinstance(other, SSLEnumCiphers) \
                  and Script.equals(self, other) \
                  and self.__least_strength == other.get_least_strength() \
@@ -52,11 +55,11 @@ class SSLEnumCiphers(Script):
         if status:
             for own_protocol in self.__protocols:
                 other_protocol = other.get_protocol(own_protocol)
-                if None == other_protocol or not other_protocol.equals(self.__protocols[own_protocol]):
+                if None is  other_protocol or not other_protocol.equals(self.__protocols[own_protocol]):
                     return False
             for other_protocol in other.get_protocols():
                 own_protocol = self.get_protocol(other_protocol)
-                if None == own_protocol or not own_protocol.equals(other.get_protocol(other_protocol)):
+                if None is  own_protocol or not own_protocol.equals(other.get_protocol(other_protocol)):
                     # I think this could never happen because we can't add the same protocol more than once
                     # and it also will never returned from the script so it is already compared with the
                     # privies loop
@@ -64,7 +67,7 @@ class SSLEnumCiphers(Script):
 
         return status
 
-    def get_xml(self):
+    def get_xml(self) -> XMLElement:
         return self.__xml
 
     def get_protocols(self):
@@ -90,12 +93,14 @@ class SSLEnumCiphers(Script):
         logging.debug('Least strength: "{strength}"'.format(strength=self.__least_strength))
 
 
+
+U = TypeVar('U', bound='SSLEnumCiphersProtocol')
 class SSLEnumCiphersProtocol:
 
-    def __init__(self, xml, validate_xml=True):
+    def __init__(self, xml: XMLElement, validate_xml:bool=True):
         if validate_xml:
             validate(xml)
-        self.__xml = xml
+        self.__xml : XMLElement = xml
         self.__ciphers = []
         self.__compressors = None
         self.__least_strength = None
@@ -103,13 +108,13 @@ class SSLEnumCiphersProtocol:
         self.__protocol_version = None
         self.__parse_xml()
 
-    def __eq__(self, other):
+    def __eq__(self, other: U) -> bool:
         return self.equals(other)
 
-    def __ne__(self, other):
+    def __ne__(self, other: U) -> bool:
         return not self.__eq__(other)
 
-    def get_xml(self):
+    def get_xml(self) -> XMLElement:
         return self.__xml
 
     def get_ciphers(self):
@@ -127,7 +132,7 @@ class SSLEnumCiphersProtocol:
     def get_protocol_version(self):
         return self.__protocol_version
 
-    def equals(self, other):
+    def equals(self, other: U) -> bool:
         status = isinstance(other, SSLEnumCiphersProtocol) \
                  and self.__protocol_version == other.get_protocol_version() \
                  and self.__compressors == other.get_compressor() \
@@ -188,25 +193,26 @@ class SSLEnumCiphersProtocol:
         logging.debug('Cipher preference: "{cipher_preference}"'.format(cipher_preference=self.__cipher_preference))
         logging.debug('Least strength: "{strength}"'.format(strength=self.__least_strength))
 
+V = TypeVar('V', bound='SSLEnumCiphersCipher')
 
 class SSLEnumCiphersCipher:
 
-    def __init__(self, xml, validate_xml=True):
+    def __init__(self, xml: XMLElement, validate_xml:bool=True):
         if validate_xml:
             validate(xml)
-        self.__xml = xml
+        self.__xml : XMLElement = xml
         self.__strength = None
         self.__name = None
         self.__key_info = None
         self.__parse_xml()
 
-    def __eq__(self, other):
+    def __eq__(self, other: V) -> bool:
         return self.equals(other)
 
-    def __ne__(self, other):
+    def __ne__(self, other: V) -> bool:
         return not self.__eq__(other)
 
-    def get_xml(self):
+    def get_xml(self) -> XMLElement:
         return self.__xml
 
     def get_strength(self):
@@ -246,7 +252,7 @@ class SSLEnumCiphersCipher:
 
         return CipherCompare.a_better_equals_b(self.__strength, strength)
 
-    def equals(self, other):
+    def equals(self, other: T) -> bool:
         return isinstance(other, SSLEnumCiphersCipher) \
                and self.__name == other.get_name() \
                and self.__key_info == other.get_key_info() \
@@ -268,7 +274,7 @@ class SSLEnumCiphersCipher:
         logging.debug('Cipher: "{name}" ({key_info}) - "{strength}"'.format(name=self.__name, strength=self.__strength,
                                                                             key_info=self.__key_info))
 
-
+# TODO
 class CipherCompare:
 
     @staticmethod
@@ -325,7 +331,7 @@ class CipherCompare:
         }
 
         mapped_strength = all_strength.get(strength.upper(), None)
-        if None == mapped_strength:
+        if None is  mapped_strength:
             logging.info('Invalid strength "{strength}" detected. Must be A-F'.format(strength=strength))
             raise LogicException('Invalid strength "{strength}" detected. Must be A-F'.format(strength=strength))
 
@@ -344,7 +350,7 @@ class CipherCompare:
         }
 
         mapped_strength = all_strength.get(strength, None)
-        if None == mapped_strength:
+        if None is  mapped_strength:
             logging.info('Invalid strength "{strength}" detected. Must be A-F'.format(strength=strength))
             raise LogicException('Invalid strength "{strength}" detected. Must be A-F'.format(strength=strength))
 

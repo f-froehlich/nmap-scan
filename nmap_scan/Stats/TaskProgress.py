@@ -35,24 +35,29 @@ from nmap_scan.Exceptions.NmapDictParserException import NmapDictParserException
 from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
 from nmap_scan.Validator import validate
 
+from xml.etree.ElementTree import Element as XMLElement
+from typing import TypeVar, Dict, Union
+
+T = TypeVar('T', bound='TaskProgress')
+
 
 class TaskProgress:
 
-    def __init__(self, xml, validate_xml=True):
+    def __init__(self, xml: XMLElement, validate_xml: bool = True):
         if validate_xml:
             validate(xml)
-        self.__xml = xml
-        self.__task = None
-        self.__time = None
-        self.__percent = None
-        self.__remaining = None
-        self.__etc = None
+        self.__xml: XMLElement = xml
+        self.__task: Union[str, None] = None
+        self.__time: Union[int, None] = None
+        self.__percent: Union[float, None] = None
+        self.__remaining: Union[int, None] = None
+        self.__etc: Union[int, None] = None
         self.__parse_xml()
 
-    def __eq__(self, other):
+    def __eq__(self, other: T) -> bool:
         return self.equals(other)
 
-    def __ne__(self, other):
+    def __ne__(self, other: T) -> bool:
         return not self.__eq__(other)
 
     def __iter__(self):
@@ -63,17 +68,17 @@ class TaskProgress:
         yield "etc", self.__etc
 
     @staticmethod
-    def dict_to_xml(d, validate_xml=True):
+    def dict_to_xml(d: Dict[str, any], validate_xml: bool = True) -> T:
         xml = etree.Element('taskprogress')
-        if None != d.get('task', None):
+        if None is not d.get('task', None):
             xml.attrib['task'] = d.get('task', None)
-        if None != d.get('time', None):
+        if None is not d.get('time', None):
             xml.attrib['time'] = str(d.get('time', None))
-        if None != d.get('percent', None):
+        if None is not d.get('percent', None):
             xml.attrib['percent'] = str(d.get('percent', None))
-        if None != d.get('remaining', None):
+        if None is not d.get('remaining', None):
             xml.attrib['remaining'] = d.get('remaining', None)
-        if None != d.get('etc', None):
+        if None is not d.get('etc', None):
             xml.attrib['etc'] = d.get('etc', None)
 
         if validate_xml:
@@ -85,36 +90,36 @@ class TaskProgress:
         return xml
 
     @staticmethod
-    def from_dict(d):
+    def from_dict(d: Dict[str, any]) -> T:
         try:
             return TaskProgress(TaskProgress.dict_to_xml(d, False))
         except NmapXMLParserException:
             raise NmapDictParserException()
 
-    def equals(self, other):
+    def equals(self, other: T) -> bool:
         return isinstance(other, TaskProgress) \
-               and self.__task == other.get_task() \
-               and self.__time == other.get_time() \
-               and self.__percent == other.get_percent() \
-               and self.__remaining == other.get_remaining() \
-               and self.__etc == other.get_etc()
+            and self.__task == other.get_task() \
+            and self.__time == other.get_time() \
+            and self.__percent == other.get_percent() \
+            and self.__remaining == other.get_remaining() \
+            and self.__etc == other.get_etc()
 
-    def get_xml(self):
+    def get_xml(self) -> XMLElement:
         return self.__xml
 
-    def get_task(self):
+    def get_task(self) -> str:
         return self.__task
 
-    def get_time(self):
+    def get_time(self) -> int:
         return self.__time
 
-    def get_percent(self):
+    def get_percent(self) -> float:
         return self.__percent
 
-    def get_remaining(self):
+    def get_remaining(self) -> int:
         return self.__remaining
 
-    def get_etc(self):
+    def get_etc(self) -> int:
         return self.__etc
 
     def __parse_xml(self):

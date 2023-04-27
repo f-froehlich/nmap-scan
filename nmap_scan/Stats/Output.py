@@ -35,34 +35,39 @@ from nmap_scan.Exceptions.NmapDictParserException import NmapDictParserException
 from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
 from nmap_scan.Validator import validate
 
+from xml.etree.ElementTree import Element as XMLElement
+from typing import TypeVar, Dict, Union
+
+T = TypeVar('T', bound='Output')
+
 
 class Output:
 
-    def __init__(self, xml, validate_xml=True):
+    def __init__(self, xml: XMLElement, validate_xml: bool = True):
         if validate_xml:
             validate(xml)
-        self.__xml = xml
-        self.__data = None
-        self.__type = None
+        self.__xml: XMLElement = xml
+        self.__data: Union[str, None] = None
+        self.__type: Union[str, None] = None
         self.__parse_xml()
 
-    def __eq__(self, other):
+    def __eq__(self, other: T) -> bool:
         return self.equals(other)
 
-    def __ne__(self, other):
+    def __ne__(self, other: T) -> bool:
         return not self.__eq__(other)
 
     def __iter__(self):
-        if None != self.__type:
+        if None is not self.__type:
             yield "type", self.__type
         yield "data", self.__data
 
     @staticmethod
-    def dict_to_xml(d, validate_xml=True):
+    def dict_to_xml(d: Dict[str, any], validate_xml: bool = True) -> T:
         xml = etree.Element('output')
-        if None != d.get('type', None):
+        if None is not d.get('type', None):
             xml.attrib['type'] = d.get('type', None)
-        if None != d.get('data', None):
+        if None is not d.get('data', None):
             xml.text = d['data']
 
         if validate_xml:
@@ -74,24 +79,24 @@ class Output:
         return xml
 
     @staticmethod
-    def from_dict(d):
+    def from_dict(d: Dict[str, any]) -> T:
         try:
             return Output(Output.dict_to_xml(d, False))
         except NmapXMLParserException:
             raise NmapDictParserException()
 
-    def equals(self, other):
+    def equals(self, other: T) -> bool:
         return isinstance(other, Output) \
-               and self.__data == other.get_data() \
-               and self.__type == other.get_type()
+            and self.__data == other.get_data() \
+            and self.__type == other.get_type()
 
-    def get_xml(self):
+    def get_xml(self) -> XMLElement:
         return self.__xml
 
-    def get_type(self):
+    def get_type(self) -> Union[str, None]:
         return self.__type
 
-    def get_data(self):
+    def get_data(self) -> str:
         return self.__data
 
     def __parse_xml(self):

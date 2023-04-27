@@ -34,40 +34,44 @@ from nmap_scan.Exceptions.NmapDictParserException import NmapDictParserException
 from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
 from nmap_scan.Stats.Status import Status
 from nmap_scan.Validator import validate
+from xml.etree.ElementTree import Element as XMLElement
+from typing import TypeVar, Dict, Union
+
+T = TypeVar('T', bound='State')
 
 
 class State(Status):
 
-    def __init__(self, xml, validate_xml=True):
+    def __init__(self, xml: XMLElement, validate_xml: bool = True):
         if validate_xml:
             validate(xml)
         Status.__init__(self, xml, validate_xml)
-        self.__reason_ip = None
+        self.__reason_ip: Union[str, None] = None
         self.__parse_xml()
 
-    def __eq__(self, other):
+    def __eq__(self, other: T) -> bool:
         return self.equals(other)
 
-    def __ne__(self, other):
+    def __ne__(self, other: T) -> bool:
         return not self.__eq__(other)
 
     def __iter__(self):
         yield "state", self.get_state()
         yield "reason", self.get_reason()
         yield "reasonttl", self.get_reason_ttl()
-        if None != self.__reason_ip:
+        if None is not self.__reason_ip:
             yield "reasonip", self.__reason_ip
 
     @staticmethod
-    def dict_to_xml(d, validate_xml=True):
+    def dict_to_xml(d: Dict[str, any], validate_xml: bool = True) -> T:
         xml = etree.Element('state')
-        if None != d.get('state', None):
+        if None is not d.get('state', None):
             xml.attrib['state'] = d.get('state', None)
-        if None != d.get('reason', None):
+        if None is not d.get('reason', None):
             xml.attrib['reason'] = d.get('reason', None)
-        if None != d.get('reasonttl', None):
+        if None is not d.get('reasonttl', None):
             xml.attrib['reason_ttl'] = str(d.get('reasonttl', None))
-        if None != d.get('reasonip', None):
+        if None is not d.get('reasonip', None):
             xml.attrib['reason_ip'] = d.get('reasonip', None)
 
         if validate_xml:
@@ -79,18 +83,18 @@ class State(Status):
         return xml
 
     @staticmethod
-    def from_dict(d):
+    def from_dict(d: Dict[str, any]) -> T:
         try:
             return State(State.dict_to_xml(d, False))
         except NmapXMLParserException:
             raise NmapDictParserException()
 
-    def equals(self, other):
+    def equals(self, other: T) -> bool:
         return isinstance(other, State) \
-               and Status.equals(self, other) \
-               and self.__reason_ip == other.get_reason_ip()
+            and Status.equals(self, other) \
+            and self.__reason_ip == other.get_reason_ip()
 
-    def get_reason_ip(self):
+    def get_reason_ip(self) -> Union[str, None]:
         return self.__reason_ip
 
     def __parse_xml(self):

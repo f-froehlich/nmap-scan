@@ -27,6 +27,7 @@
 #  and also my other projects <https://github.com/f-froehlich>
 import json
 import logging
+from typing import TypeVar, Mapping
 from xml.etree.ElementTree import ElementTree
 
 from lxml import etree
@@ -34,19 +35,21 @@ from lxml import etree
 from nmap_scan.Exceptions.NmapDictParserException import NmapDictParserException
 from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
 from nmap_scan.Report.Report import Report
+from xml.etree.ElementTree import Element as XMLElement
 
+T = TypeVar('T', bound='Report')
 
 class PingReport(Report):
 
-    def __init__(self, xml):
+    def __init__(self, xml: XMLElement):
         logging.info('Create Ping Report')
         Report.__init__(self, xml)
 
-    def equals(self, other):
+    def equals(self, other: T) -> bool:
         return isinstance(other, PingReport) and Report.equals(self, other)
 
     @staticmethod
-    def from_file(filepath):
+    def from_file(filepath: str) -> T:
         parser = etree.XMLParser()
         et = ElementTree()
         xml = et.parse(source=filepath, parser=parser)
@@ -54,14 +57,14 @@ class PingReport(Report):
         return PingReport(xml)
 
     @staticmethod
-    def from_dict(d):
+    def from_dict(d: Mapping[str, any]) -> T:
         try:
             return PingReport(PingReport.dict_to_xml(d, False))
         except NmapXMLParserException:
             raise NmapDictParserException()
 
     @staticmethod
-    def from_json_file(filepath):
+    def from_json_file(filepath: str) -> T:
         with open(filepath, "r", encoding='utf-8') as json_file:
             data = json.load(json_file)
 

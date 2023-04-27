@@ -34,37 +34,41 @@ from lxml import etree
 from nmap_scan.Exceptions.NmapDictParserException import NmapDictParserException
 from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
 from nmap_scan.Validator import validate
+from xml.etree.ElementTree import Element as XMLElement
+from typing import TypeVar, Dict, Union
+
+T = TypeVar('T', bound='HostName')
 
 
 class HostName:
 
-    def __init__(self, xml, validate_xml=True):
+    def __init__(self, xml: XMLElement, validate_xml: bool = True):
         if validate_xml:
             validate(xml)
-        self.__xml = xml
-        self.__name = None
-        self.__type = None
+        self.__xml: XMLElement = xml
+        self.__name: Union[str, None] = None
+        self.__type: Union[str, None] = None
         self.__parse_xml()
 
-    def __eq__(self, other):
+    def __eq__(self, other: T) -> bool:
         return self.equals(other)
 
-    def __ne__(self, other):
+    def __ne__(self, other: T) -> bool:
         return not self.__eq__(other)
 
     def __iter__(self):
-        if None != self.__name:
+        if None is not self.__name:
             yield "name", self.__name
-        if None != self.__type:
+        if None is not self.__type:
             yield "type", self.__type
 
     @staticmethod
-    def dict_to_xml(d, validate_xml=True):
+    def dict_to_xml(d: Dict[str, any], validate_xml: bool = True) -> T:
         xml = etree.Element('hostname')
 
-        if None != d.get('name', None):
+        if None is not d.get('name', None):
             xml.attrib['name'] = d.get('name', None)
-        if None != d.get('type', None):
+        if None is not d.get('type', None):
             xml.attrib['type'] = d.get('type', None)
 
         if validate_xml:
@@ -76,24 +80,24 @@ class HostName:
         return xml
 
     @staticmethod
-    def from_dict(d):
+    def from_dict(d: Dict[str, any]) -> T:
         try:
             return HostName(HostName.dict_to_xml(d, False))
         except NmapXMLParserException:
             raise NmapDictParserException()
 
-    def equals(self, other):
+    def equals(self, other: T) -> bool:
         return isinstance(other, HostName) \
-               and self.__name == other.get_name() \
-               and self.__type == other.get_type()
+            and self.__name == other.get_name() \
+            and self.__type == other.get_type()
 
-    def get_xml(self):
+    def get_xml(self) -> XMLElement:
         return self.__xml
 
-    def get_name(self):
+    def get_name(self) -> Union[str, None]:
         return self.__name
 
-    def get_type(self):
+    def get_type(self) -> Union[str, None]:
         return self.__type
 
     def __parse_xml(self):

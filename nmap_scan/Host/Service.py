@@ -35,105 +35,109 @@ from nmap_scan.CompareHelper import compare_lists
 from nmap_scan.Exceptions.NmapDictParserException import NmapDictParserException
 from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
 from nmap_scan.Validator import validate
+from xml.etree.ElementTree import Element as XMLElement
+from typing import TypeVar, Dict, Union, List
+
+T = TypeVar('T', bound='Service')
 
 
 class Service:
 
-    def __init__(self, xml, validate_xml=True):
+    def __init__(self, xml: XMLElement, validate_xml: bool = True):
         if validate_xml:
             validate(xml)
-        self.__xml = xml
-        self.__name = None
-        self.__conf = None
-        self.__method = None
-        self.__version = None
-        self.__product = None
-        self.__extrainfo = None
-        self.__tunnel = None
-        self.__proto = None
-        self.__rpcnum = None
-        self.__lowver = None
-        self.__highver = None
-        self.__hostname = None
-        self.__ostype = None
-        self.__devicetype = None
-        self.__servicefp = None
-        self.__cpes = []
+        self.__xml: XMLElement = xml
+        self.__name: Union[str, None] = None
+        self.__conf: Union[str, None] = None
+        self.__method: Union[str, None] = None
+        self.__version: Union[str, None] = None
+        self.__product: Union[str, None] = None
+        self.__extrainfo: Union[str, None] = None
+        self.__tunnel: Union[str, None] = None
+        self.__proto: Union[str, None] = None
+        self.__rpcnum: Union[int, None] = None
+        self.__lowver: Union[int, None] = None
+        self.__highver: Union[int, None] = None
+        self.__hostname: Union[str, None] = None
+        self.__ostype: Union[str, None] = None
+        self.__devicetype: Union[str, None] = None
+        self.__servicefp: Union[str, None] = None
+        self.__cpes: List[str] = []
         self.__parse_xml()
 
-    def __eq__(self, other):
+    def __eq__(self, other: T) -> bool:
         return self.equals(other)
 
-    def __ne__(self, other):
+    def __ne__(self, other: T) -> bool:
         return not self.__eq__(other)
 
     def __iter__(self):
         yield "name", self.__name
         yield "conf", self.__conf
         yield "method", self.__method
-        if None != self.__version:
+        if None is not self.__version:
             yield "version", self.__version
-        if None != self.__product:
+        if None is not self.__product:
             yield "product", self.__product
-        if None != self.__extrainfo:
+        if None is not self.__extrainfo:
             yield "extrainfo", self.__extrainfo
-        if None != self.__tunnel:
+        if None is not self.__tunnel:
             yield "tunnel", self.__tunnel
-        if None != self.__proto:
+        if None is not self.__proto:
             yield "proto", self.__proto
-        if None != self.__rpcnum:
+        if None is not self.__rpcnum:
             yield "rpcnum", self.__rpcnum
-        if None != self.__lowver:
+        if None is not self.__lowver:
             yield "lowver", self.__lowver
-        if None != self.__highver:
+        if None is not self.__highver:
             yield "highver", self.__highver
-        if None != self.__hostname:
+        if None is not self.__hostname:
             yield "hostname", self.__hostname
-        if None != self.__ostype:
+        if None is not self.__ostype:
             yield "ostype", self.__ostype
-        if None != self.__devicetype:
+        if None is not self.__devicetype:
             yield "devicetype", self.__devicetype
-        if None != self.__servicefp:
+        if None is not self.__servicefp:
             yield "servicefp", self.__servicefp
         yield "cpes", self.__cpes
 
     @staticmethod
-    def dict_to_xml(d, validate_xml=True):
+    def dict_to_xml(d: Dict[str, any], validate_xml: bool = True) -> T:
         xml = etree.Element('service')
 
-        if None != d.get('name', None):
+        if None is not d.get('name', None):
             xml.attrib['name'] = d['name']
-        if None != d.get('conf', None):
+        if None is not d.get('conf', None):
             xml.attrib['conf'] = str(d['conf'])
-        if None != d.get('method', None):
+        if None is not d.get('method', None):
             xml.attrib['method'] = d['method']
-        if None != d.get('version', None):
+        if None is not d.get('version', None):
             xml.attrib['version'] = str(d['version'])
-        if None != d.get('product', None):
+        if None is not d.get('product', None):
             xml.attrib['product'] = d['product']
-        if None != d.get('extrainfo', None):
+        if None is not d.get('extrainfo', None):
             xml.attrib['extrainfo'] = d['extrainfo']
-        if None != d.get('tunnel', None):
+        if None is not d.get('tunnel', None):
             xml.attrib['tunnel'] = d['tunnel']
-        if None != d.get('proto', None):
+        if None is not d.get('proto', None):
             xml.attrib['proto'] = d['proto']
-        if None != d.get('rpcnum', None):
+        if None is not d.get('rpcnum', None):
             xml.attrib['rpcnum'] = str(d['rpcnum'])
-        if None != d.get('lowver', None):
+        if None is not d.get('lowver', None):
             xml.attrib['lowver'] = str(d['lowver'])
-        if None != d.get('highver', None):
+        if None is not d.get('highver', None):
             xml.attrib['highver'] = str(d['highver'])
-        if None != d.get('hostname', None):
+        if None is not d.get('hostname', None):
             xml.attrib['hostname'] = d['hostname']
-        if None != d.get('ostype', None):
+        if None is not d.get('ostype', None):
             xml.attrib['ostype'] = d['ostype']
-        if None != d.get('devicetype', None):
+        if None is not d.get('devicetype', None):
             xml.attrib['devicetype'] = d['devicetype']
-        if None != d.get('servicefp', None):
+        if None is not d.get('servicefp', None):
             xml.attrib['servicefp'] = d['servicefp']
 
-        if None != d.get('cpes', None):
-            if None != d.get('cpes', None):
+        if None is not d.get('cpes', None):
+            if None is not d.get('cpes', None):
                 for cpe in d['cpes']:
                     cpe_xml = etree.Element('cpe')
                     cpe_xml.text = cpe
@@ -148,80 +152,80 @@ class Service:
         return xml
 
     @staticmethod
-    def from_dict(d):
+    def from_dict(d: Dict[str, any]) -> T:
         try:
             return Service(Service.dict_to_xml(d, False))
         except NmapXMLParserException:
             raise NmapDictParserException()
 
-    def equals(self, other):
+    def equals(self, other: T) -> bool:
         return isinstance(other, Service) \
-               and self.__name == other.get_name() \
-               and self.__conf == other.get_conf() \
-               and self.__method == other.get_method() \
-               and self.__version == other.get_version() \
-               and self.__product == other.get_product() \
-               and self.__extrainfo == other.get_extra_info() \
-               and self.__tunnel == other.get_tunnel() \
-               and self.__proto == other.get_proto() \
-               and self.__rpcnum == other.get_rpc_num() \
-               and self.__lowver == other.get_low_version() \
-               and self.__highver == other.get_high_version() \
-               and self.__hostname == other.get_hostname() \
-               and self.__ostype == other.get_os_type() \
-               and self.__devicetype == other.get_device_type() \
-               and self.__servicefp == other.get_service_fp() \
-               and compare_lists(self.__cpes, other.get_cpes())
+            and self.__name == other.get_name() \
+            and self.__conf == other.get_conf() \
+            and self.__method == other.get_method() \
+            and self.__version == other.get_version() \
+            and self.__product == other.get_product() \
+            and self.__extrainfo == other.get_extra_info() \
+            and self.__tunnel == other.get_tunnel() \
+            and self.__proto == other.get_proto() \
+            and self.__rpcnum == other.get_rpc_num() \
+            and self.__lowver == other.get_low_version() \
+            and self.__highver == other.get_high_version() \
+            and self.__hostname == other.get_hostname() \
+            and self.__ostype == other.get_os_type() \
+            and self.__devicetype == other.get_device_type() \
+            and self.__servicefp == other.get_service_fp() \
+            and compare_lists(self.__cpes, other.get_cpes())
 
-    def get_xml(self):
+    def get_xml(self) -> XMLElement:
         return self.__xml
 
-    def get_cpes(self):
+    def get_cpes(self) -> List[str]:
         return self.__cpes
 
-    def get_product(self):
+    def get_product(self) -> Union[str, None]:
         return self.__product
 
-    def get_conf(self):
+    def get_conf(self) -> str:
         return self.__conf
 
-    def get_method(self):
+    def get_method(self) -> str:
         return self.__method
 
-    def get_version(self):
+    def get_version(self) -> Union[str, None]:
         return self.__version
 
-    def get_extra_info(self):
+    def get_extra_info(self) -> Union[str, None]:
         return self.__extrainfo
 
-    def get_tunnel(self):
+    def get_tunnel(self) -> Union[str, None]:
         return self.__tunnel
 
-    def get_proto(self):
+    def get_proto(self) -> Union[str, None]:
         return self.__proto
 
-    def get_rpc_num(self):
+    def get_rpc_num(self) -> Union[int, None]:
         return self.__rpcnum
 
-    def get_low_version(self):
+    def get_low_version(self) -> Union[int, None]:
         return self.__lowver
 
-    def get_high_version(self):
+    def get_high_version(self) -> Union[int, None]:
         return self.__highver
 
-    def get_hostname(self):
+    def get_hostname(self) -> Union[str, None]:
         return self.__hostname
 
-    def get_os_type(self):
+    def get_os_type(self) -> Union[str, None]:
         return self.__ostype
 
-    def get_device_type(self):
+    def get_device_type(self) -> Union[str, None]:
         return self.__devicetype
 
-    def get_service_fp(self):
+    def get_service_fp(self) -> Union[str, None]:
         return self.__servicefp
 
-    def get_name(self):
+    def get_name(self) -> str:
         return self.__name
 
     def __parse_xml(self):
@@ -239,9 +243,9 @@ class Service:
         self.__servicefp = attr.get('servicefp', None)
         self.__tunnel = attr.get('tunnel', None)
         self.__proto = attr.get('proto', None)
-        self.__rpcnum = int(attr['rpcnum']) if None != attr.get('rpcnum', None) else None
-        self.__lowver = int(attr['lowver']) if None != attr.get('lowver', None) else None
-        self.__highver = int(attr['highver']) if None != attr.get('highver', None) else None
+        self.__rpcnum = int(attr['rpcnum']) if None is not attr.get('rpcnum', None) else None
+        self.__lowver = int(attr['lowver']) if None is not attr.get('lowver', None) else None
+        self.__highver = int(attr['highver']) if None is not attr.get('highver', None) else None
 
         logging.debug('Name: "{name}"'.format(name=self.__name))
         logging.debug('Conf: "{conf}"'.format(conf=self.__conf))

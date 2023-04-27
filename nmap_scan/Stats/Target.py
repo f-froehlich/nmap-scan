@@ -35,39 +35,44 @@ from nmap_scan.Exceptions.NmapDictParserException import NmapDictParserException
 from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
 from nmap_scan.Validator import validate
 
+from xml.etree.ElementTree import Element as XMLElement
+from typing import TypeVar, Dict, Union
+
+T = TypeVar('T', bound='Target')
+
 
 class Target:
 
-    def __init__(self, xml, validate_xml=True):
+    def __init__(self, xml: XMLElement, validate_xml: bool = True):
         if validate_xml:
             validate(xml)
-        self.__xml = xml
-        self.__status = None
-        self.__reason = None
-        self.__specification = None
+        self.__xml: XMLElement = xml
+        self.__status: Union[str, None] = None
+        self.__reason: Union[str, None] = None
+        self.__specification: Union[str, None] = None
         self.__parse_xml()
 
-    def __eq__(self, other):
+    def __eq__(self, other: T) -> bool:
         return self.equals(other)
 
-    def __ne__(self, other):
+    def __ne__(self, other: T) -> bool:
         return not self.__eq__(other)
 
     def __iter__(self):
-        if None != self.__status:
+        if None is not self.__status:
             yield "status", self.__status
-        if None != self.__reason:
+        if None is not self.__reason:
             yield "reason", self.__reason
         yield "specification", self.__specification
 
     @staticmethod
-    def dict_to_xml(d, validate_xml=True):
+    def dict_to_xml(d: Dict[str, any], validate_xml: bool = True) -> T:
         xml = etree.Element('target')
-        if None != d.get('status', None):
+        if None is not d.get('status', None):
             xml.attrib['status'] = d.get('status', None)
-        if None != d.get('reason', None):
+        if None is not d.get('reason', None):
             xml.attrib['reason'] = d.get('reason', None)
-        if None != d.get('specification', None):
+        if None is not d.get('specification', None):
             xml.attrib['specification'] = d.get('specification', None)
 
         if validate_xml:
@@ -79,28 +84,28 @@ class Target:
         return xml
 
     @staticmethod
-    def from_dict(d):
+    def from_dict(d: Dict[str, any]) -> T:
         try:
             return Target(Target.dict_to_xml(d))
         except NmapXMLParserException:
             raise NmapDictParserException()
 
-    def equals(self, other):
+    def equals(self, other: T) -> bool:
         return isinstance(other, Target) \
-               and self.__specification == other.get_specification() \
-               and self.__status == other.get_status() \
-               and self.__reason == other.get_reason()
+            and self.__specification == other.get_specification() \
+            and self.__status == other.get_status() \
+            and self.__reason == other.get_reason()
 
-    def get_xml(self):
+    def get_xml(self) -> XMLElement:
         return self.__xml
 
-    def get_status(self):
+    def get_status(self) -> Union[str, None]:
         return self.__status
 
-    def get_specification(self):
+    def get_specification(self) -> str:
         return self.__specification
 
-    def get_reason(self):
+    def get_reason(self) -> Union[str, None]:
         return self.__reason
 
     def __parse_xml(self):

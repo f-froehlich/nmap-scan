@@ -35,53 +35,57 @@ from nmap_scan.CompareHelper import compare_lists
 from nmap_scan.Exceptions.NmapDictParserException import NmapDictParserException
 from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
 from nmap_scan.Validator import validate
+from xml.etree.ElementTree import Element as XMLElement
+from typing import TypeVar, Dict, Union, List
+
+T = TypeVar('T', bound='OSClass')
 
 
 class OSClass:
 
-    def __init__(self, xml, validate_xml=True):
+    def __init__(self, xml: XMLElement, validate_xml: bool = True):
         if validate_xml:
             validate(xml)
-        self.__xml = xml
-        self.__type = None
-        self.__vendor = None
-        self.__family = None
-        self.__generation = None
-        self.__accuracy = None
-        self.__cpes = []
+        self.__xml: XMLElement = xml
+        self.__type: Union[str, None] = None
+        self.__vendor: Union[str, None] = None
+        self.__family: Union[str, None] = None
+        self.__generation: Union[str, None] = None
+        self.__accuracy: Union[float, None] = None
+        self.__cpes: List[str] = []
         self.__parse_xml()
 
-    def __eq__(self, other):
+    def __eq__(self, other: T) -> bool:
         return self.equals(other)
 
-    def __ne__(self, other):
+    def __ne__(self, other: T) -> bool:
         return not self.__eq__(other)
 
     def __iter__(self):
-        if None != self.__type:
+        if None is not self.__type:
             yield "type", self.__type
         yield "vendor", self.__vendor
         yield "family", self.__family
-        if None != self.__generation:
+        if None is not self.__generation:
             yield "generation", self.__generation
         yield "accuracy", self.__accuracy
         yield "cpes", self.__cpes
 
     @staticmethod
-    def dict_to_xml(d, validate_xml=True):
+    def dict_to_xml(d: Dict[str, any], validate_xml: bool = True) -> T:
         xml = etree.Element('osclass')
-        if None != d.get('vendor', None):
+        if None is not d.get('vendor', None):
             xml.attrib['vendor'] = d.get('vendor', None)
-        if None != d.get('generation', None):
+        if None is not d.get('generation', None):
             xml.attrib['osgen'] = d.get('generation', None)
-        if None != d.get('type', None):
+        if None is not d.get('type', None):
             xml.attrib['type'] = d.get('type', None)
-        if None != d.get('family', None):
+        if None is not d.get('family', None):
             xml.attrib['osfamily'] = d.get('family', None)
-        if None != d.get('accuracy', None):
+        if None is not d.get('accuracy', None):
             xml.attrib['accuracy'] = str(d.get('accuracy', None))
 
-        if None != d.get('cpes', None):
+        if None is not d.get('cpes', None):
             for cpe in d['cpes']:
                 cpe_xml = etree.Element('cpe')
                 cpe_xml.text = cpe
@@ -96,40 +100,40 @@ class OSClass:
         return xml
 
     @staticmethod
-    def from_dict(d):
+    def from_dict(d: Dict[str, any]) -> T:
         try:
             return OSClass(OSClass.dict_to_xml(d, False))
         except NmapXMLParserException:
             raise NmapDictParserException()
 
-    def equals(self, other):
+    def equals(self, other: T) -> bool:
         return isinstance(other, OSClass) \
-               and self.__type == other.get_type() \
-               and self.__vendor == other.get_vendor() \
-               and self.__family == other.get_family() \
-               and self.__generation == other.get_generation() \
-               and self.__accuracy == other.get_accuracy() \
-               and compare_lists(self.__cpes, other.get_cpes())
+            and self.__type == other.get_type() \
+            and self.__vendor == other.get_vendor() \
+            and self.__family == other.get_family() \
+            and self.__generation == other.get_generation() \
+            and self.__accuracy == other.get_accuracy() \
+            and compare_lists(self.__cpes, other.get_cpes())
 
-    def get_xml(self):
+    def get_xml(self) -> XMLElement:
         return self.__xml
 
-    def get_type(self):
+    def get_type(self) -> Union[str, None]:
         return self.__type
 
-    def get_family(self):
+    def get_family(self) -> str:
         return self.__family
 
-    def get_generation(self):
+    def get_generation(self) -> Union[str, None]:
         return self.__generation
 
-    def get_cpes(self):
+    def get_cpes(self) -> List[str]:
         return self.__cpes
 
-    def get_vendor(self):
+    def get_vendor(self) -> str:
         return self.__vendor
 
-    def get_accuracy(self):
+    def get_accuracy(self) -> float:
         return self.__accuracy
 
     def __parse_xml(self):

@@ -36,24 +36,28 @@ from nmap_scan.Exceptions.NmapDictParserException import NmapDictParserException
 from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
 from nmap_scan.OS.OSClass import OSClass
 from nmap_scan.Validator import validate
+from xml.etree.ElementTree import Element as XMLElement
+from typing import TypeVar, Dict, Union, List
+
+T = TypeVar('T', bound='OSMatch')
 
 
 class OSMatch:
 
-    def __init__(self, xml, validate_xml=True):
+    def __init__(self, xml: XMLElement, validate_xml: bool = True):
         if validate_xml:
             validate(xml)
-        self.__xml = xml
-        self.__os_classes = []
-        self.__name = None
-        self.__accuracy = None
-        self.__line = None
+        self.__xml: XMLElement = xml
+        self.__os_classes: List[OSClass] = []
+        self.__name: Union[str, None] = None
+        self.__accuracy: Union[float, None] = None
+        self.__line: Union[int, None] = None
         self.__parse_xml()
 
-    def __eq__(self, other):
+    def __eq__(self, other: T) -> bool:
         return self.equals(other)
 
-    def __ne__(self, other):
+    def __ne__(self, other: T) -> bool:
         return not self.__eq__(other)
 
     def __iter__(self):
@@ -63,16 +67,16 @@ class OSMatch:
         yield "osclass", [dict(e) for e in self.__os_classes]
 
     @staticmethod
-    def dict_to_xml(d, validate_xml=True):
+    def dict_to_xml(d: Dict[str, any], validate_xml: bool = True) -> T:
         xml = etree.Element('osmatch')
-        if None != d.get('accuracy', None):
+        if None is not d.get('accuracy', None):
             xml.attrib['accuracy'] = str(d.get('accuracy', None))
-        if None != d.get('name', None):
+        if None is not d.get('name', None):
             xml.attrib['name'] = d.get('name', None)
-        if None != d.get('line', None):
+        if None is not d.get('line', None):
             xml.attrib['line'] = str(d.get('line', None))
 
-        if None != d.get('osclass', None):
+        if None is not d.get('osclass', None):
             for osclass_dict in d['osclass']:
                 xml.append(OSClass.dict_to_xml(osclass_dict, validate_xml))
 
@@ -85,32 +89,32 @@ class OSMatch:
         return xml
 
     @staticmethod
-    def from_dict(d):
+    def from_dict(d: Dict[str, any]) -> T:
         try:
             return OSMatch(OSMatch.dict_to_xml(d, False))
         except NmapXMLParserException:
             raise NmapDictParserException()
 
-    def equals(self, other):
+    def equals(self, other: T) -> bool:
         return isinstance(other, OSMatch) \
-               and self.__name == other.get_name() \
-               and self.__accuracy == other.get_accuracy() \
-               and self.__line == other.get_line() \
-               and compare_lists_equal(self.__os_classes, other.get_os_classes())
+            and self.__name == other.get_name() \
+            and self.__accuracy == other.get_accuracy() \
+            and self.__line == other.get_line() \
+            and compare_lists_equal(self.__os_classes, other.get_os_classes())
 
-    def get_xml(self):
+    def get_xml(self) -> XMLElement:
         return self.__xml
 
-    def get_os_classes(self):
+    def get_os_classes(self) -> List[OSClass]:
         return self.__os_classes
 
-    def get_name(self):
+    def get_name(self) -> str:
         return self.__name
 
-    def get_line(self):
+    def get_line(self) -> int:
         return self.__line
 
-    def get_accuracy(self):
+    def get_accuracy(self) -> float:
         return self.__accuracy
 
     def __parse_xml(self):

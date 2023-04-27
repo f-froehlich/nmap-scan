@@ -34,47 +34,51 @@ from lxml import etree
 from nmap_scan.Exceptions.NmapDictParserException import NmapDictParserException
 from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
 from nmap_scan.Validator import validate
+from xml.etree.ElementTree import Element as XMLElement
+from typing import TypeVar, Dict, Union
+
+T = TypeVar('T', bound='ScanInfo')
 
 
 class ScanInfo:
 
-    def __init__(self, xml, validate_xml=True):
+    def __init__(self, xml: XMLElement, validate_xml: bool = True):
         if validate_xml:
             validate(xml)
-        self.__xml = xml
-        self.__type = None
-        self.__protocol = None
-        self.__scan_flags = None
-        self.__num_services = None
-        self.__services = None
+        self.__xml: XMLElement = xml
+        self.__type: Union[str, None] = None
+        self.__protocol: Union[str, None] = None
+        self.__scan_flags: Union[str, None] = None
+        self.__num_services: Union[int, None] = None
+        self.__services: Union[str, None] = None
         self.__parse_xml()
 
-    def __eq__(self, other):
+    def __eq__(self, other: T) -> bool:
         return self.equals(other)
 
-    def __ne__(self, other):
+    def __ne__(self, other: T) -> bool:
         return not self.__eq__(other)
 
     def __iter__(self):
         yield "type", self.__type
         yield "protocol", self.__protocol
-        if None != self.__scan_flags:
+        if None is not self.__scan_flags:
             yield "scanflags", self.__scan_flags
         yield "numservices", self.__num_services
         yield "services", self.__services
 
     @staticmethod
-    def dict_to_xml(d, validate_xml=True):
+    def dict_to_xml(d: Dict[str, any], validate_xml: bool = True) -> T:
         xml = etree.Element('scaninfo')
-        if None != d.get('type', None):
+        if None is not d.get('type', None):
             xml.attrib['type'] = d.get('type', None)
-        if None != d.get('protocol', None):
+        if None is not d.get('protocol', None):
             xml.attrib['protocol'] = d.get('protocol', None)
-        if None != d.get('scanflags', None):
+        if None is not d.get('scanflags', None):
             xml.attrib['scanflags'] = d.get('scanflags', None)
-        if None != d.get('numservices', None):
+        if None is not d.get('numservices', None):
             xml.attrib['numservices'] = str(d.get('numservices', None))
-        if None != d.get('services', None):
+        if None is not d.get('services', None):
             xml.attrib['services'] = d.get('services', None)
 
         if validate_xml:
@@ -86,36 +90,36 @@ class ScanInfo:
         return xml
 
     @staticmethod
-    def from_dict(d):
+    def from_dict(d: Dict[str, any]) -> T:
         try:
             return ScanInfo(ScanInfo.dict_to_xml(d, False))
         except NmapXMLParserException:
             raise NmapDictParserException()
 
-    def equals(self, other):
+    def equals(self, other: T) -> bool:
         return isinstance(other, ScanInfo) \
-               and self.__type == other.get_type() \
-               and self.__protocol == other.get_protocol() \
-               and self.__scan_flags == other.get_scan_flags() \
-               and self.__num_services == other.get_num_services() \
-               and self.__services == other.get_services()
+            and self.__type == other.get_type() \
+            and self.__protocol == other.get_protocol() \
+            and self.__scan_flags == other.get_scan_flags() \
+            and self.__num_services == other.get_num_services() \
+            and self.__services == other.get_services()
 
-    def get_type(self):
+    def get_type(self) -> str:
         return self.__type
 
-    def get_xml(self):
+    def get_xml(self) -> XMLElement:
         return self.__xml
 
-    def get_protocol(self):
+    def get_protocol(self) -> str:
         return self.__protocol
 
-    def get_num_services(self):
+    def get_num_services(self) -> int:
         return self.__num_services
 
-    def get_services(self):
+    def get_services(self) -> str:
         return self.__services
 
-    def get_scan_flags(self):
+    def get_scan_flags(self) -> Union[str, None]:
         return self.__scan_flags
 
     def __parse_xml(self):

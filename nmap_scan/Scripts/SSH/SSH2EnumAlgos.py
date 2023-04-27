@@ -31,12 +31,15 @@ import logging
 
 from nmap_scan.CompareHelper import compare_lists
 from nmap_scan.Scripts.Script import Script
+from xml.etree.ElementTree import Element as XMLElement
+from typing import TypeVar, Dict, Union
 
+T = TypeVar('T', bound='SSH2EnumAlgos')
 
 class SSH2EnumAlgos(Script):
 
-    def __init__(self, xml, validate_xml=True):
-        self.__xml = xml
+    def __init__(self, xml: XMLElement, validate_xml:bool=True):
+        self.__xml : XMLElement = xml
         Script.__init__(self, xml, validate_xml)
         self.__kex_algorithms = []
         self.__server_host_key_algorithms = []
@@ -46,7 +49,7 @@ class SSH2EnumAlgos(Script):
         self.__other = {}
         self.__parse_xml()
 
-    def equals(self, other):
+    def equals(self, other: T) -> bool:
         status = isinstance(other, SSH2EnumAlgos) \
                  and Script.equals(self, other) \
                  and compare_lists(self.__kex_algorithms, other.get_kex_algorithms()) \
@@ -64,7 +67,7 @@ class SSH2EnumAlgos(Script):
 
         return status
 
-    def get_xml(self):
+    def get_xml(self) -> XMLElement:
         return self.__xml
 
     def get_kex_algorithms(self):

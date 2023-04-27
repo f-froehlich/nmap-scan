@@ -28,9 +28,12 @@
 
 from nmap_scan.Scripts.Script import Script
 
+from xml.etree.ElementTree import Element as XMLElement
+from typing import TypeVar, Dict, Union
 
+T = TypeVar('T', bound='UnknownScript')
 class UnknownScript(Script):
 
-    def equals(self, other):
+    def equals(self, other: T) -> bool:
         return isinstance(other, UnknownScript) \
                and Script.equals(self, other)

@@ -32,40 +32,44 @@ import logging
 from nmap_scan.Exceptions.NmapDictParserException import NmapDictParserException
 from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
 from nmap_scan.Validator import validate
+from xml.etree.ElementTree import Element as XMLElement
+from typing import TypeVar, Dict, Union
+
+T = TypeVar('T', bound='TaskBegin')
 
 
 class TaskBegin:
 
-    def __init__(self, xml, validate_xml=True):
+    def __init__(self, xml: XMLElement, validate_xml: bool = True):
         if validate_xml:
             validate(xml)
-        self.__xml = xml
-        self.__task = None
-        self.__time = None
-        self.__extra_info = None
+        self.__xml: XMLElement = xml
+        self.__task: Union[str, None] = None
+        self.__time: Union[int, None] = None
+        self.__extra_info: Union[str, None] = None
         self.__parse_xml()
 
-    def __eq__(self, other):
+    def __eq__(self, other: T) -> bool:
         return self.equals(other)
 
-    def __ne__(self, other):
+    def __ne__(self, other: T) -> bool:
         return not self.__eq__(other)
 
     def __iter__(self):
         yield "task", self.__task
         yield "time", self.__time
-        if None != self.__extra_info:
+        if None is not self.__extra_info:
             yield "extrainfo", self.__extra_info
 
     @staticmethod
-    def dict_to_xml(d, validate_xml=True):
+    def dict_to_xml(d: Dict[str, any], validate_xml: bool = True) -> T:
         from lxml import etree
         xml = etree.Element('taskbegin')
-        if None != d.get('task', None):
+        if None is not d.get('task', None):
             xml.attrib['task'] = d.get('task', None)
-        if None != d.get('time', None):
+        if None is not d.get('time', None):
             xml.attrib['time'] = str(d.get('time', None))
-        if None != d.get('extrainfo', None):
+        if None is not d.get('extrainfo', None):
             xml.attrib['extrainfo'] = d.get('extrainfo', None)
 
         if validate_xml:
@@ -77,28 +81,28 @@ class TaskBegin:
         return xml
 
     @staticmethod
-    def from_dict(d):
+    def from_dict(d: Dict[str, any]) -> T:
         try:
             return TaskBegin(TaskBegin.dict_to_xml(d, False))
         except NmapXMLParserException:
             raise NmapDictParserException()
 
-    def equals(self, other):
+    def equals(self, other: T) -> bool:
         return isinstance(other, TaskBegin) \
-               and self.__task == other.get_task() \
-               and self.__time == other.get_time() \
-               and self.__extra_info == other.get_extra_info()
+            and self.__task == other.get_task() \
+            and self.__time == other.get_time() \
+            and self.__extra_info == other.get_extra_info()
 
-    def get_xml(self):
+    def get_xml(self) -> XMLElement:
         return self.__xml
 
-    def get_task(self):
+    def get_task(self) -> str:
         return self.__task
 
-    def get_time(self):
+    def get_time(self) -> int:
         return self.__time
 
-    def get_extra_info(self):
+    def get_extra_info(self) -> Union[str, None]:
         return self.__extra_info
 
     def __parse_xml(self):

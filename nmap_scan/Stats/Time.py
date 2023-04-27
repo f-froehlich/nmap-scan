@@ -34,23 +34,27 @@ from lxml import etree
 from nmap_scan.Exceptions.NmapDictParserException import NmapDictParserException
 from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
 from nmap_scan.Validator import validate
+from xml.etree.ElementTree import Element as XMLElement
+from typing import TypeVar, Dict, Union
+
+T = TypeVar('T', bound='Time')
 
 
 class Time:
 
-    def __init__(self, xml, validate_xml=True):
+    def __init__(self, xml: XMLElement, validate_xml: bool = True):
         if validate_xml:
             validate(xml)
-        self.__xml = xml
-        self.__srtt = None
-        self.__rttvar = None
-        self.__to = None
+        self.__xml: XMLElement = xml
+        self.__srtt: Union[str, None] = None
+        self.__rttvar: Union[str, None] = None
+        self.__to: Union[str, None] = None
         self.__parse_xml()
 
-    def __eq__(self, other):
+    def __eq__(self, other: T) -> bool:
         return self.equals(other)
 
-    def __ne__(self, other):
+    def __ne__(self, other: T) -> bool:
         return not self.__eq__(other)
 
     def __iter__(self):
@@ -59,13 +63,13 @@ class Time:
         yield "to", self.__to
 
     @staticmethod
-    def dict_to_xml(d, validate_xml=True):
+    def dict_to_xml(d: Dict[str, any], validate_xml: bool = True) -> T:
         xml = etree.Element('times')
-        if None != d.get('srtt', None):
+        if None is not d.get('srtt', None):
             xml.attrib['srtt'] = d.get('srtt', None)
-        if None != d.get('rttvar', None):
+        if None is not d.get('rttvar', None):
             xml.attrib['rttvar'] = d.get('rttvar', None)
-        if None != d.get('to', None):
+        if None is not d.get('to', None):
             xml.attrib['to'] = d.get('to', None)
 
         if validate_xml:
@@ -77,28 +81,28 @@ class Time:
         return xml
 
     @staticmethod
-    def from_dict(d):
+    def from_dict(d: Dict[str, any]) -> T:
         try:
             return Time(Time.dict_to_xml(d, False))
         except NmapXMLParserException:
             raise NmapDictParserException()
 
-    def equals(self, other):
+    def equals(self, other: T) -> bool:
         return isinstance(other, Time) \
-               and self.__srtt == other.get_srtt() \
-               and self.__rttvar == other.get_rttvar() \
-               and self.__to == other.get_to()
+            and self.__srtt == other.get_srtt() \
+            and self.__rttvar == other.get_rttvar() \
+            and self.__to == other.get_to()
 
-    def get_xml(self):
+    def get_xml(self) -> XMLElement:
         return self.__xml
 
-    def get_srtt(self):
+    def get_srtt(self) -> str:
         return self.__srtt
 
-    def get_rttvar(self):
+    def get_rttvar(self) -> str:
         return self.__rttvar
 
-    def get_to(self):
+    def get_to(self) -> str:
         return self.__to
 
     def __parse_xml(self):

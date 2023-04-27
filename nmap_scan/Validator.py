@@ -28,9 +28,10 @@ import os
 from lxml import etree
 
 from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
+from xml.etree.ElementTree import Element as XMLElement
 
 
-def validate(xml):
+def validate(xml: XMLElement):
     logging.info('Validating XML against nmap DTD')
     dir_path = os.path.dirname(os.path.realpath(__file__))
     dtd = etree.DTD(open(dir_path + '/nmap.dtd'))

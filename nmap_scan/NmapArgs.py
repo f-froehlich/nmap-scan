@@ -483,7 +483,7 @@ class NmapArgs:
 
         return self
 
-    def get_data(self):
+    def get_data(self) -> str:
         return self.__data
 
     def set_proxies(self, proxies):
@@ -759,115 +759,115 @@ class NmapArgs:
 
         if 0 != len(self.__ports):
             args.append('-p' + ','.join([str(p) for p in self.__ports]))
-        elif None != self.__top_ports:
+        elif None is not  self.__top_ports:
             args.append('--top-ports')
             args.append(self.__top_ports)
 
-        if None != self.__port_ratio:
+        if None is not  self.__port_ratio:
             args.append('--port-ratio')
             args.append(self.__port_ratio)
 
-        if None != self.__num_hosts:
+        if None is not  self.__num_hosts:
             args.append('-iR')
             args.append(self.__num_hosts)
 
-        if None != self.__data:
+        if None is not  self.__data:
             args.append('--data')
             args.append(self.__data)
 
-        if None != self.__data_string:
+        if None is not  self.__data_string:
             args.append('--data-string')
             args.append(self.__data_string)
 
-        if None != self.__data_length:
+        if None is not  self.__data_length:
             args.append('--data-length')
             args.append(self.__data_length)
 
-        if None != self.__ip_options:
+        if None is not  self.__ip_options:
             args.append('--ip-options')
             args.append(self.__ip_options)
 
-        if None != self.__ttl:
+        if None is not  self.__ttl:
             args.append('--ttl')
             args.append(self.__ttl)
 
-        if None != self.__spoof_mac:
+        if None is not  self.__spoof_mac:
             args.append('--spoof-mac')
             args.append(self.__spoof_mac)
 
-        if None != self.__version_intensity:
+        if None is not  self.__version_intensity:
             args.append('--version-intensity')
             args.append(self.__version_intensity)
 
-        if None != self.__os_scan_limit:
+        if None is not  self.__os_scan_limit:
             args.append('--osscan-limit')
             args.append(self.__os_scan_limit)
 
-        if None != self.__timing:
+        if None is not  self.__timing:
             args.append('-T')
             args.append(self.__timing)
 
-        if None != self.__min_hostgroup:
+        if None is not  self.__min_hostgroup:
             args.append('--min-hostgroup')
             args.append(self.__min_hostgroup)
 
-        if None != self.__max_hostgroup:
+        if None is not  self.__max_hostgroup:
             args.append('--max-hostgroup')
             args.append(self.__max_hostgroup)
 
-        if None != self.__min_rate:
+        if None is not  self.__min_rate:
             args.append('--min-rate')
             args.append(self.__min_rate)
 
-        if None != self.__max_rate:
+        if None is not  self.__max_rate:
             args.append('--max-rate')
             args.append(self.__max_rate)
 
-        if None != self.__min_rtt_timeout:
+        if None is not  self.__min_rtt_timeout:
             args.append('--min-rtt-timeout')
             args.append(self.__min_rtt_timeout)
 
-        if None != self.__max_rtt_timeout:
+        if None is not  self.__max_rtt_timeout:
             args.append('--max-rtt-timeout')
             args.append(self.__max_rtt_timeout)
 
-        if None != self.__min_parallelism:
+        if None is not  self.__min_parallelism:
             args.append('--min-parallelism')
             args.append(self.__min_parallelism)
 
-        if None != self.__max_parallelism:
+        if None is not  self.__max_parallelism:
             args.append('--max-parallelism')
             args.append(self.__max_parallelism)
 
-        if None != self.__host_timeout:
+        if None is not  self.__host_timeout:
             args.append('--host-timeout')
             args.append(self.__host_timeout)
 
-        if None != self.__max_retries:
+        if None is not  self.__max_retries:
             args.append('--max-retries')
             args.append(self.__max_retries)
 
-        if None != self.__scan_delay:
+        if None is not  self.__scan_delay:
             args.append('--scan-delay')
             args.append(self.__scan_delay)
 
-        if None != self.__mtu:
+        if None is not  self.__mtu:
             args.append('--mtu')
             args.append(self.__mtu)
 
-        if None != self.__spoof_ip:
+        if None is not  self.__spoof_ip:
             args.append('-S')
             args.append(self.__spoof_ip)
 
-        if None != self.__interface:
+        if None is not  self.__interface:
             args.append('-e')
             args.append(self.__interface)
 
-        if None != self.__source_port:
+        if None is not  self.__source_port:
             args.append('--source-port')
             args.append(self.__source_port)
 
-        if None != self.__datadir:
+        if None is not  self.__datadir:
             args.append('--datadir')
             args.append(self.__datadir)
 
@@ -949,7 +949,7 @@ class NmapArgs:
 
     def add_args(self, argpaser=None):
 
-        if None == argpaser:
+        if None is  argpaser:
             argpaser = argparse.ArgumentParser(description='Nmap scan with python')
 
         self.__argpaser = argpaser
@@ -1039,8 +1039,8 @@ class NmapArgs:
                                self.__unprivileged)
 
     def configure(self, args=None):
-        if None == args:
-            if None == self.__argpaser:
+        if None is  args:
+            if None is  self.__argpaser:
                 raise LogicException('You must call NmapArgs.add_cli_args() first')
             args = self.__argpaser.parse_args()
 

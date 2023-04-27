@@ -57,7 +57,7 @@
             <script id="unknownId" output="scriptOutput"></script>
             <script id="unknownId" output="scriptOutput"></script>
         </hostscript>
-        <smurf responses="smurf"/>
+        <smurf responses="10"/>
         <distance value="5"/>
         <trace proto="tcp" port="10">
             <hop ttl="ttl" rtt="rtt" ipaddr="IP" host="host"/>
@@ -104,7 +104,7 @@
             <script id="unknownId" output="scriptOutput"></script>
             <script id="unknownId" output="scriptOutput"></script>
         </hostscript>
-        <smurf responses="smurf"/>
+        <smurf responses="10"/>
         <distance value="5"/>
         <trace proto="tcp" port="10">
             <hop ttl="ttl" rtt="rtt" ipaddr="IP" host="host"/>

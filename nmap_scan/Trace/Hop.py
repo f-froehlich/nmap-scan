@@ -32,46 +32,50 @@ from lxml import etree
 from nmap_scan.Exceptions.NmapDictParserException import NmapDictParserException
 from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
 from nmap_scan.Validator import validate
+from xml.etree.ElementTree import Element as XMLElement
+from typing import TypeVar, Dict, Union
+
+T = TypeVar('T', bound='Hop')
 
 
 class Hop:
 
-    def __init__(self, xml, validate_xml=True):
+    def __init__(self, xml: XMLElement, validate_xml: bool = True):
         if validate_xml:
             validate(xml)
-        self.__xml = xml
-        self.__ttl = None
-        self.__rtt = None
-        self.__ip = None
-        self.__host = None
+        self.__xml : XMLElement = xml
+        self.__ttl: Union[int, None] = None
+        self.__rtt: Union[int, None] = None
+        self.__ip: Union[str, None] = None
+        self.__host: Union[str, None] = None
         self.__parse_xml()
 
-    def __eq__(self, other):
+    def __eq__(self, other: T) -> bool:
         return self.equals(other)
 
-    def __ne__(self, other):
+    def __ne__(self, other: T) -> bool:
         return not self.__eq__(other)
 
     def __iter__(self):
-        if None != self.__ip:
+        if None is not self.__ip:
             yield "ip", self.__ip
-        if None != self.__ttl:
+        if None is not self.__ttl:
             yield "ttl", self.__ttl
-        if None != self.__rtt:
+        if None is not self.__rtt:
             yield "rtt", self.__rtt
-        if None != self.__host:
+        if None is not self.__host:
             yield "host", self.__host
 
     @staticmethod
-    def dict_to_xml(d, validate_xml=True):
+    def dict_to_xml(d: Dict[str, any], validate_xml: bool = True) -> T:
         xml = etree.Element('hop')
-        if None != d.get('ip', None):
+        if None is not d.get('ip', None):
             xml.attrib['ipaddr'] = d.get('ip', None)
-        if None != d.get('ttl', None):
+        if None is not d.get('ttl', None):
             xml.attrib['ttl'] = str(d.get('ttl', None))
-        if None != d.get('rtt', None):
+        if None is not d.get('rtt', None):
             xml.attrib['rtt'] = d.get('rtt', None)
-        if None != d.get('host', None):
+        if None is not d.get('host', None):
             xml.attrib['host'] = d.get('host', None)
 
         if validate_xml:
@@ -83,33 +87,33 @@ class Hop:
         return xml
 
     @staticmethod
-    def from_dict(d):
+    def from_dict(d: Dict[str, any]) -> T:
         try:
             return Hop(Hop.dict_to_xml(d, False))
         except NmapXMLParserException:
             raise NmapDictParserException()
 
-    def get_xml(self):
+    def get_xml(self) -> XMLElement:
         return self.__xml
 
-    def get_ttl(self):
+    def get_ttl(self) -> int:
         return self.__ttl
 
-    def get_rtt(self):
+    def get_rtt(self) -> Union[str, None]:
         return self.__rtt
 
-    def get_ip(self):
+    def get_ip(self)-> Union[str, None]:
         return self.__ip
 
-    def get_host(self):
+    def get_host(self)-> Union[str, None]:
         return self.__host
 
-    def equals(self, other):
+    def equals(self, other: T) -> bool:
         return isinstance(other, Hop) \
-               and self.__ttl == other.get_ttl() \
-               and self.__rtt == other.get_rtt() \
-               and self.__ip == other.get_ip() \
-               and self.__host == other.get_host()
+            and self.__ttl == other.get_ttl() \
+            and self.__rtt == other.get_rtt() \
+            and self.__ip == other.get_ip() \
+            and self.__host == other.get_host()
 
     def __parse_xml(self):
         logging.info('Parsing Hop')

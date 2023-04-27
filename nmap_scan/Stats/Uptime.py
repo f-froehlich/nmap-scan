@@ -34,35 +34,39 @@ from lxml import etree
 from nmap_scan.Exceptions.NmapDictParserException import NmapDictParserException
 from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
 from nmap_scan.Validator import validate
+from xml.etree.ElementTree import Element as XMLElement
+from typing import TypeVar, Dict, Union
+
+T = TypeVar('T', bound='Uptime')
 
 
 class Uptime:
 
-    def __init__(self, xml, validate_xml=True):
+    def __init__(self, xml: XMLElement, validate_xml: bool = True):
         if validate_xml:
             validate(xml)
-        self.__xml = xml
-        self.__seconds = None
-        self.__last_boot = None
+        self.__xml: XMLElement = xml
+        self.__seconds: Union[int, None] = None
+        self.__last_boot: Union[str, None] = None
         self.__parse_xml()
 
-    def __eq__(self, other):
+    def __eq__(self, other: T) -> bool:
         return self.equals(other)
 
-    def __ne__(self, other):
+    def __ne__(self, other: T) -> bool:
         return not self.__eq__(other)
 
     def __iter__(self):
         yield "seconds", self.__seconds
-        if None != self.__last_boot:
+        if None is not self.__last_boot:
             yield "lastboot", self.__last_boot
 
     @staticmethod
-    def dict_to_xml(d, validate_xml=True):
+    def dict_to_xml(d: Dict[str, any], validate_xml: bool = True) -> T:
         xml = etree.Element('uptime')
-        if None != d.get('lastboot', None):
+        if None is not d.get('lastboot', None):
             xml.attrib['lastboot'] = d.get('lastboot', None)
-        if None != d.get('seconds', None):
+        if None is not d.get('seconds', None):
             xml.attrib['seconds'] = str(d.get('seconds', None))
 
         if validate_xml:
@@ -74,25 +78,25 @@ class Uptime:
         return xml
 
     @staticmethod
-    def from_dict(d):
+    def from_dict(d: Dict[str, any]) -> T:
         try:
             return Uptime(Uptime.dict_to_xml(d, False))
         except NmapXMLParserException:
             raise NmapDictParserException()
 
-    def get_xml(self):
+    def get_xml(self) -> XMLElement:
         return self.__xml
 
-    def get_last_boot(self):
+    def get_last_boot(self) -> Union[str, None]:
         return self.__last_boot
 
-    def get_seconds(self):
+    def get_seconds(self) -> int:
         return self.__seconds
 
-    def equals(self, other):
+    def equals(self, other: T) -> bool:
         return isinstance(other, Uptime) \
-               and self.__seconds == other.get_seconds() \
-               and self.__last_boot == other.get_last_boot()
+            and self.__seconds == other.get_seconds() \
+            and self.__last_boot == other.get_last_boot()
 
     def __parse_xml(self):
         logging.info('Parsing Uptime')

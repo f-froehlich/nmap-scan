@@ -38,23 +38,27 @@ from nmap_scan.Host.HostAddress import HostAddress
 from nmap_scan.Host.HostName import HostName
 from nmap_scan.Stats.Status import Status
 from nmap_scan.Validator import validate
+from xml.etree.ElementTree import Element as XMLElement
+from typing import TypeVar, Dict, Union, List
+
+T = TypeVar('T', bound='HostHint')
 
 
 class HostHint:
 
-    def __init__(self, xml, validate_xml=True):
+    def __init__(self, xml: XMLElement, validate_xml: bool = True):
         if validate_xml:
             validate(xml)
-        self.__xml = xml
-        self.__statuses = []
-        self.__addresses = []
-        self.__hostnames = []
+        self.__xml: XMLElement = xml
+        self.__statuses: List[Status] = []
+        self.__addresses: List[HostAddress] = []
+        self.__hostnames: List[HostName] = []
         self.__parse_xml()
 
-    def __eq__(self, other):
+    def __eq__(self, other: T) -> bool:
         return self.equals(other)
 
-    def __ne__(self, other):
+    def __ne__(self, other: T) -> bool:
         return not self.__eq__(other)
 
     def __iter__(self):
@@ -63,15 +67,15 @@ class HostHint:
         yield "hostnames", [dict(e) for e in self.__hostnames]
 
     @staticmethod
-    def dict_to_xml(d, validate_xml=True):
+    def dict_to_xml(d: Dict[str, any], validate_xml: bool = True) -> T:
         xml = etree.Element('hosthint')
-        if None != d.get('statuses', None):
+        if None is not d.get('statuses', None):
             for status_dict in d['statuses']:
                 xml.append(Status.dict_to_xml(status_dict, validate_xml))
-        if None != d.get('addresses', None):
+        if None is not d.get('addresses', None):
             for address_dict in d['addresses']:
                 xml.append(HostAddress.dict_to_xml(address_dict, validate_xml))
-        if None != d.get('hostnames', None):
+        if None is not d.get('hostnames', None):
             hostnames_xml = etree.Element('hostnames')
             for hostname_dict in d['hostnames']:
                 hostnames_xml.append(HostName.dict_to_xml(hostname_dict, validate_xml))
@@ -86,28 +90,28 @@ class HostHint:
         return xml
 
     @staticmethod
-    def from_dict(d):
+    def from_dict(d: Dict[str, any]) -> T:
         try:
             return HostHint(HostHint.dict_to_xml(d, False))
         except NmapXMLParserException:
             raise NmapDictParserException()
 
-    def equals(self, other):
+    def equals(self, other: T) -> bool:
         return isinstance(other, HostHint) \
-               and compare_lists_equal(self.__statuses, other.get_statuses()) \
-               and compare_lists_equal(self.__addresses, other.get_addresses()) \
-               and compare_lists_equal(self.__hostnames, other.get_hostnames())
+            and compare_lists_equal(self.__statuses, other.get_statuses()) \
+            and compare_lists_equal(self.__addresses, other.get_addresses()) \
+            and compare_lists_equal(self.__hostnames, other.get_hostnames())
 
-    def get_xml(self):
+    def get_xml(self) -> XMLElement:
         return self.__xml
 
-    def get_statuses(self):
+    def get_statuses(self) -> List[Status]:
         return self.__statuses
 
-    def get_addresses(self):
+    def get_addresses(self) -> List[HostAddress]:
         return self.__addresses
 
-    def get_hostnames(self):
+    def get_hostnames(self) -> List[HostName]:
         return self.__hostnames
 
     def __parse_xml(self):

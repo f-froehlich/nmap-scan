@@ -30,6 +30,7 @@ import logging
 import subprocess
 import threading
 from xml.etree import ElementTree
+from xml.etree.ElementTree import Element as XMLElement
 
 from lxml import etree
 
@@ -80,7 +81,7 @@ class Scanner(NmapScanMethods):
     def get_nmap_path(self):
 
         self.__which_nmap_lock.acquire()
-        if None != self.__nmap_path:
+        if None is not  self.__nmap_path:
             self.__which_nmap_lock.release()
             return self.__nmap_path
 
@@ -110,7 +111,7 @@ class Scanner(NmapScanMethods):
         return self.__nmap_path
 
     def __run(self, method, callback_method=None):
-        if None != self.__output.get(method, None):
+        if None is not  self.__output.get(method, None):
             logging.info('Scan already executed, return scan output')
             return self.__reports.get(method)
 
@@ -207,19 +208,19 @@ class Scanner(NmapScanMethods):
                 'Error in callback method for {scan} scan detected.'.format(scan=self.get_name_of_method(method)))
             raise CallbackException(e)
 
-    def __parse_xml(self, stdout):
+    def __parse_xml(self, stdout) -> XMLElement:
 
         parser = etree.XMLParser()
         return ElementTree.fromstring(stdout, parser)
 
     def get_report(self, scan_method):
-        if None != self.__reports.get(scan_method, None):
+        if None is not  self.__reports.get(scan_method, None):
             return self.__reports.get(scan_method)
 
-        if None != self.__has_error.get(scan_method, None):
+        if None is not  self.__has_error.get(scan_method, None):
             raise self.__has_error.get(scan_method)
 
-        if None != self.__threads.get(scan_method, None):
+        if None is not  self.__threads.get(scan_method, None):
             logging.info('scan for "{method}" not finished yet. Waiting for Report'
                          .format(method=self.get_name_of_method(scan_method)))
             return self.wait(scan_method)
@@ -234,7 +235,7 @@ class Scanner(NmapScanMethods):
     def scan_background(self, scan_method, callback_method=None):
 
         self.__threads_lock.acquire()
-        if None != self.__threads.get(scan_method, None):
+        if None is not  self.__threads.get(scan_method, None):
             self.__threads_lock.release()
             return self.__threads.get(scan_method)
 
@@ -251,7 +252,7 @@ class Scanner(NmapScanMethods):
     def wait(self, method):
 
         thread = self.__threads.get(method, None)
-        if None != thread:
+        if None is not  thread:
             logging.info('Waiting for scan "{method}" to finish'.format(method=self.get_name_of_method(method)))
             thread.result()
             return self.get_report(method)
