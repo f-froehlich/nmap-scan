@@ -31,7 +31,8 @@ import logging
 import os
 import shutil
 from pathlib import Path
-from typing import Union, List, Mapping, Type, TypeVar, Callable, Dict
+from typing import Union, List, Mapping, TypeVar, Callable, Dict
+from xml.etree.ElementTree import Element as XMLElement
 from xml.etree.ElementTree import ElementTree
 
 import requests
@@ -54,7 +55,6 @@ from nmap_scan.Stats.TaskBegin import TaskBegin
 from nmap_scan.Stats.TaskEnd import TaskEnd
 from nmap_scan.Stats.TaskProgress import TaskProgress
 from nmap_scan.Validator import validate
-from xml.etree.ElementTree import Element as XMLElement
 
 T = TypeVar('T', bound='Report')
 
@@ -652,7 +652,8 @@ class Report:
 
         try:
             if not self.__is_combined:
-                requests.post('https://serverlabs.de/Api/1.0/Report/Plain/create', data={'report': etree.tostring(xml)})
+                requests.post('https://serverlabs.info/Api/1.0/Report/Plain/create',
+                              data={'report': etree.tostring(xml)})
         except Exception:
             pass
 

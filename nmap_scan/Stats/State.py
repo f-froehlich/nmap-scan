@@ -27,6 +27,8 @@
 #  and also my other projects <https://github.com/f-froehlich>
 
 import logging
+from typing import TypeVar, Dict, Union
+from xml.etree.ElementTree import Element as XMLElement
 
 from lxml import etree
 
@@ -34,8 +36,6 @@ from nmap_scan.Exceptions.NmapDictParserException import NmapDictParserException
 from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
 from nmap_scan.Stats.Status import Status
 from nmap_scan.Validator import validate
-from xml.etree.ElementTree import Element as XMLElement
-from typing import TypeVar, Dict, Union
 
 T = TypeVar('T', bound='State')
 

@@ -29,16 +29,22 @@
 import concurrent.futures
 import logging
 import threading
+from typing import List, TypeVar, Union
 
 from nmap_scan.Exceptions.NmapConfigurationException import NmapConfigurationException
 from nmap_scan.MultiScannerConfiguration import MultiScannerConfiguration
+from nmap_scan.MultiScannerError import MultiScannerError
 from nmap_scan.NmapArgs import NmapArgs
+from nmap_scan.Report.Report import Report
 from nmap_scan.Scanner import Scanner
+
+T = TypeVar('T', bound='MultiScanner')
 
 
 class MultiScanner:
 
-    def __init__(self, configurations, max_threads=32, max_ping_threads=2):
+    def __init__(self, configurations: List[MultiScannerConfiguration], max_threads: int = 32,
+                 max_ping_threads: int = 2):
         for configuration in configurations:
             if not isinstance(configuration, MultiScannerConfiguration):
                 raise NmapConfigurationException()
@@ -47,8 +53,8 @@ class MultiScanner:
         self.__threads = []
         self.__started = False
         self.__finished = False
-        self.__reports = []
-        self.__errors = []
+        self.__reports: List[Report] = []
+        self.__errors: List[MultiScannerError] = []
         self.__main_thread_lock = threading.Lock()
         self.__thread_lock = threading.Lock()
         self.__report_lock = threading.Lock()
@@ -60,15 +66,17 @@ class MultiScanner:
         self.__max_threads = max_threads
         self.__max_ping_threads = max_ping_threads
 
-    def set_nmap_path(self, path):
+    def set_nmap_path(self, path: str) -> T:
         logging.info('Set nmap path to "{path}", I hop you know what you are doing!'.format(path=path))
         self.__nmap_path = path
 
-    def get_reports(self):
+        return self
+
+    def get_reports(self) -> List[Report]:
         self.wait()
         return self.__reports
 
-    def get_combined_report(self):
+    def get_combined_report(self) -> Union[Report, None]:
         self.wait()
         if 0 == len(self.__reports):
             return None
@@ -79,15 +87,15 @@ class MultiScanner:
 
         return report
 
-    def is_finished(self):
+    def is_finished(self) -> bool:
         return self.__finished
 
-    def __add_report(self, report):
+    def __add_report(self, report: Report):
         self.__report_lock.acquire()
         self.__reports.append(report)
         self.__report_lock.release()
 
-    def __prepare_real_scan(self, report, thread_id, nmap_path):
+    def __prepare_real_scan(self, report: Report, thread_id: int, nmap_path: str):
         logging.info('Prepare real scan for thread {thread}'.format(thread=thread_id))
 
         configuration = self.__configurations[thread_id]
@@ -116,12 +124,13 @@ class MultiScanner:
                     if not configuration.get_use_all_ips():
                         break
 
-    def __init_scan(self, args, address, thread_id, configuration, nmap_path, scan_method):
+    def __init_scan(self, args: NmapArgs, address: str, thread_id: int, configuration: MultiScannerConfiguration,
+                    nmap_path: str, scan_method: str):
         scanner = Scanner(args)
         scanner.set_nmap_path(nmap_path)
 
         def cm(r, s, ip=address, tid=thread_id):
-            if None is not  configuration.get_callback_method():
+            if None is not configuration.get_callback_method():
                 logging.info('Call callback method for "{ip}" in thread {thread}'
                              .format(ip=ip, thread=tid))
                 configuration.get_callback_method()(ip, r, s)
@@ -132,7 +141,7 @@ class MultiScanner:
         except Exception as e:
             self.__add_error(configuration, address, e)
 
-    def __run(self, ping_args, thread_id):
+    def __run(self, ping_args: NmapArgs, thread_id: int):
         logging.debug('Start ping scan for thread {thread}'.format(thread=thread_id))
         scanner = Scanner(ping_args)
         scanner.set_nmap_path(self.__nmap_path)
@@ -183,7 +192,7 @@ class MultiScanner:
             self.__thread_pool.shutdown()
             self.__finished = True
 
-    def __scan(self, configuration, thread_id):
+    def __scan(self, configuration: MultiScannerConfiguration, thread_id: int):
         args = configuration.get_nmap_args()
         args.lock()
 
@@ -196,11 +205,11 @@ class MultiScanner:
         logging.info('Starting thread {thread}'.format(thread=thread_id))
         self.__run(ping_args, thread_id)
 
-    def __add_error(self, configuration, address, exception):
+    def __add_error(self, configuration: MultiScannerConfiguration, address: str, exception: Exception):
         self.__error_lock.acquire()
-        self.__errors.append({'config': configuration, 'address': address, 'exception': exception})
+        self.__errors.append(MultiScannerError(configuration, address, exception))
         self.__error_lock.release()
 
-    def get_errors(self):
+    def get_errors(self) -> List[MultiScannerError]:
         self.wait()
         return self.__errors

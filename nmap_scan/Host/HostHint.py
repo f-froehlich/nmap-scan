@@ -28,6 +28,8 @@
 
 
 import logging
+from typing import TypeVar, Dict, List
+from xml.etree.ElementTree import Element as XMLElement
 
 from lxml import etree
 
@@ -38,8 +40,6 @@ from nmap_scan.Host.HostAddress import HostAddress
 from nmap_scan.Host.HostName import HostName
 from nmap_scan.Stats.Status import Status
 from nmap_scan.Validator import validate
-from xml.etree.ElementTree import Element as XMLElement
-from typing import TypeVar, Dict, Union, List
 
 T = TypeVar('T', bound='HostHint')
 

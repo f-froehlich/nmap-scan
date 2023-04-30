@@ -28,18 +28,19 @@
 
 
 import logging
+from typing import TypeVar
+from xml.etree.ElementTree import Element as XMLElement
 
 from nmap_scan.CompareHelper import compare_lists
 from nmap_scan.Scripts.Script import Script
-from xml.etree.ElementTree import Element as XMLElement
-from typing import TypeVar, Dict, Union
 
 T = TypeVar('T', bound='SSH2EnumAlgos')
 
+
 class SSH2EnumAlgos(Script):
 
-    def __init__(self, xml: XMLElement, validate_xml:bool=True):
-        self.__xml : XMLElement = xml
+    def __init__(self, xml: XMLElement, validate_xml: bool = True):
+        self.__xml: XMLElement = xml
         Script.__init__(self, xml, validate_xml)
         self.__kex_algorithms = []
         self.__server_host_key_algorithms = []

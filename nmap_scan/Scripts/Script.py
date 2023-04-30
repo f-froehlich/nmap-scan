@@ -28,6 +28,8 @@
 
 
 import logging
+from typing import TypeVar, Dict
+from xml.etree.ElementTree import Element as XMLElement
 
 from lxml import etree
 
@@ -38,16 +40,15 @@ from nmap_scan.Exceptions.NmapDictParserException import NmapDictParserException
 from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
 from nmap_scan.Validator import validate
 
-from xml.etree.ElementTree import Element as XMLElement
-from typing import TypeVar, Dict, Union
-
 T = TypeVar('T', bound='Script')
+
+
 class Script:
 
-    def __init__(self, xml: XMLElement, validate_xml:bool=True):
+    def __init__(self, xml: XMLElement, validate_xml: bool = True):
         if validate_xml:
             validate(xml)
-        self.__xml : XMLElement = xml
+        self.__xml: XMLElement = xml
         self.__id = None
         self.__output = None
         self.__tables = []
@@ -69,17 +70,17 @@ class Script:
             yield "elements", [dict(e) for e in self.__elements]
 
     @staticmethod
-    def dict_to_xml(d: Dict[str, any], validate_xml: bool=True) -> T:
+    def dict_to_xml(d: Dict[str, any], validate_xml: bool = True) -> T:
         xml = etree.Element('script')
-        if None is not  d.get('id', None):
+        if None is not d.get('id', None):
             xml.attrib['id'] = d.get('id', None)
-        if None is not  d.get('output', None):
+        if None is not d.get('output', None):
             xml.attrib['output'] = d.get('output', None)
 
-        if None is not  d.get('tables', None):
+        if None is not d.get('tables', None):
             for table_dict in d['tables']:
                 xml.append(Table.dict_to_xml(table_dict, validate_xml))
-        if None is not  d.get('elements', None):
+        if None is not d.get('elements', None):
             for element_dict in d['elements']:
                 xml.append(Element.dict_to_xml(element_dict, validate_xml))
 
@@ -102,10 +103,10 @@ class Script:
 
     def equals(self, other: T) -> bool:
         return isinstance(other, Script) \
-               and self.__id == other.get_id() \
-               and self.__output == other.get_output() \
-               and compare_lists_equal(self.__tables, other.get_tables()) \
-               and compare_lists_equal(self.__elements, other.get_elements())
+            and self.__id == other.get_id() \
+            and self.__output == other.get_output() \
+            and compare_lists_equal(self.__tables, other.get_tables()) \
+            and compare_lists_equal(self.__elements, other.get_elements())
 
     def get_xml(self) -> XMLElement:
         return self.__xml

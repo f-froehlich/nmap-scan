@@ -29,6 +29,8 @@ import concurrent.futures
 import logging
 import subprocess
 import threading
+from concurrent.futures import Future
+from typing import TypeVar, Union, Callable
 from xml.etree import ElementTree
 from xml.etree.ElementTree import Element as XMLElement
 
@@ -40,6 +42,7 @@ from nmap_scan.Exceptions.NmapExecutionException import NmapExecutionException
 from nmap_scan.Exceptions.NmapNotInstalledException import NmapNotInstalledException
 from nmap_scan.Exceptions.NmapPasswordRequiredException import NmapPasswordRequiredException
 from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
+from nmap_scan.NmapArgs import NmapArgs
 from nmap_scan.NmapScanMethods import NmapScanMethods
 from nmap_scan.Report.ACKReport import ACKReport
 from nmap_scan.Report.ConnectReport import ConnectReport
@@ -47,6 +50,7 @@ from nmap_scan.Report.FINReport import FINReport
 from nmap_scan.Report.IPReport import IPReport
 from nmap_scan.Report.MaimonReport import MaimonReport
 from nmap_scan.Report.PingReport import PingReport
+from nmap_scan.Report.Report import Report
 from nmap_scan.Report.SCTPCookieReport import SCTPCookieReport
 from nmap_scan.Report.SCTPInitReport import SCTPInitReport
 from nmap_scan.Report.SynReport import SynReport
@@ -56,12 +60,14 @@ from nmap_scan.Report.UDPReport import UDPReport
 from nmap_scan.Report.WindowReport import WindowReport
 from nmap_scan.Report.XmasReport import XmasReport
 
+T = TypeVar('T', bound='Scanner')
+
 
 class Scanner(NmapScanMethods):
 
-    def __init__(self, nmap_args):
+    def __init__(self, nmap_args: NmapArgs):
         NmapScanMethods.__init__(self)
-        self.__nmap_args = nmap_args
+        self.__nmap_args: NmapArgs = nmap_args
         self.__output = {}
         self.__reports = {}
         self.__threads = {}
@@ -71,17 +77,18 @@ class Scanner(NmapScanMethods):
         self.__nmap_path = None
         self.__thread_pool = concurrent.futures.ThreadPoolExecutor(max_workers=15)  # currently 15 different scans
 
-    def get_nmap_args(self):
+    def get_nmap_args(self) -> NmapArgs:
         return self.__nmap_args
 
-    def set_nmap_path(self, path):
+    def set_nmap_path(self, path: str) -> T:
         logging.info('Set nmap path to "{path}", I hop you know what you are doing!'.format(path=path))
         self.__nmap_path = path
+        return self
 
-    def get_nmap_path(self):
+    def get_nmap_path(self) -> str:
 
         self.__which_nmap_lock.acquire()
-        if None is not  self.__nmap_path:
+        if None is not self.__nmap_path:
             self.__which_nmap_lock.release()
             return self.__nmap_path
 
@@ -110,8 +117,8 @@ class Scanner(NmapScanMethods):
         self.__which_nmap_lock.release()
         return self.__nmap_path
 
-    def __run(self, method, callback_method=None):
-        if None is not  self.__output.get(method, None):
+    def __run(self, method: str, callback_method=Union[Callable[[Report, str], None]]) -> Report:
+        if None is not self.__output.get(method, None):
             logging.info('Scan already executed, return scan output')
             return self.__reports.get(method)
 
@@ -213,14 +220,14 @@ class Scanner(NmapScanMethods):
         parser = etree.XMLParser()
         return ElementTree.fromstring(stdout, parser)
 
-    def get_report(self, scan_method):
-        if None is not  self.__reports.get(scan_method, None):
+    def get_report(self, scan_method: str) -> Union[Report, None]:
+        if None is not self.__reports.get(scan_method, None):
             return self.__reports.get(scan_method)
 
-        if None is not  self.__has_error.get(scan_method, None):
+        if None is not self.__has_error.get(scan_method, None):
             raise self.__has_error.get(scan_method)
 
-        if None is not  self.__threads.get(scan_method, None):
+        if None is not self.__threads.get(scan_method, None):
             logging.info('scan for "{method}" not finished yet. Waiting for Report'
                          .format(method=self.get_name_of_method(scan_method)))
             return self.wait(scan_method)
@@ -228,14 +235,15 @@ class Scanner(NmapScanMethods):
         logging.info('No scan for "{method}" initialised'.format(method=self.get_name_of_method(scan_method)))
         return None
 
-    def scan(self, scan_method, callback_method=None):
+    def scan(self, scan_method: str, callback_method: Union[Callable[[Report, str], None]] = None) -> Union[
+        Report, None]:
         self.scan_background(scan_method, callback_method)
         return self.wait(scan_method)
 
-    def scan_background(self, scan_method, callback_method=None):
+    def scan_background(self, scan_method: str, callback_method: Union[Callable[[Report, str], None]] = None) -> Future:
 
         self.__threads_lock.acquire()
-        if None is not  self.__threads.get(scan_method, None):
+        if None is not self.__threads.get(scan_method, None):
             self.__threads_lock.release()
             return self.__threads.get(scan_method)
 
@@ -249,10 +257,10 @@ class Scanner(NmapScanMethods):
 
         return self.__threads[scan_method]
 
-    def wait(self, method):
+    def wait(self, method: str) -> Union[Report, None]:
 
         thread = self.__threads.get(method, None)
-        if None is not  thread:
+        if None is not thread:
             logging.info('Waiting for scan "{method}" to finish'.format(method=self.get_name_of_method(method)))
             thread.result()
             return self.get_report(method)
@@ -266,86 +274,86 @@ class Scanner(NmapScanMethods):
             logging.info('Waiting for scan "{method}" to finish'.format(method=self.get_name_of_method(thread_method)))
             self.wait(thread_method)
 
-    def scan_tcp(self, callback_method=None):
+    def scan_tcp(self, callback_method: Union[Callable[[Report, str], None]] = None) -> Union[Report, None]:
         return self.scan(NmapScanMethods.TCP, callback_method)
 
-    def scan_tcp_background(self, callback_method=None):
+    def scan_tcp_background(self, callback_method: Union[Callable[[Report, str], None]] = None) -> Future:
         return self.scan_background(NmapScanMethods.TCP, callback_method)
 
-    def scan_tcp_null(self, callback_method=None):
+    def scan_tcp_null(self, callback_method: Union[Callable[[Report, str], None]] = None) -> Union[Report, None]:
         return self.scan(NmapScanMethods.TCP_NULL, callback_method)
 
-    def scan_tcp_null_background(self, callback_method=None):
+    def scan_tcp_null_background(self, callback_method: Union[Callable[[Report, str], None]] = None) -> Future:
         return self.scan_background(NmapScanMethods.TCP_NULL, callback_method)
 
-    def scan_udp(self, callback_method=None):
+    def scan_udp(self, callback_method: Union[Callable[[Report, str], None]] = None) -> Union[Report, None]:
         return self.scan(NmapScanMethods.UDP, callback_method)
 
-    def scan_udp_background(self, callback_method=None):
+    def scan_udp_background(self, callback_method: Union[Callable[[Report, str], None]] = None) -> Future:
         return self.scan_background(NmapScanMethods.UDP, callback_method)
 
-    def scan_syn(self, callback_method=None):
+    def scan_syn(self, callback_method: Union[Callable[[Report, str], None]] = None) -> Union[Report, None]:
         return self.scan(NmapScanMethods.SYN, callback_method)
 
-    def scan_syn_background(self, callback_method=None):
+    def scan_syn_background(self, callback_method: Union[Callable[[Report, str], None]] = None) -> Future:
         return self.scan_background(NmapScanMethods.SYN, callback_method)
 
-    def scan_fin(self, callback_method=None):
+    def scan_fin(self, callback_method: Union[Callable[[Report, str], None]] = None) -> Union[Report, None]:
         return self.scan(NmapScanMethods.FIN, callback_method)
 
-    def scan_fin_background(self, callback_method=None):
+    def scan_fin_background(self, callback_method: Union[Callable[[Report, str], None]] = None) -> Future:
         return self.scan_background(NmapScanMethods.FIN, callback_method)
 
-    def scan_ip(self, callback_method=None):
+    def scan_ip(self, callback_method: Union[Callable[[Report, str], None]] = None) -> Union[Report, None]:
         return self.scan(NmapScanMethods.IP, callback_method)
 
-    def scan_ip_background(self, callback_method=None):
+    def scan_ip_background(self, callback_method: Union[Callable[[Report, str], None]] = None) -> Future:
         return self.scan_background(NmapScanMethods.IP, callback_method)
 
-    def scan_sctp_init(self, callback_method=None):
+    def scan_sctp_init(self, callback_method: Union[Callable[[Report, str], None]] = None) -> Union[Report, None]:
         return self.scan(NmapScanMethods.SCTP_INIT, callback_method)
 
-    def scan_sctp_init_background(self, callback_method=None):
+    def scan_sctp_init_background(self, callback_method: Union[Callable[[Report, str], None]] = None) -> Future:
         return self.scan_background(NmapScanMethods.SCTP_INIT, callback_method)
 
-    def scan_sctp_cookie(self, callback_method=None):
+    def scan_sctp_cookie(self, callback_method: Union[Callable[[Report, str], None]] = None) -> Union[Report, None]:
         return self.scan(NmapScanMethods.SCTP_COOKIE, callback_method)
 
-    def scan_sctp_cookie_background(self, callback_method=None):
+    def scan_sctp_cookie_background(self, callback_method: Union[Callable[[Report, str], None]] = None) -> Future:
         return self.scan_background(NmapScanMethods.SCTP_COOKIE, callback_method)
 
-    def scan_xmas(self, callback_method=None):
+    def scan_xmas(self, callback_method: Union[Callable[[Report, str], None]] = None) -> Union[Report, None]:
         return self.scan(NmapScanMethods.XMAS, callback_method)
 
-    def scan_xmas_background(self, callback_method=None):
+    def scan_xmas_background(self, callback_method: Union[Callable[[Report, str], None]] = None) -> Future:
         return self.scan_background(NmapScanMethods.XMAS, callback_method)
 
-    def scan_ping(self, callback_method=None):
+    def scan_ping(self, callback_method: Union[Callable[[Report, str], None]] = None) -> Union[Report, None]:
         return self.scan(NmapScanMethods.PING, callback_method)
 
-    def scan_ping_background(self, callback_method=None):
+    def scan_ping_background(self, callback_method: Union[Callable[[Report, str], None]] = None) -> Future:
         return self.scan_background(NmapScanMethods.PING, callback_method)
 
-    def scan_connect(self, callback_method=None):
+    def scan_connect(self, callback_method: Union[Callable[[Report, str], None]] = None) -> Union[Report, None]:
         return self.scan(NmapScanMethods.CONNECT, callback_method)
 
-    def scan_connect_background(self, callback_method=None):
+    def scan_connect_background(self, callback_method: Union[Callable[[Report, str], None]] = None) -> Future:
         return self.scan_background(NmapScanMethods.CONNECT, callback_method)
 
-    def scan_ack(self, callback_method=None):
+    def scan_ack(self, callback_method: Union[Callable[[Report, str], None]] = None) -> Union[Report, None]:
         return self.scan(NmapScanMethods.ACK, callback_method)
 
-    def scan_ack_background(self, callback_method=None):
+    def scan_ack_background(self, callback_method: Union[Callable[[Report, str], None]] = None) -> Future:
         return self.scan_background(NmapScanMethods.ACK, callback_method)
 
-    def scan_window(self, callback_method=None):
+    def scan_window(self, callback_method: Union[Callable[[Report, str], None]] = None) -> Union[Report, None]:
         return self.scan(NmapScanMethods.WINDOW, callback_method)
 
-    def scan_window_background(self, callback_method=None):
+    def scan_window_background(self, callback_method: Union[Callable[[Report, str], None]] = None) -> Future:
         return self.scan_background(NmapScanMethods.WINDOW, callback_method)
 
-    def scan_maimon(self, callback_method=None):
+    def scan_maimon(self, callback_method: Union[Callable[[Report, str], None]] = None) -> Union[Report, None]:
         return self.scan(NmapScanMethods.MAIMON, callback_method)
 
-    def scan_maimon_background(self, callback_method=None):
+    def scan_maimon_background(self, callback_method: Union[Callable[[Report, str], None]] = None) -> Future:
         return self.scan_background(NmapScanMethods.MAIMON, callback_method)

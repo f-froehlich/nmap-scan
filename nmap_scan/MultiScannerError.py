@@ -1,6 +1,9 @@
 #!/usr/bin/python3
 # -*- coding: utf-8
 
+from nmap_scan.MultiScannerConfiguration import MultiScannerConfiguration
+
+
 #  nmap-scan
 #
 #  Nmap wrapper for python
@@ -26,15 +29,19 @@
 #  Checkout this project on github <https://github.com/f-froehlich/nmap-scan>
 #  and also my other projects <https://github.com/f-froehlich>
 
-from typing import TypeVar
 
-from nmap_scan.Scripts.Script import Script
+class MultiScannerError:
 
-T = TypeVar('T', bound='UnknownScript')
+    def __init__(self, configuration: MultiScannerConfiguration, address: str, exception: Exception):
+        self.__exception = exception
+        self.__address = address
+        self.__configuration = configuration
 
+    def get_exception(self) -> Exception:
+        return self.__exception
 
-class UnknownScript(Script):
+    def get_address(self) -> str:
+        return self.__address
 
-    def equals(self, other: T) -> bool:
-        return isinstance(other, UnknownScript) \
-            and Script.equals(self, other)
+    def get_configuration(self) -> MultiScannerConfiguration:
+        return self.__configuration

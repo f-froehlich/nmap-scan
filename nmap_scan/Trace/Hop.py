@@ -26,14 +26,14 @@
 #  Checkout this project on github <https://github.com/f-froehlich/nmap-scan>
 #  and also my other projects <https://github.com/f-froehlich>
 import logging
+from typing import TypeVar, Dict, Union
+from xml.etree.ElementTree import Element as XMLElement
 
 from lxml import etree
 
 from nmap_scan.Exceptions.NmapDictParserException import NmapDictParserException
 from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
 from nmap_scan.Validator import validate
-from xml.etree.ElementTree import Element as XMLElement
-from typing import TypeVar, Dict, Union
 
 T = TypeVar('T', bound='Hop')
 
@@ -43,7 +43,7 @@ class Hop:
     def __init__(self, xml: XMLElement, validate_xml: bool = True):
         if validate_xml:
             validate(xml)
-        self.__xml : XMLElement = xml
+        self.__xml: XMLElement = xml
         self.__ttl: Union[int, None] = None
         self.__rtt: Union[int, None] = None
         self.__ip: Union[str, None] = None
@@ -102,10 +102,10 @@ class Hop:
     def get_rtt(self) -> Union[str, None]:
         return self.__rtt
 
-    def get_ip(self)-> Union[str, None]:
+    def get_ip(self) -> Union[str, None]:
         return self.__ip
 
-    def get_host(self)-> Union[str, None]:
+    def get_host(self) -> Union[str, None]:
         return self.__host
 
     def equals(self, other: T) -> bool:

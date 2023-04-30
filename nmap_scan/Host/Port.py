@@ -28,6 +28,8 @@
 
 
 import logging
+from typing import TypeVar, Dict, Union, List
+from xml.etree.ElementTree import Element as XMLElement
 
 from lxml import etree
 
@@ -39,9 +41,6 @@ from nmap_scan.Scripts.Script import Script
 from nmap_scan.Scripts.ScriptParser import parse
 from nmap_scan.Stats.State import State
 from nmap_scan.Validator import validate
-
-from xml.etree.ElementTree import Element as XMLElement
-from typing import TypeVar, Dict, Union, List
 
 T = TypeVar('T', bound='Port')
 

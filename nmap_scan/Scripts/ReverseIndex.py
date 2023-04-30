@@ -28,12 +28,11 @@
 
 
 import logging
+from typing import TypeVar
+from xml.etree.ElementTree import Element as XMLElement
 
 from nmap_scan.CompareHelper import compare_lists
 from nmap_scan.Scripts.Script import Script
-
-from xml.etree.ElementTree import Element as XMLElement
-from typing import TypeVar, Dict, Union
 
 T = TypeVar('T', bound='ReverseIndex')
 

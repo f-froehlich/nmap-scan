@@ -28,6 +28,8 @@
 
 
 import logging
+from typing import TypeVar, Dict, Union, List
+from xml.etree.ElementTree import Element as XMLElement
 
 from lxml import etree
 
@@ -36,8 +38,6 @@ from nmap_scan.Data.Element import Element
 from nmap_scan.Exceptions.NmapDictParserException import NmapDictParserException
 from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
 from nmap_scan.Validator import validate
-from xml.etree.ElementTree import Element as XMLElement
-from typing import TypeVar, Dict, Union, List
 
 T = TypeVar('T', bound='Table')
 
@@ -47,7 +47,7 @@ class Table:
     def __init__(self, xml: XMLElement, validate_xml: bool = True):
         if validate_xml:
             validate(xml)
-        self.__xml : XMLElement = xml
+        self.__xml: XMLElement = xml
         self.__key = None
         self.__tables: List[T] = []
         self.__elements: List[Element] = []

@@ -47,7 +47,7 @@ class NmapScanMethods:
     SCTP_INIT = '-sY'
     SCTP_COOKIE = '-sZ'
 
-    def get_name_of_method(self, method):
+    def get_name_of_method(self, method: str) -> str:
         if self.TCP == method:
             return 'TCP'
         elif self.TCP_NULL == method:
@@ -81,7 +81,7 @@ class NmapScanMethods:
 
         raise NmapScanMethodUnknownException('Unknown scan method "{method}" detected'.format(method=method))
 
-    def require_root(self, method):
+    def require_root(self, method: str) -> bool:
 
         privileged = {
             self.SYN: True,

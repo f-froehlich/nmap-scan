@@ -28,19 +28,20 @@
 
 
 import logging
+from typing import TypeVar
+from xml.etree.ElementTree import Element as XMLElement
 
 from nmap_scan.Exceptions.LogicException import LogicException
 from nmap_scan.Scripts.Script import Script
 from nmap_scan.Validator import validate
 
-from xml.etree.ElementTree import Element as XMLElement
-from typing import TypeVar, Dict, Union
-
 T = TypeVar('T', bound='SSLEnumCiphers')
+
+
 class SSLEnumCiphers(Script):
 
-    def __init__(self, xml: XMLElement, validate_xml:bool=True):
-        self.__xml : XMLElement = xml
+    def __init__(self, xml: XMLElement, validate_xml: bool = True):
+        self.__xml: XMLElement = xml
         Script.__init__(self, xml, validate_xml)
         self.__protocols = {}
         self.__least_strength = None
@@ -55,11 +56,11 @@ class SSLEnumCiphers(Script):
         if status:
             for own_protocol in self.__protocols:
                 other_protocol = other.get_protocol(own_protocol)
-                if None is  other_protocol or not other_protocol.equals(self.__protocols[own_protocol]):
+                if None is other_protocol or not other_protocol.equals(self.__protocols[own_protocol]):
                     return False
             for other_protocol in other.get_protocols():
                 own_protocol = self.get_protocol(other_protocol)
-                if None is  own_protocol or not own_protocol.equals(other.get_protocol(other_protocol)):
+                if None is own_protocol or not own_protocol.equals(other.get_protocol(other_protocol)):
                     # I think this could never happen because we can't add the same protocol more than once
                     # and it also will never returned from the script so it is already compared with the
                     # privies loop
@@ -93,14 +94,15 @@ class SSLEnumCiphers(Script):
         logging.debug('Least strength: "{strength}"'.format(strength=self.__least_strength))
 
 
-
 U = TypeVar('U', bound='SSLEnumCiphersProtocol')
+
+
 class SSLEnumCiphersProtocol:
 
-    def __init__(self, xml: XMLElement, validate_xml:bool=True):
+    def __init__(self, xml: XMLElement, validate_xml: bool = True):
         if validate_xml:
             validate(xml)
-        self.__xml : XMLElement = xml
+        self.__xml: XMLElement = xml
         self.__ciphers = []
         self.__compressors = None
         self.__least_strength = None
@@ -193,14 +195,16 @@ class SSLEnumCiphersProtocol:
         logging.debug('Cipher preference: "{cipher_preference}"'.format(cipher_preference=self.__cipher_preference))
         logging.debug('Least strength: "{strength}"'.format(strength=self.__least_strength))
 
+
 V = TypeVar('V', bound='SSLEnumCiphersCipher')
+
 
 class SSLEnumCiphersCipher:
 
-    def __init__(self, xml: XMLElement, validate_xml:bool=True):
+    def __init__(self, xml: XMLElement, validate_xml: bool = True):
         if validate_xml:
             validate(xml)
-        self.__xml : XMLElement = xml
+        self.__xml: XMLElement = xml
         self.__strength = None
         self.__name = None
         self.__key_info = None
@@ -254,9 +258,9 @@ class SSLEnumCiphersCipher:
 
     def equals(self, other: T) -> bool:
         return isinstance(other, SSLEnumCiphersCipher) \
-               and self.__name == other.get_name() \
-               and self.__key_info == other.get_key_info() \
-               and CipherCompare.a_equals_b(self.__strength, other.get_strength())
+            and self.__name == other.get_name() \
+            and self.__key_info == other.get_key_info() \
+            and CipherCompare.a_equals_b(self.__strength, other.get_strength())
 
     def __parse_xml(self):
 
@@ -273,6 +277,7 @@ class SSLEnumCiphersCipher:
 
         logging.debug('Cipher: "{name}" ({key_info}) - "{strength}"'.format(name=self.__name, strength=self.__strength,
                                                                             key_info=self.__key_info))
+
 
 # TODO
 class CipherCompare:
@@ -331,7 +336,7 @@ class CipherCompare:
         }
 
         mapped_strength = all_strength.get(strength.upper(), None)
-        if None is  mapped_strength:
+        if None is mapped_strength:
             logging.info('Invalid strength "{strength}" detected. Must be A-F'.format(strength=strength))
             raise LogicException('Invalid strength "{strength}" detected. Must be A-F'.format(strength=strength))
 
@@ -350,7 +355,7 @@ class CipherCompare:
         }
 
         mapped_strength = all_strength.get(strength, None)
-        if None is  mapped_strength:
+        if None is mapped_strength:
             logging.info('Invalid strength "{strength}" detected. Must be A-F'.format(strength=strength))
             raise LogicException('Invalid strength "{strength}" detected. Must be A-F'.format(strength=strength))
 

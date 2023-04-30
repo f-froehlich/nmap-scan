@@ -28,6 +28,8 @@
 
 
 import logging
+from typing import TypeVar, Dict, List
+from xml.etree.ElementTree import Element as XMLElement
 
 from lxml import etree
 
@@ -37,8 +39,6 @@ from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
 from nmap_scan.OS.OSMatch import OSMatch
 from nmap_scan.OS.OSUsedPort import OSUsedPort
 from nmap_scan.Validator import validate
-from xml.etree.ElementTree import Element as XMLElement
-from typing import TypeVar, Dict, Union, List
 
 T = TypeVar('T', bound='OS')
 

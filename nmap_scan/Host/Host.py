@@ -28,6 +28,8 @@
 
 
 import logging
+from typing import TypeVar, Dict, Union, List
+from xml.etree.ElementTree import Element as XMLElement
 
 from lxml import etree
 
@@ -49,8 +51,6 @@ from nmap_scan.Stats.Time import Time
 from nmap_scan.Stats.Uptime import Uptime
 from nmap_scan.Trace.Trace import Trace
 from nmap_scan.Validator import validate
-from xml.etree.ElementTree import Element as XMLElement
-from typing import TypeVar, Dict, Union, List
 
 T = TypeVar('T', bound='Host')
 
@@ -446,13 +446,13 @@ class Host:
     def is_up(self) -> bool:
         return 'up' == self.__status.get_state()
 
-    def is_down(self)-> bool:
+    def is_down(self) -> bool:
         return 'down' == self.__status.get_state()
 
-    def is_unknown(self)-> bool:
+    def is_unknown(self) -> bool:
         return 'unknown' == self.__status.get_state()
 
-    def is_skipped(self)-> bool:
+    def is_skipped(self) -> bool:
         return 'skipped' == self.__status.get_state()
 
     def __parse_xml(self):

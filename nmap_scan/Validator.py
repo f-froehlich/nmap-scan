@@ -24,11 +24,11 @@
 #  and also my other projects <https://github.com/f-froehlich>
 import logging
 import os
+from xml.etree.ElementTree import Element as XMLElement
 
 from lxml import etree
 
 from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
-from xml.etree.ElementTree import Element as XMLElement
 
 
 def validate(xml: XMLElement):

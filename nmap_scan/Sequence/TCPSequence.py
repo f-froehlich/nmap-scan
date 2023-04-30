@@ -28,26 +28,27 @@
 
 
 import logging
+from typing import TypeVar, Dict, Union
+from xml.etree.ElementTree import Element as XMLElement
 
 from lxml import etree
 
 from nmap_scan.Exceptions.NmapDictParserException import NmapDictParserException
 from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
 from nmap_scan.Validator import validate
-from xml.etree.ElementTree import Element as XMLElement
-from typing import TypeVar, Dict, Union
 
 T = TypeVar('T', bound='TCPSequence')
 
+
 class TCPSequence:
 
-    def __init__(self, xml: XMLElement, validate_xml:bool=True):
+    def __init__(self, xml: XMLElement, validate_xml: bool = True):
         if validate_xml:
             validate(xml)
-        self.__xml : XMLElement = xml
-        self.__index : Union[int, None]= None
+        self.__xml: XMLElement = xml
+        self.__index: Union[int, None] = None
         self.__difficulty: Union[str, None] = None
-        self.__values : Union[str, None]= None
+        self.__values: Union[str, None] = None
         self.__parse_xml()
 
     def __eq__(self, other: T) -> bool:
@@ -62,13 +63,13 @@ class TCPSequence:
         yield "values", self.__values
 
     @staticmethod
-    def dict_to_xml(d: Dict[str, any], validate_xml: bool=True) -> T:
+    def dict_to_xml(d: Dict[str, any], validate_xml: bool = True) -> T:
         xml = etree.Element('tcpsequence')
-        if None is not  d.get('index', None):
+        if None is not d.get('index', None):
             xml.attrib['index'] = str(d.get('index', None))
-        if None is not  d.get('values', None):
+        if None is not d.get('values', None):
             xml.attrib['values'] = d.get('values', None)
-        if None is not  d.get('difficulty', None):
+        if None is not d.get('difficulty', None):
             xml.attrib['difficulty'] = d.get('difficulty', None)
 
         if validate_xml:
@@ -88,9 +89,9 @@ class TCPSequence:
 
     def equals(self, other: T) -> bool:
         return isinstance(other, TCPSequence) \
-               and self.__index == other.get_index() \
-               and self.__difficulty == other.get_difficulty() \
-               and self.__values == other.get_values()
+            and self.__index == other.get_index() \
+            and self.__difficulty == other.get_difficulty() \
+            and self.__values == other.get_values()
 
     def get_xml(self) -> XMLElement:
         return self.__xml

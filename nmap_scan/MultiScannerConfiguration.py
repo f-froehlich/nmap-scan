@@ -1,5 +1,10 @@
 #!/usr/bin/python3
 # -*- coding: utf-8
+from typing import Union, Callable, List
+
+from nmap_scan.NmapArgs import NmapArgs
+from nmap_scan.Report.Report import Report
+
 
 #  nmap-scan
 #
@@ -29,20 +34,21 @@
 
 class MultiScannerConfiguration:
 
-    def __init__(self, nmap_args, scan_methods, callback_method=None, use_all_ips=False):
+    def __init__(self, nmap_args: NmapArgs, scan_methods: List[str],
+                 callback_method: Union[Callable[[str, Report, str], None]] = None, use_all_ips: bool = False):
         self.__use_all_ips = use_all_ips
         self.__callback_method = callback_method
         self.__scan_methods = scan_methods
         self.__nmap_args = nmap_args
 
-    def get_callback_method(self):
+    def get_callback_method(self) -> Union[Callable[[str, Report, str], None]]:
         return self.__callback_method
 
-    def get_scan_methods(self):
+    def get_scan_methods(self) -> List[str]:
         return self.__scan_methods
 
-    def get_nmap_args(self):
+    def get_nmap_args(self) -> NmapArgs:
         return self.__nmap_args
 
-    def get_use_all_ips(self):
+    def get_use_all_ips(self) -> bool:
         return self.__use_all_ips

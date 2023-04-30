@@ -28,6 +28,7 @@
 import json
 import logging
 from typing import TypeVar, Mapping
+from xml.etree.ElementTree import Element as XMLElement
 from xml.etree.ElementTree import ElementTree
 
 from lxml import etree
@@ -35,7 +36,6 @@ from lxml import etree
 from nmap_scan.Exceptions.NmapDictParserException import NmapDictParserException
 from nmap_scan.Exceptions.NmapXMLParserException import NmapXMLParserException
 from nmap_scan.Report.Report import Report
-from xml.etree.ElementTree import Element as XMLElement
 
 T = TypeVar('T', bound='Report')
 
