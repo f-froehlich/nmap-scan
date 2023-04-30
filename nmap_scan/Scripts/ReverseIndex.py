@@ -28,7 +28,7 @@
 
 
 import logging
-from typing import TypeVar
+from typing import TypeVar, Dict, List
 from xml.etree.ElementTree import Element as XMLElement
 
 from nmap_scan.CompareHelper import compare_lists
@@ -61,11 +61,11 @@ class ReverseIndex(Script):
     def get_xml(self) -> XMLElement:
         return self.__xml
 
-    def get_port_ip_map(self):
+    def get_port_ip_map(self) -> Dict[str, List[str]]:
         return self.__port_ip_map
 
-    def get_ips_for_port(self, port, proto):
-        return self.__port_ip_map.get(port + '/' + proto, [])
+    def get_ips_for_port(self, port: int, proto: str) -> List[str]:
+        return self.__port_ip_map.get(str(port) + '/' + proto, [])
 
     def __parse_xml(self):
 

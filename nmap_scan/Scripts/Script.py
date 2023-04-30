@@ -28,7 +28,7 @@
 
 
 import logging
-from typing import TypeVar, Dict
+from typing import TypeVar, Dict, List
 from xml.etree.ElementTree import Element as XMLElement
 
 from lxml import etree
@@ -111,16 +111,16 @@ class Script:
     def get_xml(self) -> XMLElement:
         return self.__xml
 
-    def get_elements(self):
+    def get_elements(self) -> List[Element]:
         return self.__elements
 
-    def get_tables(self):
+    def get_tables(self) -> List[Table]:
         return self.__tables
 
-    def get_id(self):
+    def get_id(self) -> str:
         return self.__id
 
-    def get_output(self):
+    def get_output(self) -> str:
         return self.__output
 
     def __parse_xml(self):

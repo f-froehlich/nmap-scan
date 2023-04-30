@@ -28,7 +28,7 @@
 
 
 import logging
-from typing import TypeVar
+from typing import TypeVar, Dict, Union, List
 from xml.etree.ElementTree import Element as XMLElement
 
 from nmap_scan.Exceptions.LogicException import LogicException
@@ -36,6 +36,8 @@ from nmap_scan.Scripts.Script import Script
 from nmap_scan.Validator import validate
 
 T = TypeVar('T', bound='SSLEnumCiphers')
+U = TypeVar('U', bound='SSLEnumCiphersProtocol')
+V = TypeVar('V', bound='SSLEnumCiphersCipher')
 
 
 class SSLEnumCiphers(Script):
@@ -71,13 +73,13 @@ class SSLEnumCiphers(Script):
     def get_xml(self) -> XMLElement:
         return self.__xml
 
-    def get_protocols(self):
+    def get_protocols(self) -> Dict[str, U]:
         return self.__protocols
 
-    def get_protocol(self, version):
+    def get_protocol(self, version: str) -> Union[U, None]:
         return self.__protocols.get(version, None)
 
-    def get_least_strength(self):
+    def get_least_strength(self) -> Union[str, None]:
         return self.__least_strength
 
     def __parse_xml(self):
@@ -92,9 +94,6 @@ class SSLEnumCiphers(Script):
             if 'least strength' == xml_elements.attrib['key']:
                 self.__least_strength = xml_elements.text
         logging.debug('Least strength: "{strength}"'.format(strength=self.__least_strength))
-
-
-U = TypeVar('U', bound='SSLEnumCiphersProtocol')
 
 
 class SSLEnumCiphersProtocol:
@@ -119,19 +118,19 @@ class SSLEnumCiphersProtocol:
     def get_xml(self) -> XMLElement:
         return self.__xml
 
-    def get_ciphers(self):
+    def get_ciphers(self) -> List[V]:
         return self.__ciphers
 
-    def get_compressor(self):
+    def get_compressor(self) -> Union[str, None]:
         return self.__compressors
 
-    def get_least_strength(self):
+    def get_least_strength(self) -> Union[str, None]:
         return self.__least_strength
 
-    def get_cipher_preference(self):
+    def get_cipher_preference(self) -> Union[str, None]:
         return self.__cipher_preference
 
-    def get_protocol_version(self):
+    def get_protocol_version(self) -> Union[str, None]:
         return self.__protocol_version
 
     def equals(self, other: U) -> bool:
@@ -196,9 +195,6 @@ class SSLEnumCiphersProtocol:
         logging.debug('Least strength: "{strength}"'.format(strength=self.__least_strength))
 
 
-V = TypeVar('V', bound='SSLEnumCiphersCipher')
-
-
 class SSLEnumCiphersCipher:
 
     def __init__(self, xml: XMLElement, validate_xml: bool = True):
@@ -219,40 +215,40 @@ class SSLEnumCiphersCipher:
     def get_xml(self) -> XMLElement:
         return self.__xml
 
-    def get_strength(self):
+    def get_strength(self) -> Union[str, None]:
         return self.__strength
 
-    def get_name(self):
+    def get_name(self) -> Union[str, None]:
         return self.__name
 
-    def get_key_info(self):
+    def get_key_info(self) -> Union[str, None]:
         return self.__key_info
 
-    def is_worse_than(self, cipher):
+    def is_worse_than(self, cipher: V) -> bool:
         return self.is_worse_than_strength(cipher.get_strength())
 
-    def is_worse_than_strength(self, strength):
+    def is_worse_than_strength(self, strength: str) -> bool:
 
         return CipherCompare.a_worse_b(self.__strength, strength)
 
-    def is_worse_equals_than(self, cipher):
+    def is_worse_equals_than(self, cipher: V) -> bool:
         return self.is_worse_equals_than_strength(cipher.get_strength())
 
-    def is_worse_equals_than_strength(self, strength):
+    def is_worse_equals_than_strength(self, strength: str) -> bool:
 
         return CipherCompare.a_worse_equals_b(self.__strength, strength)
 
-    def is_better_than(self, cipher):
+    def is_better_than(self, cipher: V) -> bool:
         return self.is_better_than_strength(cipher.get_strength())
 
-    def is_better_than_strength(self, strength):
+    def is_better_than_strength(self, strength: str) -> bool:
 
         return CipherCompare.a_better_b(self.__strength, strength)
 
-    def is_better_equals_than(self, cipher):
+    def is_better_equals_than(self, cipher: V) -> bool:
         return self.is_better_equals_than_strength(cipher.get_strength())
 
-    def is_better_equals_than_strength(self, strength):
+    def is_better_equals_than_strength(self, strength: str) -> bool:
 
         return CipherCompare.a_better_equals_b(self.__strength, strength)
 
@@ -283,47 +279,47 @@ class SSLEnumCiphersCipher:
 class CipherCompare:
 
     @staticmethod
-    def a_lower_b(a, b):
+    def a_lower_b(a: V, b: V) -> bool:
         return CipherCompare.map_strength(a) < CipherCompare.map_strength(b)
 
     @staticmethod
-    def a_lower_equals_b(a, b):
+    def a_lower_equals_b(a: V, b: V) -> bool:
         return CipherCompare.map_strength(a) <= CipherCompare.map_strength(b)
 
     @staticmethod
-    def a_better_b(a, b):
+    def a_better_b(a: V, b: V) -> bool:
         return CipherCompare.a_lower_b(a, b)
 
     @staticmethod
-    def a_better_equals_b(a, b):
+    def a_better_equals_b(a: V, b: V) -> bool:
         return CipherCompare.a_lower_equals_b(a, b)
 
     @staticmethod
-    def a_grater_b(a, b):
+    def a_grater_b(a: V, b: V) -> bool:
         return CipherCompare.map_strength(a) > CipherCompare.map_strength(b)
 
     @staticmethod
-    def a_grater_equals_b(a, b):
+    def a_grater_equals_b(a: V, b: V) -> bool:
         return CipherCompare.map_strength(a) >= CipherCompare.map_strength(b)
 
     @staticmethod
-    def a_worse_b(a, b):
+    def a_worse_b(a: V, b: V) -> bool:
         return CipherCompare.a_grater_b(a, b)
 
     @staticmethod
-    def a_worse_equals_b(a, b):
+    def a_worse_equals_b(a: V, b: V) -> bool:
         return CipherCompare.a_grater_equals_b(a, b)
 
     @staticmethod
-    def a_equals_b(a, b):
+    def a_equals_b(a: V, b: V) -> bool:
         return CipherCompare.map_strength(a) == CipherCompare.map_strength(b)
 
     @staticmethod
-    def a_not_equals_b(a, b):
+    def a_not_equals_b(a: V, b: V) -> bool:
         return CipherCompare.map_strength(a) != CipherCompare.map_strength(b)
 
     @staticmethod
-    def map_strength(strength):
+    def map_strength(strength: str) -> int:
         logging.debug('Map strength "{strength}"'.format(strength=strength))
 
         all_strength = {
@@ -343,7 +339,7 @@ class CipherCompare:
         return mapped_strength
 
     @staticmethod
-    def reverse_map_strength(strength):
+    def reverse_map_strength(strength: int) -> str:
         logging.debug('Reverse map strength "{strength}"'.format(strength=strength))
         all_strength = {
             1: 'A',

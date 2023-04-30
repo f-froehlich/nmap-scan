@@ -28,7 +28,7 @@
 
 
 import logging
-from typing import TypeVar, Union
+from typing import TypeVar, Union, List
 from xml.etree.ElementTree import Element as XMLElement
 
 from nmap_scan.CompareHelper import compare_lists_equal
@@ -36,6 +36,7 @@ from nmap_scan.Scripts.Script import Script
 from nmap_scan.Validator import validate
 
 T = TypeVar('T', bound='SSHHostkey')
+U = TypeVar('U', bound='Key')
 
 
 class SSHHostkey(Script):
@@ -60,7 +61,7 @@ class SSHHostkey(Script):
     def get_xml(self) -> XMLElement:
         return self.__xml
 
-    def get_keys(self):
+    def get_keys(self) -> List[U]:
         return self.__keys
 
     def __parse_xml(self):
@@ -99,16 +100,16 @@ class Key:
     def get_xml(self) -> XMLElement:
         return self.__xml
 
-    def get_bits(self):
+    def get_bits(self) -> int:
         return self.__bits
 
     def get_key(self) -> Union[str, None]:
         return self.__key
 
-    def get_fingerprint(self):
+    def get_fingerprint(self) -> Union[str, None]:
         return self.__fingerprint
 
-    def get_type(self):
+    def get_type(self) -> Union[str, None]:
         return self.__type
 
     def __parse_xml(self):

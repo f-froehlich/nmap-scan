@@ -28,7 +28,7 @@
 
 
 import logging
-from typing import TypeVar
+from typing import TypeVar, List, Dict
 from xml.etree.ElementTree import Element as XMLElement
 
 from nmap_scan.CompareHelper import compare_lists
@@ -71,22 +71,22 @@ class SSH2EnumAlgos(Script):
     def get_xml(self) -> XMLElement:
         return self.__xml
 
-    def get_kex_algorithms(self):
+    def get_kex_algorithms(self) -> List[str]:
         return self.__kex_algorithms
 
-    def get_server_host_key_algorithms(self):
+    def get_server_host_key_algorithms(self) -> List[str]:
         return self.__server_host_key_algorithms
 
-    def get_encryption_algorithms(self):
+    def get_encryption_algorithms(self) -> List[str]:
         return self.__encryption_algorithms
 
-    def get_mac_algorithms(self):
+    def get_mac_algorithms(self) -> List[str]:
         return self.__mac_algorithms
 
-    def get_compression_algorithms(self):
+    def get_compression_algorithms(self) -> List[str]:
         return self.__compression_algorithms
 
-    def get_other(self):
+    def get_other(self) -> Dict[str, List[str]]:
         return self.__other
 
     def __parse_xml(self):
